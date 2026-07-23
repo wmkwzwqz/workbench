@@ -229,7 +229,7 @@
     .header .add-btn { padding: 5px 12px; font-size: 11px; }
     .layout { grid-template-columns: 1fr; padding: 8px; gap: 8px; }
     .sidebar, .right-panel { display: none; }
-    .sidebar.mobile-show, .right-panel.mobile-show { display: flex; flex-direction: column; gap: 10px; }
+    .sidebar.mobile-show, .right-panel.mobile-show { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
     .center-panel { display: flex; }
     .center-panel.mobile-hide { display: none; }
     .calendar-day { min-height: 65px; padding: 3px; }
@@ -556,6 +556,8 @@ function renderAll() {
   renderLongterm(); renderRecurring(); renderQuickInfo(); renderLinks();
   renderCalendar(); renderLog(); renderCards(); renderUpcoming();
   document.getElementById('todayDate').textContent=new Date().toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
+  // Restore mobile tab after re-render
+  if (window.innerWidth <= 768) restoreMobileTab();
 }
 
 // ===== SEARCH =====
@@ -876,13 +878,18 @@ function switchMobileTab(tab) {
 // Detect mobile and init
 function initMobile() {
   if (window.innerWidth <= 768) {
-    switchMobileTab('calendar');
+    // Only init on first load, don't force-switch on resize
+    if (!window._mobileInited) {
+      window._mobileInited = true;
+      switchMobileTab('calendar');
+    }
   } else {
     // Reset desktop state
     document.querySelector('.sidebar').classList.remove('mobile-show');
     document.querySelector('.right-panel').classList.remove('mobile-show');
     document.querySelector('.center-panel').classList.remove('mobile-hide');
     document.querySelector('.center-panel').style.pointerEvents = '';
+    window._mobileInited = false;
   }
 }
 // Restore mobile tab state after modal closes
@@ -891,7 +898,12 @@ function restoreMobileTab() {
     switchMobileTab(currentMobileTab);
   }
 }
-window.addEventListener('resize', initMobile);
+// Debounced resize handler
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(initMobile, 200);
+});
 
 loadData();
 </script>
