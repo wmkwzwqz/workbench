@@ -218,7 +218,48 @@
 
   /* Responsive */
   @media (max-width: 1200px) { .layout { grid-template-columns: 250px 1fr 270px; gap: 10px; padding: 10px; } .search-input { width: 120px; } .search-input:focus { width: 150px; } }
-  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .sidebar, .right-panel { display: none; } }
+
+  /* ===== Mobile: Bottom Tab Bar ===== */
+  .mobile-tab-bar { display: none; }
+  @media (max-width: 768px) {
+    body { padding-bottom: 70px; }
+    .header { height: 48px; padding: 0 12px; }
+    .header h1 { font-size: 15px; }
+    .header .search-wrap, .header .today-date, .header .btn-save { display: none; }
+    .header .add-btn { padding: 5px 12px; font-size: 11px; }
+    .layout { grid-template-columns: 1fr; padding: 8px; gap: 8px; }
+    .sidebar, .right-panel { display: none; }
+    .sidebar.mobile-show, .right-panel.mobile-show { display: flex; flex-direction: column; gap: 10px; }
+    .center-panel { display: flex; }
+    .center-panel.mobile-hide { display: none; }
+    .calendar-day { min-height: 65px; padding: 3px; }
+    .calendar-day .day-num { font-size: 11px; width: 20px; height: 20px; line-height: 20px; }
+    .calendar-header { padding: 8px 10px; }
+    .calendar-month { font-size: 13px; min-width: auto; }
+    .calendar-stats { display: none; }
+    .calendar-footer { font-size: 10px; padding: 6px 10px; }
+    .day-task-dot { font-size: 9px; padding: 2px 4px; }
+
+    /* Bottom tab bar */
+    .mobile-tab-bar {
+      display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 150;
+      background: var(--white); border-top: 1px solid rgba(212,134,156,0.15);
+      box-shadow: 0 -2px 10px rgba(74,63,58,0.06);
+      padding: 6px 0 env(safe-area-inset-bottom, 6px);
+      justify-content: space-around; align-items: center;
+    }
+    .mobile-tab {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      border: none; background: none; cursor: pointer; padding: 4px 12px;
+      font-size: 10px; color: var(--text-muted); transition: var(--transition);
+    }
+    .mobile-tab .tab-icon { font-size: 20px; line-height: 1; }
+    .mobile-tab.active { color: var(--pink-accent); }
+    .mobile-tab.active .tab-icon { transform: scale(1.1); }
+
+    .modal { width: 95vw; padding: 16px; max-height: 80vh; }
+    .toast { bottom: 80px; }
+  }
 
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -393,6 +434,22 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- Mobile Bottom Tab Bar -->
+<nav class="mobile-tab-bar" id="mobileTabBar">
+  <button class="mobile-tab active" data-tab="calendar" onclick="switchMobileTab('calendar')">
+    <span class="tab-icon">📅</span>月历
+  </button>
+  <button class="mobile-tab" data-tab="log" onclick="switchMobileTab('log')">
+    <span class="tab-icon">📝</span>日志
+  </button>
+  <button class="mobile-tab" data-tab="cards" onclick="switchMobileTab('cards')">
+    <span class="tab-icon">📇</span>卡片
+  </button>
+  <button class="mobile-tab" data-tab="more" onclick="switchMobileTab('more')">
+    <span class="tab-icon">📋</span>更多
+  </button>
+</nav>
 
 <script>
 // ===== JSONBIN CONFIG =====
@@ -779,6 +836,52 @@ function toast(msg){const el=document.getElementById('toast');el.textContent=msg
 
 // Modal close on overlay click
 ['taskModal','longtermModal','recurringModal','cardModal','weekSummaryModal'].forEach(id=>{document.getElementById(id).addEventListener('click',function(e){if(e.target===this){if(id==='taskModal')closeTaskModal();else if(id==='longtermModal')closeLongtermModal();else if(id==='recurringModal')closeRecurringModal();else if(id==='cardModal')closeCardModal();else closeWeekSummary()}})});
+
+// ===== MOBILE TAB SWITCH =====
+let currentMobileTab = 'calendar';
+function switchMobileTab(tab) {
+  currentMobileTab = tab;
+  document.querySelectorAll('.mobile-tab').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.mobile-tab[data-tab="${tab}"]`).classList.add('active');
+
+  const sidebar = document.querySelector('.sidebar');
+  const center = document.querySelector('.center-panel');
+  const right = document.querySelector('.right-panel');
+
+  // Hide all
+  sidebar.classList.remove('mobile-show');
+  right.classList.remove('mobile-show');
+  center.classList.remove('mobile-hide');
+
+  if (tab === 'calendar') {
+    center.classList.remove('mobile-hide');
+  } else if (tab === 'log') {
+    center.classList.add('mobile-hide');
+    right.classList.add('mobile-show');
+    // Scroll to log section
+    setTimeout(() => { document.querySelector('.log-section')?.scrollIntoView({behavior:'smooth'}); }, 100);
+  } else if (tab === 'cards') {
+    center.classList.add('mobile-hide');
+    right.classList.add('mobile-show');
+    setTimeout(() => { document.querySelector('.cards-section')?.scrollIntoView({behavior:'smooth'}); }, 100);
+  } else if (tab === 'more') {
+    center.classList.add('mobile-hide');
+    sidebar.classList.add('mobile-show');
+  }
+}
+
+// Detect mobile and init
+function initMobile() {
+  if (window.innerWidth <= 768) {
+    document.querySelector('.sidebar').classList.remove('mobile-show');
+    document.querySelector('.right-panel').classList.remove('mobile-show');
+    document.querySelector('.center-panel').classList.remove('mobile-hide');
+    currentMobileTab = 'calendar';
+    document.querySelectorAll('.mobile-tab').forEach(b => b.classList.remove('active'));
+    document.querySelector('.mobile-tab[data-tab="calendar"]')?.classList.add('active');
+  }
+}
+window.addEventListener('resize', initMobile);
 
 loadData();
 </script>
