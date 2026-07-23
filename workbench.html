@@ -585,7 +585,7 @@ function openLongtermModal(id) {
   }else{document.getElementById('ltModalTitle').textContent='添加长期工作';document.getElementById('ltId').value='';
     document.getElementById('ltTitle').value='';document.getElementById('ltDeadline').value='';document.getElementById('ltDetail').value='';}
 }
-function closeLongtermModal(){document.getElementById('longtermModal').classList.remove('show')}
+function closeLongtermModal(){document.getElementById('longtermModal').classList.remove('show');restoreMobileTab()}
 function saveLongterm() {
   const id=document.getElementById('ltId').value,title=document.getElementById('ltTitle').value.trim(),deadline=document.getElementById('ltDeadline').value,detail=document.getElementById('ltDetail').value.trim();
   if(!title||!deadline){toast('请填写名称和日期');return} if(!data.longtermTasks) data.longtermTasks=[];
@@ -620,7 +620,7 @@ function openRecurringModal(id) {
     document.getElementById('rcTitle').value='';document.getElementById('rcWeekday').value='1';document.getElementById('rcInterval').value='1';
     document.getElementById('rcRefDate').value='';document.getElementById('rcCategory').value='行政';document.getElementById('rcNote').value='';}
 }
-function closeRecurringModal(){document.getElementById('recurringModal').classList.remove('show')}
+function closeRecurringModal(){document.getElementById('recurringModal').classList.remove('show');restoreMobileTab()}
 function saveRecurring() {
   const id=document.getElementById('rcId').value,title=document.getElementById('rcTitle').value.trim(),weekday=parseInt(document.getElementById('rcWeekday').value),weekInterval=parseInt(document.getElementById('rcInterval').value)||1,refDate=document.getElementById('rcRefDate').value,category=document.getElementById('rcCategory').value,note=document.getElementById('rcNote').value.trim();
   if(!title){toast('请填写名称');return} if(!data.recurringTasks) data.recurringTasks=[];
@@ -746,7 +746,7 @@ function openWeekSummary() {
   document.getElementById('weekSummaryContent').textContent=summary;
   document.getElementById('weekSummaryModal').classList.add('show');
 }
-function closeWeekSummary(){document.getElementById('weekSummaryModal').classList.remove('show')}
+function closeWeekSummary(){document.getElementById('weekSummaryModal').classList.remove('show');restoreMobileTab()}
 function copyWeekSummary(){const text=document.getElementById('weekSummaryContent').textContent;navigator.clipboard.writeText(text).then(()=>toast('已复制到剪贴板 📋')).catch(()=>toast('复制失败，请手动选择'))}
 
 // ===== WORK CARDS =====
@@ -776,7 +776,7 @@ function openCardModal(id) {
     document.getElementById('cardTags').value='';document.getElementById('cardProcess').value='';document.getElementById('cardFiles').value='';
     document.getElementById('cardNotes').value='';document.getElementById('cardContacts').value='';}
 }
-function closeCardModal(){document.getElementById('cardModal').classList.remove('show')}
+function closeCardModal(){document.getElementById('cardModal').classList.remove('show');restoreMobileTab()}
 function saveCard() {
   const id=document.getElementById('cardId').value,title=document.getElementById('cardTitle').value.trim(),category=document.getElementById('cardCategory').value;
   const tags=document.getElementById('cardTags').value.split(',').map(t=>t.trim()).filter(Boolean);
@@ -815,7 +815,7 @@ function openTaskModal(taskId,presetDate) {
     document.getElementById('taskCategory').value='行政';document.getElementById('taskPriority').value='medium';
     document.getElementById('taskStatus').value='pending';document.getElementById('taskNote').value='';}
 }
-function closeTaskModal(){document.getElementById('taskModal').classList.remove('show')}
+function closeTaskModal(){document.getElementById('taskModal').classList.remove('show');restoreMobileTab()}
 function saveTask() {
   const id=document.getElementById('taskId').value,title=document.getElementById('taskTitle').value.trim(),date=document.getElementById('taskDate').value,category=document.getElementById('taskCategory').value,priority=document.getElementById('taskPriority').value,status=document.getElementById('taskStatus').value,note=document.getElementById('taskNote').value.trim();
   if(!title||!date){toast('请填写名称和日期');return} if(!data.tasks)data.tasks=[];
@@ -855,17 +855,20 @@ function switchMobileTab(tab) {
 
   if (tab === 'calendar') {
     center.classList.remove('mobile-hide');
+    center.style.pointerEvents = '';
   } else if (tab === 'log') {
     center.classList.add('mobile-hide');
+    center.style.pointerEvents = 'none';
     right.classList.add('mobile-show');
-    // Scroll to log section
     setTimeout(() => { document.querySelector('.log-section')?.scrollIntoView({behavior:'smooth'}); }, 100);
   } else if (tab === 'cards') {
     center.classList.add('mobile-hide');
+    center.style.pointerEvents = 'none';
     right.classList.add('mobile-show');
     setTimeout(() => { document.querySelector('.cards-section')?.scrollIntoView({behavior:'smooth'}); }, 100);
   } else if (tab === 'more') {
     center.classList.add('mobile-hide');
+    center.style.pointerEvents = 'none';
     sidebar.classList.add('mobile-show');
   }
 }
@@ -873,12 +876,19 @@ function switchMobileTab(tab) {
 // Detect mobile and init
 function initMobile() {
   if (window.innerWidth <= 768) {
+    switchMobileTab('calendar');
+  } else {
+    // Reset desktop state
     document.querySelector('.sidebar').classList.remove('mobile-show');
     document.querySelector('.right-panel').classList.remove('mobile-show');
     document.querySelector('.center-panel').classList.remove('mobile-hide');
-    currentMobileTab = 'calendar';
-    document.querySelectorAll('.mobile-tab').forEach(b => b.classList.remove('active'));
-    document.querySelector('.mobile-tab[data-tab="calendar"]')?.classList.add('active');
+    document.querySelector('.center-panel').style.pointerEvents = '';
+  }
+}
+// Restore mobile tab state after modal closes
+function restoreMobileTab() {
+  if (window.innerWidth <= 768 && currentMobileTab !== 'calendar') {
+    switchMobileTab(currentMobileTab);
   }
 }
 window.addEventListener('resize', initMobile);
