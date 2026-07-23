@@ -386,6 +386,14 @@
   .btn-submit { background: linear-gradient(135deg, var(--pink-accent), #C47A8E); border: none; color: white; }
   .btn-submit:hover { box-shadow: 0 4px 14px rgba(212,134,156,0.35); }
   .btn-delete { background: #FFF0F0; border: 1px solid #F0D0D0; color: #C06060; }
+  .btn-save {
+    background: linear-gradient(135deg, var(--blue-accent), #6A8AB8);
+    color: white; border: none; padding: 7px 16px;
+    border-radius: 20px; font-size: 13px; cursor: pointer;
+    transition: var(--transition); font-weight: 500;
+    margin-left: 6px;
+  }
+  .btn-save:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(123, 155, 203, 0.35); }
 
   /* ===== Responsive ===== */
   @media (max-width: 1200px) {
@@ -420,6 +428,7 @@
   </div>
   <div class="header-right">
     <span class="today-date" id="todayDate"></span>
+    <button class="btn-save" onclick="downloadHTML()" title="下载更新后的工作台文件">💾 保存</button>
     <button class="add-btn" onclick="openTaskModal()">+ 新建任务</button>
   </div>
 </header>
@@ -544,7 +553,7 @@ const BUILTIN_DATA = {
     {"id":"r1","title":"周四固定签字","weekday":4,"category":"行政","note":"待补充：找谁签、签什么","active":true},
     {"id":"r2","title":"提醒大家填工作完成表","weekday":5,"category":"行政","note":"每周五提醒各科室填写","active":true},
     {"id":"r3","title":"统一上传工作完成表","weekday":1,"category":"行政","note":"每周一汇总上传","active":true},
-    {"id":"r4","title":"准备行政例会汇报表（双周）","weekday":5,"weekInterval":2,"category":"行政","note":"每两周周五汇���近两周已完成工作，填写行政例会汇报表，为周日院办例会做准备。模版：云盘 / 行政例会汇报表.docx","active":true,"refDate":"2025-07-18"}
+    {"id":"r4","title":"准备行政例会汇报表（双周）","weekday":5,"weekInterval":2,"category":"行政","note":"每两周周五汇总近两周已完成工作，填写行政例会汇报表，为周日院办例会做准备。模版：云盘 / 行政例会汇报表.docx","active":true,"refDate":"2025-07-04"}
   ],
   "longtermTasks": [
     {
@@ -971,6 +980,48 @@ function toast(msg) {
   el.textContent = msg;
   el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+function downloadHTML() {
+  // Get current HTML source
+  let html = document.documentElement.outerHTML;
+
+  // Replace the BUILTIN_DATA in the source with current data
+  const currentData = {
+    tasks: data.tasks || [],
+    recurringTasks: data.recurringTasks || [],
+    longtermTasks: data.longtermTasks || [],
+    quickInfo: data.quickInfo || [],
+    memos: data.memos || [],
+    links: data.links || []
+  };
+  const dataStr = JSON.stringify(currentData, null, 2)
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/"/g, '\\"');
+
+  // Find the BUILTIN_DATA declaration and replace it
+  const startMarker = 'const BUILTIN_DATA = ';
+  const endMarker = ';\\n\\nlet data = {};';
+  const startIdx = html.indexOf(startMarker);
+  const endIdx = html.indexOf('let data = {};', startIdx);
+
+  if (startIdx >= 0 && endIdx >= 0) {
+    const before = html.substring(0, startIdx + startMarker.length);
+    const after = html.substring(endIdx);
+    html = before + JSON.stringify(currentData, null, 2) + ';\n\n' + after;
+  }
+
+  const blob = new Blob(['<!DOCTYPE html>\n' + html.substring(html.indexOf('<html')), ''], {type: 'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'workbench.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('💾 已下载更新后的工作台文件！用它替换原来的文件即可');
 }
 
 document.getElementById('taskModal').addEventListener('click', function(e) {
