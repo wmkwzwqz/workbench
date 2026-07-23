@@ -227,9 +227,9 @@
     .header h1 { font-size: 15px; }
     .header .search-wrap, .header .today-date, .header .btn-save { display: none; }
     .header .add-btn { padding: 5px 12px; font-size: 11px; }
-    .layout { grid-template-columns: 1fr; padding: 8px; gap: 8px; }
+    .layout { grid-template-columns: 1fr; padding: 8px; gap: 8px; min-height: auto; }
     .sidebar, .right-panel { display: none; }
-    .sidebar.mobile-show, .right-panel.mobile-show { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+    .sidebar.mobile-show, .right-panel.mobile-show { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; min-height: calc(100vh - 48px - 70px); }
     .center-panel { display: flex; }
     .center-panel.mobile-hide { display: none; }
     .calendar-day { min-height: 65px; padding: 3px; }
