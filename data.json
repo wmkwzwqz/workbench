@@ -17,6 +17,24 @@
       "priority": "medium",
       "status": "pending",
       "note": "提前通知各科室带教老师"
+    },
+    {
+      "id": 3,
+      "title": "处理工作餐通知",
+      "date": "2025-07-25",
+      "category": "行政",
+      "priority": "medium",
+      "status": "pending",
+      "note": "云盘 / 日常 / 工作餐通知-附件.doc"
+    },
+    {
+      "id": 4,
+      "title": "熟悉申请工作餐的流程",
+      "date": "2026-07-24",
+      "category": "学习",
+      "priority": "medium",
+      "status": "pending",
+      "note": ""
     }
   ],
   "recurringTasks": [
@@ -25,51 +43,48 @@
       "title": "周四固定签字",
       "weekday": 4,
       "category": "行政",
-      "note": "待补充：找谁签字、签什么文件",
+      "note": "待补充：找谁签、签什么",
       "active": true
     },
     {
       "id": "r2",
-      "title": "双周例会",
-      "weekday": 3,
-      "weekInterval": 2,
+      "title": "提醒大家填工作完成表",
+      "weekday": 5,
       "category": "行政",
-      "note": "每两周一次",
+      "note": "每周五提醒各科室填写",
       "active": true
     },
     {
       "id": "r3",
-      "title": "提醒大家填工作完成表",
-      "weekday": 5,
+      "title": "统一上传工作完成表",
+      "weekday": 1,
       "category": "行政",
-      "note": "每周五提醒各科室填写本周工作完成表",
+      "note": "每周一汇总上传",
       "active": true
     },
     {
       "id": "r4",
-      "title": "统一上传工作完成表",
-      "weekday": 1,
+      "title": "准备行政例会汇报表（双周）",
+      "weekday": 5,
+      "weekInterval": 2,
       "category": "行政",
-      "note": "每周一汇总并上传各科室工作完成表",
-      "active": true
+      "note": "每两周周五汇总近两周已完成工作，填写行政例会汇报表，为周日院办例会做准备。",
+      "active": true,
+      "refDate": "2026-07-17"
     }
   ],
-  "pendingFiles": [
+  "longtermTasks": [
     {
-      "id": 1,
-      "title": "工作餐通知-附件.doc",
-      "action": "需处理",
-      "source": "云盘 / 日常",
-      "addedDate": "2025-07-21",
-      "fileId": "YOtteSIQkcbL"
+      "id": "l1",
+      "deadline": "2025-10-15",
+      "title": "收集考核合格证书",
+      "detail": "10月15日前，收集各科室相关人员考核合格证书，统一归档。"
     },
     {
-      "id": 2,
-      "title": "科教部科研管理系统账号密码（更新至20260206）.xlsx",
-      "action": "随时查阅",
-      "source": "云盘 / 日常",
-      "addedDate": "2025-07-21",
-      "fileId": "YKHDWdySPAQa"
+      "id": "l2",
+      "deadline": "2025-07-31",
+      "title": "梳理需法人身份证备案的网站/平台",
+      "detail": "请各科室全面梳理本科室名下需法人身份证备案的各类网站、线上平台，相关清单于7月底前报送至院办。"
     }
   ],
   "quickInfo": [
@@ -78,28 +93,9 @@
       "label": "打印执行单密码",
       "content": "0088 / 270069",
       "category": "密码"
-    },
-    {
-      "id": 2,
-      "label": "科研管理系统账号",
-      "content": "见云盘文件：科教部科研管理系统账号密码.xlsx",
-      "category": "账号"
     }
   ],
-  "memos": [
-    {
-      "id": 1,
-      "content": "记得跟进王主任的课题中期检查安排，7月底前完成",
-      "color": "pink",
-      "createdAt": "2025-07-01"
-    },
-    {
-      "id": 2,
-      "content": "下季度继续教育项目申报材料需提前准备",
-      "color": "blue",
-      "createdAt": "2025-06-28"
-    }
-  ],
+  "memos": [],
   "links": [
     {
       "id": 1,
