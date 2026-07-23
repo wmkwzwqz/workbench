@@ -542,7 +542,16 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ===== BUILT-IN DATA =====
+// ===== JSONBIN CONFIG =====
+const JSONBIN_BIN_ID = '6a61e24cda38895dfe839303';
+const JSONBIN_API_KEY = '$2a$10$y7mtFMt0nMTjwiQFXoP1OeawGMemnxNTufkmLHbYjJaHN5pvyVasy';
+const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+const JSONBIN_HEADERS = {
+  'X-Master-Key': JSONBIN_API_KEY,
+  'Content-Type': 'application/json'
+};
+
+// Fallback data if JSONBin is unreachable
 const BUILTIN_DATA = {
   "tasks": [
     {"id":1,"title":"省级课题申报材料提交","date":"2025-07-18","category":"科研","priority":"high","status":"pending","note":"需准备申报书、伦理审查表、预算表"},
@@ -643,17 +652,38 @@ function getWeekendDates(year, month, weekDays) {
 
 // ===== DATA LOAD =====
 async function loadData() {
+  // Try JSONBin first
   try {
-    const res = await fetch('data.json?' + Date.now());
+    const res = await fetch(`${JSONBIN_URL}/latest`, { headers: JSONBIN_HEADERS });
     if (res.ok) {
-      data = await res.json();
+      const json = await res.json();
+      data = json.record;
+      console.log('✅ 数据从 JSONBin 加载成功');
     } else {
-      throw new Error('not found');
+      throw new Error('JSONBin fetch failed');
     }
   } catch(e) {
+    console.warn('⚠️ JSONBin 不可用，使用本地备用数据', e.message);
     data = JSON.parse(JSON.stringify(BUILTIN_DATA));
   }
   renderAll();
+}
+
+async function saveToCloud() {
+  try {
+    const res = await fetch(JSONBIN_URL, {
+      method: 'PUT',
+      headers: JSONBIN_HEADERS,
+      body: JSON.stringify(data)
+    });
+    if (res.ok) {
+      console.log('✅ 已同步到云端');
+      return true;
+    }
+  } catch(e) {
+    console.warn('⚠️ 云端同步失败', e.message);
+  }
+  return false;
 }
 
 function renderAll() {
@@ -856,12 +886,14 @@ function addMemo() {
   data.memos.unshift({ id, content, color:selectedMemoColor, createdAt: new Date().toISOString().split('T')[0] });
   input.value = '';
   renderMemos();
+  saveToCloud();
   toast('备忘已添加 ✅');
 }
 
 function deleteMemo(id) {
   data.memos = (data.memos||[]).filter(m => m.id !== id);
   renderMemos();
+  saveToCloud();
 }
 
 // ===== UPCOMING =====
@@ -963,6 +995,7 @@ function saveTask() {
 
   closeTaskModal();
   renderAll();
+  saveToCloud();
   toast('任务已保存 ✅');
 }
 
@@ -972,6 +1005,7 @@ function deleteTask() {
   data.tasks = (data.tasks||[]).filter(t => t.id !== id);
   closeTaskModal();
   renderAll();
+  saveToCloud();
   toast('任务已删除');
 }
 
