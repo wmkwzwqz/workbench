@@ -858,7 +858,6 @@ function switchMobileTab(tab) {
   if (tab === 'calendar') {
     center.classList.remove('mobile-hide');
     center.style.pointerEvents = '';
-    // Reset right panel visibility for desktop
     document.querySelector('.log-section').style.display = '';
     document.querySelector('.cards-section').style.display = '';
     document.querySelector('.upcoming-section').style.display = '';
@@ -869,7 +868,6 @@ function switchMobileTab(tab) {
     document.querySelector('.cards-section').style.display = 'none';
     document.querySelector('.log-section').style.display = '';
     document.querySelector('.upcoming-section').style.display = '';
-    setTimeout(() => { document.querySelector('.log-section')?.scrollIntoView({behavior:'smooth'}); }, 100);
   } else if (tab === 'cards') {
     center.classList.add('mobile-hide');
     center.style.pointerEvents = 'none';
@@ -877,12 +875,13 @@ function switchMobileTab(tab) {
     document.querySelector('.log-section').style.display = 'none';
     document.querySelector('.upcoming-section').style.display = 'none';
     document.querySelector('.cards-section').style.display = '';
-    setTimeout(() => { document.querySelector('.cards-section')?.scrollIntoView({behavior:'smooth'}); }, 100);
   } else if (tab === 'more') {
     center.classList.add('mobile-hide');
     center.style.pointerEvents = 'none';
     sidebar.classList.add('mobile-show');
   }
+  // Scroll to top so header doesn't cover content
+  window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
 // Detect mobile and init
