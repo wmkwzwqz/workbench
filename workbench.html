@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐰 工作台</title>
+<style>
+  :root {
+    --cream: #FEF9F0;
+    --cream-dark: #F5EDE0;
+    --pink: #F8E5EC;
+    --pink-dark: #F0D0DC;
+    --pink-accent: #D4869C;
+    --blue: #E6EDF6;
+    --blue-dark: #D0DCF0;
+    --blue-accent: #7B9BCB;
+    --text: #4A3F3A;
+    --text-light: #7A6E66;
+    --text-muted: #A89890;
+    --white: #FFFFFF;
+    --shadow: 0 2px 12px rgba(74, 63, 58, 0.06);
+    --shadow-hover: 0 4px 20px rgba(74, 63, 58, 0.10);
+    --radius: 14px;
+    --radius-sm: 10px;
+    --transition: 0.2s ease;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #FEF9F0 0%, #FDF3F5 30%, #F3F6FB 70%, #FEF9F0 100%);
+    background-attachment: fixed;
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ===== Header ===== */
+  .header {
+    background: var(--white);
+    border-bottom: 1px solid rgba(212, 134, 156, 0.15);
+    padding: 0 28px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 4px rgba(74, 63, 58, 0.04);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .logo-icon { font-size: 26px; line-height: 1; }
+  .header h1 { font-size: 17px; font-weight: 600; }
+  .header-right { display: flex; align-items: center; gap: 16px; }
+  .today-date { font-size: 13px; color: var(--text-light); }
+  .add-btn {
+    background: linear-gradient(135deg, var(--pink-accent), #C47A8E);
+    color: white; border: none; padding: 7px 18px;
+    border-radius: 20px; font-size: 13px; cursor: pointer;
+    transition: var(--transition); font-weight: 500;
+  }
+  .add-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(212, 134, 156, 0.35); }
+
+  /* ===== Layout ===== */
+  .layout {
+    display: grid;
+    grid-template-columns: 280px 1fr 280px;
+    gap: 16px;
+    padding: 16px 20px;
+    max-width: 1520px;
+    margin: 0 auto;
+    min-height: calc(100vh - 56px);
+  }
+
+  /* ===== Left Sidebar ===== */
+  .sidebar { display: flex; flex-direction: column; gap: 14px; }
+
+  .sidebar-section {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(212, 134, 156, 0.08);
+  }
+  .sidebar-section h3 {
+    font-size: 12px;
+    letter-spacing: 1.2px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  /* -- Long-term Tasks -- */
+  .longterm-item {
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+    border: 1px solid rgba(212, 134, 156, 0.12);
+    background: linear-gradient(135deg, #FFFAFB, #FFF5F7);
+    transition: var(--transition);
+    cursor: default;
+  }
+  .longterm-item:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+  .longterm-item .lt-deadline {
+    font-size: 11px;
+    font-weight: 700;
+    color: #E07B5A;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .longterm-item .lt-title {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.5;
+    margin-bottom: 4px;
+  }
+  .longterm-item .lt-detail {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+  .deadline-urgent { color: #E07B5A !important; }
+  .deadline-normal { color: var(--blue-accent) !important; }
+
+  /* -- Quick Info -- */
+  .info-item {
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 6px;
+    border: 1px solid rgba(123, 155, 203, 0.15);
+    background: linear-gradient(135deg, #FAFBFD, #F3F6FB);
+  }
+  .info-item .info-label { font-size: 11px; color: var(--blue-accent); font-weight: 600; margin-bottom: 3px; }
+  .info-item .info-content {
+    font-size: 14px; font-weight: 600;
+    font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+    filter: blur(6px);
+    cursor: pointer;
+    transition: var(--transition);
+    user-select: none;
+  }
+  .info-item .info-content:hover { filter: blur(3px); }
+  .info-item .info-content.revealed { filter: none; }
+
+  /* -- Links -- */
+  .link-item {
+    display: block; padding: 9px 12px; border-radius: var(--radius-sm);
+    cursor: pointer; transition: var(--transition); margin-bottom: 3px;
+    text-decoration: none; color: inherit; font-size: 13px;
+    border: 1px solid transparent;
+  }
+  .link-item:hover { background: var(--cream); border-color: var(--cream-dark); }
+  .link-item .link-cat { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+
+  /* ===== Center Calendar (5-column: Mon-Fri) ===== */
+  .center-panel {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(212, 134, 156, 0.08);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .calendar-header {
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(212, 134, 156, 0.1);
+  }
+  .calendar-nav { display: flex; align-items: center; gap: 12px; }
+  .calendar-nav button {
+    width: 30px; height: 30px;
+    border: 1px solid rgba(212, 134, 156, 0.2);
+    background: var(--white); border-radius: 8px;
+    cursor: pointer; font-size: 13px; color: var(--text);
+    transition: var(--transition);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .calendar-nav button:hover { background: var(--pink); border-color: var(--pink-dark); }
+  .calendar-month { font-size: 16px; font-weight: 600; min-width: 120px; text-align: center; }
+  .calendar-stats { display: flex; gap: 14px; font-size: 12px; }
+  .stat-dot { display: flex; align-items: center; gap: 4px; color: var(--text-light); }
+  .stat-dot span { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .s-high { background: #E07B5A; }
+  .s-medium { background: var(--blue-accent); }
+  .s-low { background: #C9A87C; }
+  .s-recurring { background: #6B9B5E; }
+
+  /* 5-column grid */
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    padding: 6px 8px;
+    gap: 2px;
+    flex: 1;
+  }
+  .calendar-day-header {
+    text-align: center; font-size: 12px;
+    color: var(--text-muted); padding: 8px 0;
+    font-weight: 600; letter-spacing: 0.5px;
+  }
+
+  .calendar-day {
+    padding: 6px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+    border: 2px solid transparent;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .calendar-day:hover { background: var(--cream); }
+  .calendar-day.today {
+    border-color: var(--pink-accent);
+    background: rgba(248, 229, 236, 0.25);
+  }
+  .calendar-day.other-month { opacity: 0.25; }
+  .calendar-day .day-num {
+    font-size: 13px; font-weight: 600; text-align: center;
+    width: 26px; height: 26px; line-height: 26px; border-radius: 50%;
+    margin: 0 auto 4px; flex-shrink: 0;
+  }
+  .calendar-day.today .day-num { background: var(--pink-accent); color: white; }
+  .calendar-day .day-tasks {
+    display: flex; flex-direction: column; gap: 2px; overflow-y: auto; flex: 1;
+  }
+  .day-task-dot {
+    font-size: 11px; padding: 4px 7px; border-radius: 5px;
+    cursor: pointer; font-weight: 500; line-height: 1.4;
+    word-break: break-all;
+  }
+  .task-priority-high { background: #FFE8E0; color: #E07B5A; }
+  .task-priority-medium { background: var(--blue); color: var(--blue-accent); }
+  .task-priority-low { background: var(--cream-dark); color: #C9A87C; }
+  .task-recurring { background: #E8F2E4; color: #6B9B5E; font-style: italic; }
+  .task-done { text-decoration: line-through; opacity: 0.45; }
+
+  .calendar-footer {
+    padding: 10px 20px;
+    border-top: 1px solid rgba(212, 134, 156, 0.1);
+    font-size: 12px; color: var(--text-muted);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+
+  /* Weekend mini panel */
+  .weekend-mini {
+    padding: 8px 16px;
+    border-top: 1px solid rgba(212, 134, 156, 0.08);
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+  .weekend-mini .we-label { font-weight: 600; color: var(--pink-accent); }
+  .weekend-mini .we-dates {
+    display: flex; gap: 10px; flex-wrap: wrap;
+  }
+  .we-date-badge {
+    padding: 2px 10px;
+    border-radius: 10px;
+    background: var(--pink);
+    font-size: 10px;
+    color: var(--pink-accent);
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .we-date-badge:hover { background: var(--pink-dark); }
+
+  /* ===== Right Sidebar ===== */
+  .right-panel { display: flex; flex-direction: column; gap: 14px; }
+
+  /* Memos */
+  .memo-section {
+    background: var(--white); border-radius: var(--radius);
+    padding: 16px; box-shadow: var(--shadow);
+    border: 1px solid rgba(212, 134, 156, 0.08);
+    flex: 1; display: flex; flex-direction: column;
+    min-height: 180px;
+  }
+  .memo-section h3 {
+    font-size: 12px; letter-spacing: 1.2px;
+    color: var(--text-muted); margin-bottom: 12px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .memo-list { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; flex: 1; }
+  .memo-card {
+    padding: 12px 14px; border-radius: var(--radius-sm);
+    font-size: 13px; line-height: 1.6; position: relative;
+    transition: var(--transition); cursor: default; border: 1px solid transparent;
+  }
+  .memo-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+  .memo-card.pink { background: linear-gradient(135deg, #FDF3F7, #F8E5EC); border-color: rgba(212,134,156,0.15); }
+  .memo-card.blue { background: linear-gradient(135deg, #F3F6FB, #E6EDF6); border-color: rgba(123,155,203,0.15); }
+  .memo-card.cream { background: linear-gradient(135deg, #FEFAF4, #F5EDE0); border-color: rgba(201,168,124,0.15); }
+  .memo-card .memo-date { font-size: 10px; color: var(--text-muted); margin-top: 6px; }
+  .memo-delete {
+    position: absolute; top: 8px; right: 10px;
+    width: 20px; height: 20px; border: none; background: transparent;
+    color: var(--text-muted); cursor: pointer; border-radius: 50%;
+    font-size: 14px; opacity: 0; transition: var(--transition);
+  }
+  .memo-card:hover .memo-delete { opacity: 0.5; }
+  .memo-delete:hover { opacity: 1 !important; background: rgba(0,0,0,0.05); }
+  .memo-input-wrap {
+    display: flex; gap: 6px; margin-top: 10px; padding-top: 10px;
+    border-top: 1px solid rgba(212,134,156,0.1);
+  }
+  .memo-input-wrap input {
+    flex: 1; border: 1px solid rgba(212,134,156,0.2); border-radius: 20px;
+    padding: 8px 14px; font-size: 12px; outline: none;
+    transition: var(--transition); background: var(--cream);
+  }
+  .memo-input-wrap input:focus { border-color: var(--pink-accent); background: white; }
+  .memo-color-btns { display: flex; gap: 3px; align-items: center; }
+  .memo-color-btn {
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 2px solid transparent; cursor: pointer; transition: var(--transition);
+  }
+  .memo-color-btn.active { border-color: var(--text); transform: scale(1.15); }
+  .memo-color-btn.pink { background: #F8E5EC; }
+  .memo-color-btn.blue { background: #E6EDF6; }
+  .memo-color-btn.cream { background: #F5EDE0; }
+
+  /* Upcoming */
+  .upcoming-section {
+    background: var(--white); border-radius: var(--radius);
+    padding: 16px; box-shadow: var(--shadow);
+    border: 1px solid rgba(212,134,156,0.08);
+    max-height: 280px; overflow-y: auto;
+  }
+  .upcoming-section h3 {
+    font-size: 12px; letter-spacing: 1.2px;
+    color: var(--text-muted); margin-bottom: 10px;
+  }
+  .upcoming-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 0; border-bottom: 1px solid rgba(212,134,156,0.06);
+    font-size: 12px;
+  }
+  .upcoming-item:last-child { border-bottom: none; }
+  .upcoming-date { font-size: 10px; color: var(--pink-accent); font-weight: 600; min-width: 44px; text-align: center; }
+  .upcoming-title { flex: 1; }
+  .upcoming-priority { font-size: 10px; padding: 2px 8px; border-radius: 8px; font-weight: 500; }
+
+  /* ===== Modal ===== */
+  .modal-overlay {
+    display: none;
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(74,63,58,0.3); z-index: 200;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: white; border-radius: var(--radius); padding: 24px;
+    width: 440px; max-width: 90vw;
+    box-shadow: 0 20px 60px rgba(74,63,58,0.15);
+  }
+  .modal h3 { font-size: 16px; margin-bottom: 16px; }
+  .modal label { display: block; font-size: 12px; color: var(--text-light); margin-bottom: 4px; margin-top: 12px; font-weight: 500; }
+  .modal label:first-of-type { margin-top: 0; }
+  .modal input, .modal select, .modal textarea {
+    width: 100%; border: 1px solid rgba(212,134,156,0.2);
+    border-radius: 8px; padding: 9px 12px; font-size: 13px;
+    outline: none; font-family: inherit; transition: var(--transition);
+  }
+  .modal input:focus, .modal select:focus, .modal textarea:focus {
+    border-color: var(--pink-accent);
+    box-shadow: 0 0 0 3px rgba(212,134,156,0.08);
+  }
+  .modal textarea { resize: vertical; min-height: 60px; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+  .modal-actions button {
+    padding: 8px 20px; border-radius: 20px; font-size: 13px;
+    cursor: pointer; font-weight: 500; transition: var(--transition);
+  }
+  .btn-cancel { background: var(--cream); border: 1px solid rgba(212,134,156,0.15); color: var(--text); }
+  .btn-submit { background: linear-gradient(135deg, var(--pink-accent), #C47A8E); border: none; color: white; }
+  .btn-submit:hover { box-shadow: 0 4px 14px rgba(212,134,156,0.35); }
+  .btn-delete { background: #FFF0F0; border: 1px solid #F0D0D0; color: #C06060; }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 1200px) {
+    .layout { grid-template-columns: 260px 1fr 260px; gap: 12px; padding: 12px; }
+  }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar, .right-panel { display: none; }
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(212,134,156,0.2); border-radius: 4px; }
+
+  .empty-state { text-align: center; color: var(--text-muted); font-size: 12px; padding: 16px; }
+
+  .toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    background: var(--text); color: white; padding: 10px 24px;
+    border-radius: 20px; font-size: 13px; z-index: 999;
+    opacity: 0; transition: opacity 0.3s; pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <span class="logo-icon">🐰</span>
+    <h1>工作台</h1>
+  </div>
+  <div class="header-right">
+    <span class="today-date" id="todayDate"></span>
+    <button class="add-btn" onclick="openTaskModal()">+ 新建任务</button>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- ========== LEFT: 长期工作 + 密码 + 链接 ========== -->
+  <aside class="sidebar">
+
+    <div class="sidebar-section">
+      <h3>📋 长期工作</h3>
+      <div id="longtermList"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>🔐 常用密码 / 信息</h3>
+      <div id="quickInfoList"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>🔗 常用链接</h3>
+      <div id="linkList"></div>
+    </div>
+  </aside>
+
+  <!-- ========== CENTER: 5列月历 (周一~周五) ========== -->
+  <main class="center-panel">
+    <div class="calendar-header">
+      <div class="calendar-nav">
+        <button onclick="changeMonth(-1)">◀</button>
+        <span class="calendar-month" id="calendarMonth"></span>
+        <button onclick="changeMonth(1)">▶</button>
+        <button onclick="goToToday()" style="font-size:11px;width:auto;padding:0 12px;">今天</button>
+      </div>
+      <div class="calendar-stats">
+        <span class="stat-dot"><span class="s-high"></span> 紧急</span>
+        <span class="stat-dot"><span class="s-medium"></span> 一般</span>
+        <span class="stat-dot"><span class="s-low"></span> 低优</span>
+        <span class="stat-dot"><span class="s-recurring"></span> 周期</span>
+      </div>
+    </div>
+    <div class="calendar-grid" id="calendarGrid"></div>
+    <div class="weekend-mini" id="weekendMini"></div>
+    <div class="calendar-footer">
+      <span id="taskCount"></span>
+      <span style="color:#6B9B5E;font-size:11px;">📅 绿色 = 周期任务</span>
+    </div>
+  </main>
+
+  <!-- ========== RIGHT: 备忘 + 即将到期 ========== -->
+  <aside class="right-panel">
+    <div class="memo-section">
+      <h3>📌 备忘便签</h3>
+      <div class="memo-list" id="memoList"></div>
+      <div class="memo-input-wrap">
+        <div class="memo-color-btns">
+          <span class="memo-color-btn pink active" data-color="pink" onclick="selectMemoColor('pink')"></span>
+          <span class="memo-color-btn blue" data-color="blue" onclick="selectMemoColor('blue')"></span>
+          <span class="memo-color-btn cream" data-color="cream" onclick="selectMemoColor('cream')"></span>
+        </div>
+        <input type="text" id="memoInput" placeholder="写一条备忘…" onkeydown="if(event.key==='Enter')addMemo()">
+      </div>
+    </div>
+
+    <div class="upcoming-section">
+      <h3>⏳ 即将到期</h3>
+      <div id="upcomingList"></div>
+    </div>
+  </aside>
+
+</div>
+
+<!-- Task Modal -->
+<div class="modal-overlay" id="taskModal">
+  <div class="modal">
+    <h3 id="modalTitle">新建任务</h3>
+    <input type="hidden" id="taskId">
+    <label>任务名称</label>
+    <input type="text" id="taskTitle" placeholder="输入任务名称…">
+    <label>日期</label>
+    <input type="date" id="taskDate">
+    <label>分类</label>
+    <select id="taskCategory">
+      <option value="科研">科研</option>
+      <option value="教学">教学</option>
+      <option value="行政">行政</option>
+      <option value="学习">学习</option>
+      <option value="其他">其他</option>
+    </select>
+    <label>优先级</label>
+    <select id="taskPriority">
+      <option value="high">🔴 紧急</option>
+      <option value="medium" selected>🔵 一般</option>
+      <option value="low">🟤 低优</option>
+    </select>
+    <label>状态</label>
+    <select id="taskStatus">
+      <option value="pending">待完成</option>
+      <option value="done">已完成</option>
+    </select>
+    <label>备注</label>
+    <textarea id="taskNote" placeholder="补充说明…"></textarea>
+    <div class="modal-actions">
+      <button class="btn-delete" id="btnDeleteTask" style="display:none;margin-right:auto;" onclick="deleteTask()">删除</button>
+      <button class="btn-cancel" onclick="closeTaskModal()">取消</button>
+      <button class="btn-submit" onclick="saveTask()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== BUILT-IN DATA =====
+const BUILTIN_DATA = {
+  "tasks": [
+    {"id":1,"title":"省级课题申报材料提交","date":"2025-07-18","category":"科研","priority":"high","status":"pending","note":"需准备申报书、伦理审查表、预算表"},
+    {"id":2,"title":"住院医师规培月度考核","date":"2025-07-25","category":"教学","priority":"medium","status":"pending","note":"提前通知各科室带教老师"},
+    {"id":3,"title":"处理工作餐通知","date":"2025-07-25","category":"行政","priority":"medium","status":"pending","note":"云盘 / 日常 / 工作餐通知-附件.doc"}
+  ],
+  "recurringTasks": [
+    {"id":"r1","title":"周四固定签字","weekday":4,"category":"行政","note":"待补充：找谁签、签什么","active":true},
+    {"id":"r2","title":"提醒大家填工作完成表","weekday":5,"category":"行政","note":"每周五提醒各科室填写","active":true},
+    {"id":"r3","title":"统一上传工作完成表","weekday":1,"category":"行政","note":"每周一汇总上传","active":true},
+    {"id":"r4","title":"准备行政例会汇报表（双周）","weekday":5,"weekInterval":2,"category":"行政","note":"每两周周五汇���近两周已完成工作，填写行政例会汇报表，为周日院办例会做准备。模版：云盘 / 行政例会汇报表.docx","active":true,"refDate":"2025-07-18"}
+  ],
+  "longtermTasks": [
+    {
+      "id":"l1",
+      "deadline":"2025-10-15",
+      "title":"收集考核合格证书",
+      "detail":"10月15日前，收集各科室相关人员考核合格证书，统一归档。"
+    },
+    {
+      "id":"l2",
+      "deadline":"2025-07-31",
+      "title":"梳理需法人身份证备案的网站/平台",
+      "detail":"请各科室全面梳理本科室名下需法人身份证备案的各类网站、线上平台，相关清单于7月底前报送至院办。后续院办统一发放新版法人身份证，组织各科室完成备案更新工作。"
+    }
+  ],
+  "quickInfo": [
+    {"id":1,"label":"打印执行单密码","content":"0088 / 270069","category":"密码"}
+  ],
+  "memos": [
+    {"id":1,"content":"跟进王主任课题中期检查，7月底前完成","color":"pink","createdAt":"2025-07-01"},
+    {"id":2,"content":"下季度继教项目申报材料提前准备","color":"blue","createdAt":"2025-06-28"}
+  ],
+  "links": [
+    {"id":1,"title":"四川省卫健委官网","url":"https://wsjkw.sc.gov.cn/","category":"常用链接"},
+    {"id":2,"title":"国家自然科学基金委","url":"https://www.nsfc.gov.cn/","category":"常用链接"},
+    {"id":3,"title":"中国知网","url":"https://www.cnki.net/","category":"学术资源"}
+  ]
+};
+
+let data = {};
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
+let selectedMemoColor = 'pink';
+
+// ===== WEEKDAY HELPERS =====
+const WEEKDAY_NAMES = ['一','二','三','四','五'];
+// Map JS getDay() (0=Sun..6=Sat) to our 5-col index (Mon=0..Fri=4), or -1 for weekend
+function jsDayToCol(jsDay) {
+  if (jsDay === 0 || jsDay === 6) return -1; // weekend
+  return jsDay - 1; // Mon=0, Tue=1, ..., Fri=4
+}
+function colToJsDay(col) { return col + 1; } // col 0=Mon -> 1
+
+// Get all dates in a month grouped by week (Mon-Fri only)
+function getMonthWeeks(year, month) {
+  const weeks = [];
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  let currentWeek = [null, null, null, null, null]; // Mon-Fri
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(year, month, d);
+    const col = jsDayToCol(date.getDay());
+    if (col >= 0) {
+      currentWeek[col] = d;
+    }
+    // End of week: when we hit Friday (col=4) or last day
+    if (col === 4 || d === daysInMonth) {
+      if (currentWeek.some(x => x !== null)) {
+        weeks.push([...currentWeek]);
+      }
+      currentWeek = [null, null, null, null, null];
+    }
+  }
+  return weeks;
+}
+
+// Get Sat/Sun dates for a given week (Mon-Fri array)
+function getWeekendDates(year, month, weekDays) {
+  const validDays = weekDays.filter(d => d !== null);
+  if (!validDays.length) return [];
+  // Find the Monday of this week
+  const firstDay = validDays[0];
+  const firstDate = new Date(year, month, firstDay);
+  const dayOfWeek = firstDate.getDay();
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const monday = new Date(year, month, firstDay + mondayOffset);
+  const saturday = new Date(monday);
+  saturday.setDate(monday.getDate() + 5);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+
+  const result = [];
+  if (saturday.getMonth() === month) result.push(saturday.getDate());
+  if (sunday.getMonth() === month) result.push(sunday.getDate());
+  return result;
+}
+
+// ===== DATA LOAD =====
+async function loadData() {
+  try {
+    const res = await fetch('data.json?' + Date.now());
+    if (res.ok) {
+      data = await res.json();
+    } else {
+      throw new Error('not found');
+    }
+  } catch(e) {
+    data = JSON.parse(JSON.stringify(BUILTIN_DATA));
+  }
+  renderAll();
+}
+
+function renderAll() {
+  renderLongterm();
+  renderQuickInfo();
+  renderLinks();
+  renderCalendar();
+  renderMemos();
+  renderUpcoming();
+  document.getElementById('todayDate').textContent =
+    new Date().toLocaleDateString('zh-CN', {year:'numeric',month:'long',day:'numeric',weekday:'short'});
+}
+
+// ===== LEFT: LONG-TERM TASKS =====
+function renderLongterm() {
+  const el = document.getElementById('longtermList');
+  const items = data.longtermTasks || [];
+  if (!items.length) {
+    el.innerHTML = '<div class="empty-state">暂无长期工作</div>';
+    return;
+  }
+  // Sort by deadline
+  const sorted = [...items].sort((a,b) => a.deadline.localeCompare(b.deadline));
+  el.innerHTML = sorted.map(item => {
+    const today = new Date().toISOString().split('T')[0];
+    const isUrgent = item.deadline <= today;
+    const deadlineCls = isUrgent ? 'deadline-urgent' : 'deadline-normal';
+    const icon = isUrgent ? '🔴' : '📅';
+    // Format deadline nicely
+    const d = new Date(item.deadline + 'T00:00:00');
+    const dStr = `${d.getMonth()+1}月${d.getDate()}日`;
+    return `<div class="longterm-item">
+      <div class="lt-deadline ${deadlineCls}">${icon} 截止：${dStr}</div>
+      <div class="lt-title">${item.title}</div>
+      <div class="lt-detail">${item.detail}</div>
+    </div>`;
+  }).join('');
+}
+
+// ===== LEFT: QUICK INFO =====
+function renderQuickInfo() {
+  const el = document.getElementById('quickInfoList');
+  const infos = data.quickInfo || [];
+  if (!infos.length) { el.innerHTML = '<div class="empty-state">暂无信息</div>'; return; }
+  el.innerHTML = infos.map(info => `
+    <div class="info-item">
+      <div class="info-label">${info.category==='密码'?'🔒':'👤'} ${info.label}</div>
+      <div class="info-content" onclick="this.classList.toggle('revealed')" title="点击查看/隐藏">${info.content}</div>
+    </div>
+  `).join('');
+}
+
+// ===== LEFT: LINKS =====
+function renderLinks() {
+  const el = document.getElementById('linkList');
+  const links = data.links || [];
+  if (!links.length) { el.innerHTML = '<div class="empty-state">暂无链接</div>'; return; }
+  el.innerHTML = links.map(l => `
+    <a class="link-item" href="${l.url}" target="_blank">${l.title}<div class="link-cat">${l.category}</div></a>
+  `).join('');
+}
+
+// ===== CALENDAR =====
+function getRecurringForDate(dateStr) {
+  const recurring = data.recurringTasks || [];
+  if (!recurring.length) return [];
+  const d = new Date(dateStr + 'T00:00:00');
+  const weekday = d.getDay();
+  return recurring.filter(rt => {
+    if (!rt.active || rt.weekday !== weekday) return false;
+    // Check weekInterval (for biweekly tasks)
+    if (rt.weekInterval && rt.weekInterval > 1 && rt.refDate) {
+      const ref = new Date(rt.refDate + 'T00:00:00');
+      const diffMs = d.getTime() - ref.getTime();
+      const diffWeeks = Math.round(diffMs / (7 * 24 * 60 * 60 * 1000));
+      if (diffWeeks % rt.weekInterval !== 0) return false;
+    }
+    return true;
+  });
+}
+
+function renderCalendar() {
+  document.getElementById('calendarMonth').textContent = `${currentYear}年 ${currentMonth + 1}月`;
+
+  const grid = document.getElementById('calendarGrid');
+  // Headers: 一 二 三 四 五
+  let html = WEEKDAY_NAMES.map(h => `<div class="calendar-day-header">${h}</div>`).join('');
+
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  const weeks = getMonthWeeks(currentYear, currentMonth);
+  let allWeekendDates = [];
+
+  for (const week of weeks) {
+    for (let col = 0; col < 5; col++) {
+      const dayNum = week[col];
+      if (dayNum === null) {
+        html += '<div class="calendar-day other-month"></div>';
+      } else {
+        const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(dayNum).padStart(2,'0')}`;
+        const isToday = dateStr === todayStr;
+        html += renderDay(dayNum, dateStr, false, isToday);
+      }
+    }
+    // Collect weekend dates
+    const we = getWeekendDates(currentYear, currentMonth, week);
+    allWeekendDates.push(...we);
+  }
+
+  grid.innerHTML = html;
+
+  // Weekend mini bar
+  const weEl = document.getElementById('weekendMini');
+  if (allWeekendDates.length) {
+    const unique = [...new Set(allWeekendDates)].sort((a,b)=>a-b);
+    weEl.innerHTML = `<span class="we-label">📆 周末：</span><div class="we-dates">${unique.map(d => {
+      const ds = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const weTasks = (data.tasks||[]).filter(t => t.date === ds);
+      const hasTask = weTasks.length > 0;
+      return `<span class="we-date-badge" style="${hasTask?'background:#FFE8E0;color:#E07B5A;font-weight:600;':''}" onclick="openTaskModal(null,'${ds}')" title="${hasTask?weTasks.map(t=>t.title).join(' / '):'点击添加任务'}">${d}日${hasTask?' 📌':''}</span>`;
+    }).join('')}</div>`;
+  } else {
+    weEl.innerHTML = '';
+  }
+
+  // Stats
+  const monthTasks = (data.tasks||[]).filter(t => {
+    const td = new Date(t.date);
+    return td.getMonth() === currentMonth && td.getFullYear() === currentYear;
+  });
+  document.getElementById('taskCount').textContent =
+    `本月 ${monthTasks.length} 项任务 · 已完成 ${monthTasks.filter(t=>t.status==='done').length} 项`;
+}
+
+function renderDay(dayNum, dateStr, isOtherMonth, isToday=false) {
+  const tasks = data.tasks || [];
+  const dayTasks = tasks.filter(t => t.date === dateStr);
+  const recurring = getRecurringForDate(dateStr);
+  let cls = 'calendar-day';
+  if (isOtherMonth) cls += ' other-month';
+  if (isToday) cls += ' today';
+
+  const taskDots = [
+    ...dayTasks.map(t => {
+      const prio = t.priority === 'high' ? 'task-priority-high' : t.priority === 'medium' ? 'task-priority-medium' : 'task-priority-low';
+      const done = t.status === 'done' ? ' task-done' : '';
+      return `<div class="day-task-dot ${prio}${done}" onclick="event.stopPropagation();openTaskModal(${t.id})" title="${t.title + (t.note?'\n'+t.note:'')}">${t.title}</div>`;
+    }),
+    ...recurring.map(rt => {
+      return `<div class="day-task-dot task-recurring" title="🔄 ${rt.title} — ${rt.note||''}">${rt.title}</div>`;
+    })
+  ].join('');
+
+  return `<div class="${cls}" onclick="openTaskModal(null, '${dateStr}')">
+    <div class="day-num">${dayNum}</div>
+    <div class="day-tasks">${taskDots}</div>
+  </div>`;
+}
+
+function changeMonth(delta) {
+  currentMonth += delta;
+  if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+  if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+  renderCalendar();
+}
+
+function goToToday() {
+  currentMonth = new Date().getMonth();
+  currentYear = new Date().getFullYear();
+  renderCalendar();
+}
+
+// ===== MEMOS =====
+function renderMemos() {
+  const el = document.getElementById('memoList');
+  const memos = data.memos || [];
+  if (!memos.length) { el.innerHTML = '<div class="empty-state">暂无备忘 ✏️</div>'; return; }
+  el.innerHTML = memos.map(m => `
+    <div class="memo-card ${m.color}">
+      ${m.content}
+      <button class="memo-delete" onclick="deleteMemo(${m.id})" title="删除">×</button>
+      <div class="memo-date">${m.createdAt}</div>
+    </div>
+  `).join('');
+}
+
+function selectMemoColor(color) {
+  selectedMemoColor = color;
+  document.querySelectorAll('.memo-color-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.memo-color-btn.${color}`).classList.add('active');
+}
+
+function addMemo() {
+  const input = document.getElementById('memoInput');
+  const content = input.value.trim();
+  if (!content) return;
+  const memos = data.memos || [];
+  const id = Math.max(0, ...memos.map(m=>m.id)) + 1;
+  if (!data.memos) data.memos = [];
+  data.memos.unshift({ id, content, color:selectedMemoColor, createdAt: new Date().toISOString().split('T')[0] });
+  input.value = '';
+  renderMemos();
+  toast('备忘已添加 ✅');
+}
+
+function deleteMemo(id) {
+  data.memos = (data.memos||[]).filter(m => m.id !== id);
+  renderMemos();
+}
+
+// ===== UPCOMING =====
+function renderUpcoming() {
+  const el = document.getElementById('upcomingList');
+  const tasks = data.tasks || [];
+  const today = new Date().toISOString().split('T')[0];
+  const upcoming = tasks
+    .filter(t => t.status === 'pending' && t.date >= today)
+    .sort((a,b) => a.date.localeCompare(b.date))
+    .slice(0, 5);
+
+  const recurringUpcoming = [];
+  const recurring = data.recurringTasks || [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() + i);
+    const ds = d.toISOString().split('T')[0];
+    const wd = d.getDay();
+    for (const rt of recurring) {
+      if (rt.active && rt.weekday === wd) {
+        recurringUpcoming.push({ title: '🔄 ' + rt.title, date: ds, priority: 'low', isRecurring: true });
+      }
+    }
+  }
+
+  const allUpcoming = [...upcoming, ...recurringUpcoming]
+    .sort((a,b) => a.date.localeCompare(b.date))
+    .slice(0, 6);
+
+  if (!allUpcoming.length) { el.innerHTML = '<div class="empty-state">暂无待办 🎉</div>'; return; }
+
+  el.innerHTML = allUpcoming.map(t => {
+    const prioLabel = t.priority === 'high' ? '紧急' : t.priority === 'medium' ? '一般' : '低优';
+    const prioClass = t.priority === 'high' ? 'task-priority-high' : t.priority === 'medium' ? 'task-priority-medium' : 'task-priority-low';
+    return `<div class="upcoming-item">
+      <span class="upcoming-date">${t.date.slice(5)}</span>
+      <span class="upcoming-title">${t.title}</span>
+      <span class="upcoming-priority ${prioClass}">${prioLabel}</span>
+    </div>`;
+  }).join('');
+}
+
+// ===== TASK MODAL =====
+function openTaskModal(taskId, presetDate) {
+  const modal = document.getElementById('taskModal');
+  modal.classList.add('show');
+  document.getElementById('btnDeleteTask').style.display = 'none';
+  const tasks = data.tasks || [];
+
+  if (taskId) {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+    document.getElementById('modalTitle').textContent = '编辑任务';
+    document.getElementById('taskId').value = task.id;
+    document.getElementById('taskTitle').value = task.title;
+    document.getElementById('taskDate').value = task.date;
+    document.getElementById('taskCategory').value = task.category;
+    document.getElementById('taskPriority').value = task.priority;
+    document.getElementById('taskStatus').value = task.status;
+    document.getElementById('taskNote').value = task.note || '';
+    document.getElementById('btnDeleteTask').style.display = 'inline-block';
+  } else {
+    document.getElementById('modalTitle').textContent = '新建任务';
+    document.getElementById('taskId').value = '';
+    document.getElementById('taskTitle').value = '';
+    document.getElementById('taskDate').value = presetDate || new Date().toISOString().split('T')[0];
+    document.getElementById('taskCategory').value = '行政';
+    document.getElementById('taskPriority').value = 'medium';
+    document.getElementById('taskStatus').value = 'pending';
+    document.getElementById('taskNote').value = '';
+  }
+}
+
+function closeTaskModal() { document.getElementById('taskModal').classList.remove('show'); }
+
+function saveTask() {
+  const id = document.getElementById('taskId').value;
+  const title = document.getElementById('taskTitle').value.trim();
+  const date = document.getElementById('taskDate').value;
+  const category = document.getElementById('taskCategory').value;
+  const priority = document.getElementById('taskPriority').value;
+  const status = document.getElementById('taskStatus').value;
+  const note = document.getElementById('taskNote').value.trim();
+
+  if (!title || !date) { toast('请填写任务名称和日期'); return; }
+  if (!data.tasks) data.tasks = [];
+
+  if (id) {
+    const task = data.tasks.find(t => t.id === parseInt(id));
+    if (task) {
+      task.title = title; task.date = date; task.category = category;
+      task.priority = priority; task.status = status; task.note = note;
+    }
+  } else {
+    const newId = Math.max(0, ...data.tasks.map(t=>t.id)) + 1;
+    data.tasks.push({ id:newId, title, date, category, priority, status, note });
+  }
+
+  closeTaskModal();
+  renderAll();
+  toast('任务已保存 ✅');
+}
+
+function deleteTask() {
+  const id = parseInt(document.getElementById('taskId').value);
+  if (!id || !confirm('确定删除这个任务吗？')) return;
+  data.tasks = (data.tasks||[]).filter(t => t.id !== id);
+  closeTaskModal();
+  renderAll();
+  toast('任务已删除');
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+document.getElementById('taskModal').addEventListener('click', function(e) {
+  if (e.target === this) closeTaskModal();
+});
+
+loadData();
+</script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "省级课题申报材料提交",
+      "date": "2025-07-18",
+      "category": "科研",
+      "priority": "high",
+      "status": "pending",
+      "note": "需准备申报书、伦理审查表、预算表"
+    },
+    {
+      "id": 2,
+      "title": "住院医师规培月度考核",
+      "date": "2025-07-25",
+      "category": "教学",
+      "priority": "medium",
+      "status": "pending",
+      "note": "提前通知各科室带教老师"
+    }
+  ],
+  "recurringTasks": [
+    {
+      "id": "r1",
+      "title": "周四固定签字",
+      "weekday": 4,
+      "category": "行政",
+      "note": "待补充：找谁签字、签什么文件",
+      "active": true
+    },
+    {
+      "id": "r2",
+      "title": "双周例会",
+      "weekday": 3,
+      "weekInterval": 2,
+      "category": "行政",
+      "note": "每两周一次",
+      "active": true
+    },
+    {
+      "id": "r3",
+      "title": "提醒大家填工作完成表",
+      "weekday": 5,
+      "category": "行政",
+      "note": "每周五提醒各科室填写本周工作完成表",
+      "active": true
+    },
+    {
+      "id": "r4",
+      "title": "统一上传工作完成表",
+      "weekday": 1,
+      "category": "行政",
+      "note": "每周一汇总并上传各科室工作完成表",
+      "active": true
+    }
+  ],
+  "pendingFiles": [
+    {
+      "id": 1,
+      "title": "工作餐通知-附件.doc",
+      "action": "需处理",
+      "source": "云盘 / 日常",
+      "addedDate": "2025-07-21",
+      "fileId": "YOtteSIQkcbL"
+    },
+    {
+      "id": 2,
+      "title": "科教部科研管理系统账号密码（更新至20260206）.xlsx",
+      "action": "随时查阅",
+      "source": "云盘 / 日常",
+      "addedDate": "2025-07-21",
+      "fileId": "YKHDWdySPAQa"
+    }
+  ],
+  "quickInfo": [
+    {
+      "id": 1,
+      "label": "打印执行单密码",
+      "content": "0088 / 270069",
+      "category": "密码"
+    },
+    {
+      "id": 2,
+      "label": "科研管理系统账号",
+      "content": "见云盘文件：科教部科研管理系统账号密码.xlsx",
+      "category": "账号"
+    }
+  ],
+  "memos": [
+    {
+      "id": 1,
+      "content": "记得跟进王主任的课题中期检查安排，7月底前完成",
+      "color": "pink",
+      "createdAt": "2025-07-01"
+    },
+    {
+      "id": 2,
+      "content": "下季度继续教育项目申报材料需提前准备",
+      "color": "blue",
+      "createdAt": "2025-06-28"
+    }
+  ],
+  "links": [
+    {
+      "id": 1,
+      "title": "四川省卫健委官网",
+      "url": "https://wsjkw.sc.gov.cn/",
+      "category": "常用链接"
+    },
+    {
+      "id": 2,
+      "title": "国家自然科学基金委",
+      "url": "https://www.nsfc.gov.cn/",
+      "category": "常用链接"
+    },
+    {
+      "id": 3,
+      "title": "中国知网",
+      "url": "https://www.cnki.net/",
+      "category": "学术资源"
+    }
+  ]
+}
