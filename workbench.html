@@ -839,7 +839,9 @@ function openWeekSummary() {
   else{
     const dayMap={};
     weekLogs.forEach(l=>{if(!dayMap[l.date])dayMap[l.date]=[];dayMap[l.date].push(l)});
-    doneTasks.forEach(t=>{if(!dayMap[t.date])dayMap[t.date]=[];dayMap[t.date].push({content:`✅ ${t.title}`,time:'',type:'task',date:t.date})});
+    // 去重：日志里已有的完成记录不再重复
+    const loggedTitles = new Set(weekLogs.map(l => l.content.replace(/^✅ 完成：/, '').trim()));
+    doneTasks.forEach(t=>{if(!loggedTitles.has(t.title)){if(!dayMap[t.date])dayMap[t.date]=[];dayMap[t.date].push({content:`✅ ${t.title}`,time:'',type:'task',date:t.date})}});
     Object.keys(dayMap).sort().forEach(d=>{
       const dObj=new Date(d+'T00:00:00');
       summary+=`\n📌 ${dObj.getMonth()+1}月${dObj.getDate()}日 ${FULL_WEEKDAY_NAMES[dObj.getDay()]}\n`;
@@ -864,7 +866,9 @@ function openLastWeekSummary(){
   else{
     const dayMap={};
     weekLogs.forEach(l=>{if(!dayMap[l.date])dayMap[l.date]=[];dayMap[l.date].push(l)});
-    doneTasks.forEach(t=>{if(!dayMap[t.date])dayMap[t.date]=[];dayMap[t.date].push({content:`✅ ${t.title}`,time:'',type:'task',date:t.date})});
+    // 去重：日志里已有的完成记录不再重复
+    const loggedTitles = new Set(weekLogs.map(l => l.content.replace(/^✅ 完成：/, '').trim()));
+    doneTasks.forEach(t=>{if(!loggedTitles.has(t.title)){if(!dayMap[t.date])dayMap[t.date]=[];dayMap[t.date].push({content:`✅ ${t.title}`,time:'',type:'task',date:t.date})}});
     Object.keys(dayMap).sort().forEach(d=>{
       const dObj=new Date(d+'T00:00:00');
       summary+=`\n📌 ${dObj.getMonth()+1}月${dObj.getDate()}日 ${FULL_WEEKDAY_NAMES[dObj.getDay()]}\n`;
