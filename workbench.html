@@ -61,14 +61,14 @@
   .month-weekdays { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; margin-bottom: 4px; }
   .month-weekdays span { text-align: center; font-size: 10px; color: var(--text-muted); padding: 2px 0; font-weight: 500; }
   .month-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; }
-  .month-cell { text-align: center; padding: 5px 2px; border-radius: 6px; cursor: pointer; transition: var(--transition); border: 1px solid transparent; min-height: 38px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .month-cell { text-align: center; padding: 5px 2px; border-radius: 6px; cursor: pointer; transition: var(--transition); border: 1px solid transparent; min-height: 48px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
   .month-cell:hover { background: var(--cream); border-color: var(--cream-dark); }
   .month-cell.empty { cursor: default; }
   .month-cell.empty:hover { background: transparent; border-color: transparent; }
   .month-cell.today { background: linear-gradient(135deg, var(--pink), var(--pink-dark)); border-color: var(--pink-accent); }
   .month-cell.today .mc-num { color: white; background: var(--pink-accent); }
   .month-cell .mc-num { font-size: 13px; font-weight: 600; width: 26px; height: 26px; line-height: 26px; border-radius: 50%; }
-  .month-cell .mc-dots { display: flex; justify-content: center; align-items: center; gap: 2px; margin-top: 2px; min-height: 5px; }
+  .month-cell .mc-dots { display: flex; justify-content: center; align-items: center; gap: 2px; margin-top: 2px; min-height: 8px; }
   .mc-dot { width: 5px; height: 5px; border-radius: 50%; display: inline-block; }
   .mc-dot.high { background: #E07B5A; } .mc-dot.medium { background: var(--blue-accent); } .mc-dot.low { background: #C9A87C; } .mc-dot.recurring { background: var(--green-accent); }
   .mc-dot-wrap { position: relative; display: inline-block; }
@@ -528,7 +528,8 @@ const BUILTIN_DATA = {
     {"id":"c3","title":"主题党日活动（每月）","category":"admin","tags":["党建","每月","新闻稿"],"process":"1. 撰写活动记录表\n2. 制作活动展示页面\n3. 撰写新闻稿（按需）","files":"","notes":"KK8上传新闻稿流程：流程管理 → 发起 → 宣传统战部 → 融媒体 → 填主题 → 发官网微信 → 行政 → 今日 → 供稿人 → 身份：科教部。\n有问题找：信息中心 冯林。","contacts":"信息中心：冯林"},
     {"id":"c4","title":"台账 & 预算执行单","category":"admin","tags":["财务","签字","执行单"],"process":"1. 打印执行单：账号0088 / 密码270069\n2. 新增支出类 → 执行信息\n3. 点\"+\" → 点\"🔍\"搜索 → 勾选对应预算项目 → √确认\n4. 填执行数 → 备注填项目名称 → 保存 → 提交\n5. 已审核 → 直接打印\n   未审核 → 走签字流程","files":"","notes":"签字流程（按顺序）：\n① 会计审核：曾琳\n② 财务负责人审批：刘源波部长\n③ 0~3000元：分管院长审批（顾）\n④ 0~10000元：+ 财务分管院长审批（高）\n⑤ >10000元：+ 院长审批（谭/赵）\n签完 → 交财务三 谢老师\n\n收单：每周二、四\n签字：周四下午2-4点\n\n特殊规则：\n- 只管职能部门，临床单子给曾老师让他们自己签\n- 民族地区进修项目 → 走往来支付（铅笔标注），不打执行单，只记经费本，找我和刘源波签字\n- 肿瘤相关临床重点经费 → 打执行单后记在本子上","contacts":"会计：曾琳 / 财务负责人：刘源波 / 分管院长：顾 / 财务分管：高 / 院长：谭、赵 / 财务三：谢老师"},
     {"id":"c5","title":"行政例会汇报表（双周）","category":"admin","tags":["例会","双周","汇报"],"process":"1. 汇总前两周已完成工作（科教部）\n2. 未完成工作 → 放入下两周工作计划表\n3. 更多重点工作 → 问李昕\n4. 发给院办 叶老师","files":"","notes":"两周一次。例如7月6日汇报 = 6月22日~7月5日的内容。","contacts":"重点工作咨询：李昕 / 提交：院办 叶老师"},
-    {"id":"c6","title":"议题申报表","category":"admin","tags":["党委会","院长办公会","审议"],"process":"1. 确定金额：≥10万走党委会，<10万走院长办公会\n2. 议题名称格式：审议……事宜\n3. 填写议题审议表\n4. 找顾院签字\n5. 交给院办 叶老师","files":"","notes":"文件命名：38-3703 院长办公会议题审议表＋议题名称。编号已记到38号。","contacts":"签字：顾院 / 提交：院办 叶老师"}
+    {"id":"c6","title":"议题申报表","category":"admin","tags":["党委会","院长办公会","审议"],"process":"1. 确定金额：≥10万走党委会，<10万走院长办公会\n2. 议题名称格式：审议……事宜\n3. 填写议题审议表\n4. 找顾院签字\n5. 交给院办 叶老师","files":"","notes":"文件命名：38-3703 院长办公会议题审议表＋议题名称。编号已记到38号。","contacts":"签字：顾院 / 提交：院办 叶老师"},
+    {"id":"c7","title":"工作用餐审批单","category":"admin","tags":["用餐","审批","签字"],"process":"1. 填写工作用餐审批单\n2. 部门核定人员（经办人/申请人）：杜昀桐\n3. 部门负责人签字：李昕\n4. 分管领导签字：顾院\n5. 后勤保障负责人签字：刘宇部长\n6. 分管领导（后勤）签字：高院","files":"","notes":"审批单需要按顺序逐级签字，不要跳签。\n签字前确认各部门负责人是否在院。","contacts":"经办人：杜昀桐 / 部门负责人：李昕 / 分管领导：顾院 / 后勤保障负责人：刘宇部长 / 分管领导（后勤）：高院"}
   ]
 };
 
