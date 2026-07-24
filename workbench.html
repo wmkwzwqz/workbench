@@ -954,7 +954,7 @@ function renderUpcoming() {
   const ltUp=(data.longtermTasks||[]).filter(lt=>lt.deadline>=today).sort((a,b)=>a.deadline.localeCompare(b.deadline)).map(lt=>({title:'📋 '+lt.title,date:lt.deadline,priority:lt.deadline<=today?'high':'medium',isLongterm:true,ltId:lt.id}));
   const all=[...up,...rUp,...ltUp].sort((a,b)=>a.date.localeCompare(b.date)).slice(0,8);
   if(!all.length){el.innerHTML='<div class="empty-state">暂无待办 🎉</div>';return}
-  el.innerHTML=all.map(t=>{const pl=t.priority==='high'?'紧急':t.priority==='medium'?'一般':'低优',pc=t.priority==='high'?'task-priority-high':t.priority==='medium'?'task-priority-medium':'task-priority-low';const dt=t.date.slice(5);const isUrgent=t.date<=today;return`<div class="upcoming-item${isUrgent?' upcoming-urgent':''}"><span class="upcoming-date">${isUrgent?'🔴 ':''}${dt}</span><span class="upcoming-title" style="cursor:${t.isLongterm?'pointer':'default'}" onclick="${t.isLongterm?`openLongtermModal('${t.ltId}')`:''}">${t.title}</span><span class="upcoming-priority ${pc}">${pl}</span></div>`}).join('');
+  el.innerHTML=all.map(t=>{const dt=t.date.slice(5);const isUrgent=t.date<=today;return`<div class="upcoming-item${isUrgent?' upcoming-urgent':''}"><span class="upcoming-date">${dt}</span><span class="upcoming-title" style="cursor:${t.isLongterm?'pointer':'default'}" onclick="${t.isLongterm?`openLongtermModal('${t.ltId}')`:''}">${t.title}</span>${isUrgent?'<span class="upcoming-priority">🔴</span>':''}</div>`}).join('');
 }
 
 // ===== TASK MODAL =====
