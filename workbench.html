@@ -68,7 +68,7 @@
   .month-cell.today { background: linear-gradient(135deg, var(--pink), var(--pink-dark)); border-color: var(--pink-accent); }
   .month-cell.today .mc-num { color: white; background: var(--pink-accent); }
   .month-cell .mc-num { font-size: 13px; font-weight: 600; width: 26px; height: 26px; line-height: 26px; border-radius: 50%; }
-  .month-cell .mc-dots { display: flex; justify-content: center; align-items: center; gap: 2px; margin-top: 2px; min-height: 8px; }
+  .month-cell .mc-dots { display: flex; justify-content: center; align-items: center; gap: 2px; margin-top: 2px; height: 8px; }
   .mc-dot { width: 5px; height: 5px; border-radius: 50%; display: inline-block; }
   .mc-dot.high { background: #E07B5A; } .mc-dot.medium { background: var(--blue-accent); } .mc-dot.low { background: #C9A87C; } .mc-dot.recurring { background: var(--green-accent); }
   .mc-dot-wrap { position: relative; display: inline-block; }
@@ -745,10 +745,6 @@ function renderSOP() {
       <div class="sop-title">${c.title}</div>
       <div class="sop-preview">${preview}</div>
       <div class="sop-tags">${(c.tags || []).map(t => `<span class="sop-tag">${t}</span>`).join('')}</div>
-      <div class="sop-footer">
-        <span class="sop-contacts">${c.contacts ? c.contacts.split('/')[0] : ''}</span>
-        <span class="sop-arrow">→</span>
-      </div>
     </div>`;
   }).join('');
 }
