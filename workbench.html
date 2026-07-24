@@ -69,7 +69,7 @@
   .month-cell.today .mc-num { color: white; background: var(--pink-accent); }
   .month-cell .mc-num { font-size: 13px; font-weight: 600; width: 26px; height: 26px; line-height: 26px; border-radius: 50%; }
   .month-cell .mc-dots { display: flex; justify-content: center; gap: 2px; margin-top: 1px; }
-  .mc-dot { width: 4px; height: 4px; border-radius: 50%; }
+  .mc-dot { width: 5px; height: 5px; border-radius: 50%; display: inline-block; }
   .mc-dot.high { background: #E07B5A; } .mc-dot.medium { background: var(--blue-accent); } .mc-dot.low { background: #C9A87C; } .mc-dot.recurring { background: var(--green-accent); }
   .mc-dot-wrap { position: relative; display: inline-block; }
   .mc-dot-wrap:hover .mc-tooltip { display: block; }
@@ -242,8 +242,6 @@
   .day-task-popover .pop-close { background: none; border: none; font-size: 16px; cursor: pointer; color: var(--text-muted); padding: 0 4px; }
   .day-task-popover .pop-task-item { display: flex; align-items: center; gap: 6px; padding: 5px 6px; border-radius: 6px; cursor: pointer; font-size: 11px; transition: var(--transition); margin-bottom: 2px; }
   .day-task-popover .pop-task-item:hover { background: var(--cream); }
-  .day-task-popover .pop-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-  .day-task-popover .pop-dot.high { background: #E07B5A; } .day-task-popover .pop-dot.medium { background: var(--blue-accent); } .day-task-popover .pop-dot.low { background: #C9A87C; } .day-task-popover .pop-dot.recurring { background: var(--green-accent); }
   .day-task-popover .pop-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .day-task-popover .pop-done-btn { background: none; border: none; color: var(--green-accent); cursor: pointer; font-size: 14px; padding: 0 3px; }
   .day-task-popover .pop-del-btn { background: none; border: none; color: #C06060; cursor: pointer; font-size: 12px; padding: 0 3px; }
@@ -921,10 +919,8 @@ function openDayPopover(event, ds) {
   } else {
     // Single tasks
     dayTasks.forEach(t => {
-      const p = t.priority === 'high' ? 'high' : t.priority === 'medium' ? 'medium' : 'low';
-      const doneIcon = t.status === 'done' ? '✅' : '';
+      const doneIcon = t.status === 'done' ? '✅ ' : '';
       html += `<div class="pop-task-item" onclick="event.stopPropagation();openTaskModal(${t.id})">
-        <span class="pop-dot ${p}"></span>
         <span class="pop-title">${doneIcon}${escHtml(t.title)}</span>
         ${t.status !== 'done' ? `<button class="pop-done-btn" title="标记完成" onclick="event.stopPropagation();quickDoneTask(${t.id})">✓</button>` : ''}
         <button class="pop-del-btn" title="删除" onclick="event.stopPropagation();quickDeleteTask(${t.id})">×</button>
@@ -933,7 +929,6 @@ function openDayPopover(event, ds) {
     // Recurring (read-only info)
     rec.forEach(rt => {
       html += `<div class="pop-task-item" style="cursor:default">
-        <span class="pop-dot recurring"></span>
         <span class="pop-title">🔄 ${escHtml(rt.title)}</span>
         <span style="font-size:9px;color:var(--text-muted)">周期</span>
       </div>`;
