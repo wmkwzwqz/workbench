@@ -337,10 +337,6 @@
         <div class="pwd-item"><span class="pwd-label">执行单密码</span><span class="pwd-value">270069</span></div>
       </div>
     </div>
-    <div class="sidebar-section">
-      <h3>🔗 常用链接</h3>
-      <div id="linkList"></div>
-    </div>
   </div>
 
   <!-- CENTER: SOP Knowledge Base -->
@@ -579,7 +575,7 @@ async function saveToCloud() {
 async function saveToCloudNow(){saveToLocal();try{await fetch(JSONBIN_URL,{method:'PUT',headers:JSONBIN_HEADERS,body:JSON.stringify(data)})}catch(e){}}
 
 function renderAll() {
-  renderWeekView(); renderLongterm(); renderRecurring(); renderLinks();
+  renderWeekView(); renderLongterm(); renderRecurring();
   renderLog(); renderSOP(); renderUpcoming();
   document.getElementById('todayDate').textContent=new Date().toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
   if(window.innerWidth<=768) restoreMobileTab();
@@ -721,8 +717,8 @@ function toggleRecurring(id){const item=(data.recurringTasks||[]).find(r=>r.id==
 function deleteRecurring(){const id=document.getElementById('rcId').value;if(!id)return;closeRecurringModal();deleteRecurringById(id)}
 function deleteRecurringById(id){if(!confirm('确定删除？'))return;data.recurringTasks=(data.recurringTasks||[]).filter(r=>r.id!==id);renderRecurring();renderWeekView();renderUpcoming();saveToCloud();toast('已删除')}
 
-// ===== LINKS =====
-function renderLinks(){const el=document.getElementById('linkList'),links=data.links||[];if(!links.length){el.innerHTML='<div class="empty-state">暂无</div>';return}el.innerHTML=links.map(l=>`<a class="link-item" href="${l.url}" target="_blank">${l.title}<div class="link-cat">${l.category}</div></a>`).join('')}
+// ===== LINKS (removed - kept stub for compatibility) =====
+function renderLinks(){}
 
 // ===== SOP CARDS =====
 function renderSOP() {
@@ -740,12 +736,10 @@ function renderSOP() {
   el.innerHTML = filtered.map((c, i) => {
     const theme = CARD_THEMES[c.category] || 'theme-pink';
     const icon = CARD_ICONS[c.category] || '📋';
-    const catName = CARD_CAT_NAMES[c.category] || '📋 行政';
     const preview = (c.process || '').split('\n').slice(0, 3).join('\n');
     return `<div class="sop-card ${theme}" onclick="openSOPDetail('${c.id}')">
       <div class="sop-card-top">
         <span class="sop-icon">${icon}</span>
-        <span class="sop-cat-badge">${catName}</span>
       </div>
       <div class="sop-title">${c.title}</div>
       <div class="sop-preview">${preview}</div>
