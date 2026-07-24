@@ -71,6 +71,10 @@
   .month-cell .mc-dots { display: flex; justify-content: center; gap: 2px; margin-top: 1px; }
   .mc-dot { width: 4px; height: 4px; border-radius: 50%; }
   .mc-dot.high { background: #E07B5A; } .mc-dot.medium { background: var(--blue-accent); } .mc-dot.low { background: #C9A87C; } .mc-dot.recurring { background: var(--green-accent); }
+  .mc-dot-wrap { position: relative; display: inline-block; }
+  .mc-dot-wrap:hover .mc-tooltip { display: block; }
+  .mc-tooltip { display: none; position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%); background: var(--text); color: white; font-size: 10px; padding: 3px 8px; border-radius: 4px; white-space: nowrap; z-index: 10; pointer-events: none; }
+  .mc-tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 4px solid transparent; border-top-color: var(--text); }
 
   /* Long-term */
   .sidebar-section { background: var(--white); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); border: 1px solid rgba(212,134,156,0.08); }
@@ -137,6 +141,7 @@
   .upcoming-section h3 { font-size: 11px; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px; }
   .upcoming-item { display: flex; align-items: center; gap: 6px; padding: 5px 0; border-bottom: 1px solid rgba(212,134,156,0.06); font-size: 11px; }
   .upcoming-item:last-child { border-bottom: none; }
+  .upcoming-item.upcoming-urgent { background: linear-gradient(135deg,#FFFAFB,#FFF5F7); border-radius: 4px; padding-left: 4px; }
   .upcoming-date { font-size: 9px; color: var(--pink-accent); font-weight: 600; min-width: 38px; text-align: center; }
   .upcoming-title { flex: 1; }
   .upcoming-priority { font-size: 9px; padding: 2px 6px; border-radius: 6px; font-weight: 500; }
@@ -228,6 +233,23 @@
   .btn-submit { background: linear-gradient(135deg, var(--pink-accent), #C47A8E); border: none; color: white; }
   .btn-submit:hover { box-shadow: 0 4px 14px rgba(212,134,156,0.35); }
   .btn-delete { background: #FFF0F0; border: 1px solid #F0D0D0; color: #C06060; }
+
+  /* Day task popover */
+  .day-task-popover { display: none; position: fixed; background: white; border-radius: var(--radius); box-shadow: 0 8px 32px rgba(74,63,58,0.18); z-index: 250; min-width: 200px; max-width: 260px; padding: 12px; border: 1px solid rgba(212,134,156,0.1); }
+  .day-task-popover.show { display: block; }
+  .day-task-popover .pop-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .day-task-popover .pop-date { font-size: 13px; font-weight: 600; }
+  .day-task-popover .pop-close { background: none; border: none; font-size: 16px; cursor: pointer; color: var(--text-muted); padding: 0 4px; }
+  .day-task-popover .pop-task-item { display: flex; align-items: center; gap: 6px; padding: 5px 6px; border-radius: 6px; cursor: pointer; font-size: 11px; transition: var(--transition); margin-bottom: 2px; }
+  .day-task-popover .pop-task-item:hover { background: var(--cream); }
+  .day-task-popover .pop-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .day-task-popover .pop-dot.high { background: #E07B5A; } .day-task-popover .pop-dot.medium { background: var(--blue-accent); } .day-task-popover .pop-dot.low { background: #C9A87C; } .day-task-popover .pop-dot.recurring { background: var(--green-accent); }
+  .day-task-popover .pop-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .day-task-popover .pop-done-btn { background: none; border: none; color: var(--green-accent); cursor: pointer; font-size: 14px; padding: 0 3px; }
+  .day-task-popover .pop-del-btn { background: none; border: none; color: #C06060; cursor: pointer; font-size: 12px; padding: 0 3px; }
+  .day-task-popover .pop-add-btn { width: 100%; margin-top: 6px; padding: 5px; border: 1px dashed rgba(212,134,156,0.3); background: transparent; border-radius: 6px; cursor: pointer; font-size: 11px; color: var(--text-muted); transition: var(--transition); }
+  .day-task-popover .pop-add-btn:hover { background: var(--cream); color: var(--text); }
+  .day-task-popover .pop-empty { font-size: 11px; color: var(--text-muted); text-align: center; padding: 6px; }
 
   /* Week Summary Modal */
   .week-summary-content { font-size: 13px; line-height: 1.8; white-space: pre-wrap; background: var(--cream); padding: 14px; border-radius: var(--radius-sm); max-height: 400px; overflow-y: auto; }
@@ -464,6 +486,9 @@
   </div>
 </div>
 
+<!-- Day Task Popover -->
+<div class="day-task-popover" id="dayTaskPopover"></div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -572,24 +597,18 @@ function renderWeekView() {
 
   label.textContent = `${y}年 ${m + 1}月`;
 
-  // Build month grid: Mon-Fri only
   const dim = new Date(y, m + 1, 0).getDate();
-  const firstDay = new Date(y, m, 1).getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
-  // Convert to Mon-indexed: Mon=0, Tue=1, Wed=2, Thu=3, Fri=4
-  const firstMonIdx = firstDay === 0 ? -5 : 1 - firstDay; // offset from Mon=0
+  const firstDay = new Date(y, m, 1).getDay();
+  const firstMonIdx = firstDay === 0 ? -5 : 1 - firstDay;
 
   let cells = '';
-  // Leading empty cells
   if (firstMonIdx > 0) {
-    for (let i = 0; i < firstMonIdx; i++) {
-      cells += '<div class="month-cell empty"></div>';
-    }
+    for (let i = 0; i < firstMonIdx; i++) cells += '<div class="month-cell empty"></div>';
   }
 
   for (let d = 1; d <= dim; d++) {
     const date = new Date(y, m, d);
-    const dayOfWeek = date.getDay(); // 0=Sun, 6=Sat
-    // Skip Sat(6) and Sun(0)
+    const dayOfWeek = date.getDay();
     if (dayOfWeek === 0 || dayOfWeek === 6) continue;
 
     const ds = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
@@ -598,15 +617,17 @@ function renderWeekView() {
 
     const dayTasks = (data.tasks || []).filter(t => t.date === ds);
     const rec = getRecurringForDate(ds);
+
+    // Build dots with tooltip
     const dots = [
       ...dayTasks.map(t => {
         const p = t.priority === 'high' ? 'high' : t.priority === 'medium' ? 'medium' : 'low';
-        return `<span class="mc-dot ${p}"></span>`;
+        return `<span class="mc-dot-wrap"><span class="mc-dot ${p}"></span><span class="mc-tooltip">${escHtml(t.title)}</span></span>`;
       }),
-      ...rec.map(() => `<span class="mc-dot recurring"></span>`)
+      ...rec.map(rt => `<span class="mc-dot-wrap"><span class="mc-dot recurring"></span><span class="mc-tooltip">🔄 ${escHtml(rt.title)}</span></span>`)
     ].slice(0, 4).join('');
 
-    cells += `<div class="month-cell ${cls}" onclick="openTaskModal(null,'${ds}')">
+    cells += `<div class="month-cell ${cls}" onclick="openDayPopover(event,'${ds}')">
       <div class="mc-num">${d}</div>
       <div class="mc-dots">${dots}</div>
     </div>`;
@@ -849,13 +870,15 @@ function copyWeekSummary(){const text=document.getElementById('weekSummaryConten
 // ===== UPCOMING =====
 function renderUpcoming() {
   const el=document.getElementById('upcomingList'),tasks=data.tasks||[],today=new Date().toISOString().split('T')[0];
-  const up=tasks.filter(t=>t.status==='pending'&&t.date>=today).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,5);
+  const up=tasks.filter(t=>t.status==='pending'&&t.date>=today).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,4);
   const rUp=[];const recs=data.recurringTasks||[];
   for(let i=0;i<14;i++){const d=new Date();d.setDate(d.getDate()+i);const ds=d.toISOString().split('T')[0],wd=d.getDay();
     for(const rt of recs){if(rt.active===false||rt.weekday!==wd)continue;if(rt.weekInterval&&rt.weekInterval>1&&rt.refDate){const ref=new Date(rt.refDate+'T00:00:00'),dw=Math.round((d.getTime()-ref.getTime())/(7*86400000));if(dw%rt.weekInterval!==0)continue}rUp.push({title:'🔄 '+rt.title,date:ds,priority:'low',isRecurring:true})}}
-  const all=[...up,...rUp].sort((a,b)=>a.date.localeCompare(b.date)).slice(0,6);
+  // Long-term tasks
+  const ltUp=(data.longtermTasks||[]).filter(lt=>lt.deadline>=today).sort((a,b)=>a.deadline.localeCompare(b.deadline)).map(lt=>({title:'📋 '+lt.title,date:lt.deadline,priority:lt.deadline<=today?'high':'medium',isLongterm:true,ltId:lt.id}));
+  const all=[...up,...rUp,...ltUp].sort((a,b)=>a.date.localeCompare(b.date)).slice(0,8);
   if(!all.length){el.innerHTML='<div class="empty-state">暂无待办 🎉</div>';return}
-  el.innerHTML=all.map(t=>{const pl=t.priority==='high'?'紧急':t.priority==='medium'?'一般':'低优',pc=t.priority==='high'?'task-priority-high':t.priority==='medium'?'task-priority-medium':'task-priority-low';return`<div class="upcoming-item"><span class="upcoming-date">${t.date.slice(5)}</span><span class="upcoming-title">${t.title}</span><span class="upcoming-priority ${pc}">${pl}</span></div>`}).join('');
+  el.innerHTML=all.map(t=>{const pl=t.priority==='high'?'紧急':t.priority==='medium'?'一般':'低优',pc=t.priority==='high'?'task-priority-high':t.priority==='medium'?'task-priority-medium':'task-priority-low';const dt=t.date.slice(5);const isUrgent=t.date<=today;return`<div class="upcoming-item${isUrgent?' upcoming-urgent':''}"><span class="upcoming-date">${isUrgent?'🔴 ':''}${dt}</span><span class="upcoming-title" style="cursor:${t.isLongterm?'pointer':'default'}" onclick="${t.isLongterm?`openLongtermModal('${t.ltId}')`:''}">${t.title}</span><span class="upcoming-priority ${pc}">${pl}</span></div>`}).join('');
 }
 
 // ===== TASK MODAL =====
@@ -885,7 +908,96 @@ function saveTask() {
 function deleteTask(){const id=parseInt(document.getElementById('taskId').value);if(!id||!confirm('确定删除？'))return;data.tasks=(data.tasks||[]).filter(t=>t.id!==id);closeTaskModal();renderAll();saveToCloud();toast('已删除')}
 
 // ===== CALENDAR HELPERS =====
+function escHtml(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
 function getRecurringForDate(ds){const rts=data.recurringTasks||[];if(!rts.length)return[];const d=new Date(ds+'T00:00:00'),wd=d.getDay();return rts.filter(rt=>{if(rt.active===false||rt.weekday!==wd)return false;if(rt.weekInterval&&rt.weekInterval>1&&rt.refDate){const ref=new Date(rt.refDate+'T00:00:00'),dw=Math.round((d.getTime()-ref.getTime())/(7*86400000));if(dw%rt.weekInterval!==0)return false}return true})}
+
+// ===== DAY TASK POPOVER =====
+function openDayPopover(event, ds) {
+  event.stopPropagation();
+  const pop = document.getElementById('dayTaskPopover');
+  const dayTasks = (data.tasks || []).filter(t => t.date === ds);
+  const rec = getRecurringForDate(ds);
+  const dObj = new Date(ds + 'T00:00:00');
+  const dateLabel = `${dObj.getMonth()+1}月${dObj.getDate()}日 ${FULL_WEEKDAY_NAMES[dObj.getDay()]}`;
+
+  let html = `<div class="pop-header"><span class="pop-date">${dateLabel}</span><button class="pop-close" onclick="closeDayPopover()">×</button></div>`;
+
+  if (!dayTasks.length && !rec.length) {
+    html += '<div class="pop-empty">这天没有任务</div>';
+  } else {
+    // Single tasks
+    dayTasks.forEach(t => {
+      const p = t.priority === 'high' ? 'high' : t.priority === 'medium' ? 'medium' : 'low';
+      const doneIcon = t.status === 'done' ? '✅' : '';
+      html += `<div class="pop-task-item" onclick="event.stopPropagation();openTaskModal(${t.id})">
+        <span class="pop-dot ${p}"></span>
+        <span class="pop-title">${doneIcon}${escHtml(t.title)}</span>
+        ${t.status !== 'done' ? `<button class="pop-done-btn" title="标记完成" onclick="event.stopPropagation();quickDoneTask(${t.id})">✓</button>` : ''}
+        <button class="pop-del-btn" title="删除" onclick="event.stopPropagation();quickDeleteTask(${t.id})">×</button>
+      </div>`;
+    });
+    // Recurring (read-only info)
+    rec.forEach(rt => {
+      html += `<div class="pop-task-item" style="cursor:default">
+        <span class="pop-dot recurring"></span>
+        <span class="pop-title">🔄 ${escHtml(rt.title)}</span>
+        <span style="font-size:9px;color:var(--text-muted)">周期</span>
+      </div>`;
+    });
+  }
+
+  html += `<button class="pop-add-btn" onclick="event.stopPropagation();closeDayPopover();openTaskModal(null,'${ds}')">+ 添加任务</button>`;
+  pop.innerHTML = html;
+  pop.classList.add('show');
+
+  // Position near click
+  const rect = event.target.closest('.month-cell')?.getBoundingClientRect();
+  if (rect) {
+    let left = rect.left + rect.width / 2 - 110;
+    let top = rect.bottom + 4;
+    if (left < 10) left = 10;
+    if (left + 260 > window.innerWidth) left = window.innerWidth - 270;
+    if (top + 300 > window.innerHeight) top = rect.top - 300;
+    pop.style.left = left + 'px';
+    pop.style.top = top + 'px';
+  }
+
+  // Close on outside click
+  setTimeout(() => {
+    document.addEventListener('click', closeDayPopoverOnOutside);
+  }, 0);
+}
+
+function closeDayPopover() {
+  document.getElementById('dayTaskPopover').classList.remove('show');
+  document.removeEventListener('click', closeDayPopoverOnOutside);
+}
+
+function closeDayPopoverOnOutside(e) {
+  const pop = document.getElementById('dayTaskPopover');
+  if (!pop.classList.contains('show')) return;
+  if (!pop.contains(e.target)) closeDayPopover();
+}
+
+function quickDoneTask(id) {
+  const t = (data.tasks || []).find(x => x.id === id);
+  if (!t) return;
+  t.status = 'done';
+  autoLogTaskDone(t.title);
+  closeDayPopover();
+  renderAll();
+  saveToCloud();
+  toast('已标记完成 ✅');
+}
+
+function quickDeleteTask(id) {
+  if (!confirm('确定删除这个任务？')) return;
+  data.tasks = (data.tasks || []).filter(t => t.id !== id);
+  closeDayPopover();
+  renderAll();
+  saveToCloud();
+  toast('已删除');
+}
 
 // ===== DOWNLOAD =====
 function downloadHTML(){saveToCloudNow();const cd={tasks:data.tasks||[],recurringTasks:data.recurringTasks||[],longtermTasks:data.longtermTasks||[],quickInfo:data.quickInfo||[],memos:data.memos||[],links:data.links||[],workLogs:data.workLogs||[],workCards:data.workCards||[]};const h=document.documentElement.outerHTML;const si=h.indexOf('const BUILTIN_DATA = '),ei=h.indexOf(';\n\nlet data = {};',si);let nh;if(si>=0&&ei>=0){nh='<!DOCTYPE html>\n'+h.substring(h.indexOf('<html'));nh=nh.substring(0,si+'const BUILTIN_DATA = '.length)+JSON.stringify(cd,null,2)+';\n\n'+nh.substring(ei)}else nh='<!DOCTYPE html>\n'+h.substring(h.indexOf('<html'));const b=new Blob([nh],{type:'text/html'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='workbench.html';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);toast('💾 已下载！')}
@@ -918,6 +1030,9 @@ window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setT
 // Modal close on overlay click
 ['taskModal','longtermModal','recurringModal','weekSummaryModal'].forEach(id=>{document.getElementById(id).addEventListener('click',function(e){if(e.target===this){if(id==='taskModal')closeTaskModal();else if(id==='longtermModal')closeLongtermModal();else if(id==='recurringModal')closeRecurringModal();else closeWeekSummary()}})});
 document.getElementById('sopDetailOverlay').addEventListener('click',function(e){if(e.target===this){if(!currentSOPId)saveNewSOP();else closeSOPDetail()}});
+
+// Close day popover on scroll
+window.addEventListener('scroll', () => { const p = document.getElementById('dayTaskPopover'); if (p.classList.contains('show')) closeDayPopover(); }, true);
 
 loadData();
 </script>
