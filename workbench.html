@@ -101,6 +101,16 @@
   .rc-actions button { width: 18px; height: 18px; border: none; background: rgba(0,0,0,0.04); border-radius: 50%; cursor: pointer; font-size: 9px; color: var(--text-muted); }
   .rc-actions button.toggle-btn { width: auto; padding: 0 5px; border-radius: 7px; }
 
+  /* People */
+  .people-item { padding: 8px 10px; border-radius: var(--radius-sm); margin-bottom: 4px; border: 1px solid rgba(155,123,184,0.2); background: linear-gradient(135deg,#FAF7FC,#F0E8F5); font-size: 11px; position: relative; transition: var(--transition); cursor: pointer; }
+  .people-item:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+  .people-item .pp-name { font-weight: 600; color: var(--purple-accent); margin-bottom: 2px; }
+  .people-item .pp-role { font-size: 10px; color: var(--text-light); }
+  .people-item .pp-location { font-size: 10px; color: var(--text-muted); margin-top: 3px; padding-top: 3px; border-top: 1px dashed rgba(155,123,184,0.15); }
+  .pp-actions { position: absolute; top: 6px; right: 6px; display: flex; gap: 2px; opacity: 0; transition: var(--transition); }
+  .people-item:hover .pp-actions { opacity: 1; }
+  .pp-actions button { width: 18px; height: 18px; border: none; background: rgba(0,0,0,0.04); border-radius: 50%; cursor: pointer; font-size: 9px; color: var(--text-muted); }
+
   /* Password */
   .pwd-items { display: flex; flex-direction: column; gap: 6px; }
   .pwd-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid rgba(123,155,203,0.15); background: linear-gradient(135deg,#FAFBFD,#F3F6FB); }
@@ -361,6 +371,11 @@
       <div id="recurringList"></div>
       <button class="rc-add-btn" onclick="openRecurringModal()">+ 添加</button>
     </div>
+    <div class="sidebar-section">
+      <h3>👥 常联系人</h3>
+      <div id="peopleList"></div>
+      <button class="lt-add-btn" onclick="openPeopleModal()">+ 添加</button>
+    </div>
   </div>
 
 </div>
@@ -430,6 +445,21 @@
   </div>
 </div>
 
+<!-- People Modal -->
+<div class="modal-overlay" id="peopleModal">
+  <div class="modal">
+    <h3 id="pModalTitle">添加联系人</h3><input type="hidden" id="pId">
+    <label>姓名 / 称呼</label><input type="text" id="pName" placeholder="如：顾院、李昕、叶老师…">
+    <label>角色 / 事项</label><input type="text" id="pRole" placeholder="如：分管院长签字、院办提交…">
+    <label>办公室位置</label><input type="text" id="pLocation" placeholder="如：门上有个蓝色贴贴那个办公室…">
+    <div class="modal-actions">
+      <button class="btn-delete" id="btnDeleteP" style="display:none;margin-right:auto;" onclick="deletePerson()">删除</button>
+      <button class="btn-cancel" onclick="closePeopleModal()">取消</button>
+      <button class="btn-submit" onclick="savePerson()">保存</button>
+    </div>
+  </div>
+</div>
+
 <!-- SOP Detail View (WYSIWYG) -->
 <div class="sop-detail-overlay" id="sopDetailOverlay">
   <div class="sop-detail">
@@ -494,6 +524,18 @@ const BUILTIN_DATA = {
     {"id":"l1","deadline":"2025-10-15","title":"收集考核合格证书","detail":"10月15日前，收集各科室相关人员考核合格证书，统一归档。"},
     {"id":"l2","deadline":"2025-07-31","title":"梳理需法人身份证备案的网站/平台","detail":"请各科室全面梳理本科室名下需法人身份证备案的各类网站、线上平台，相关清单于7月底前报送至院办。后续院办统一发放新版法人身份证，组织各科室完成备案更新工作。"}
   ],
+  "people": [
+    {"id":"p1","name":"李昕","role":"部门负责人 / 重点工作咨询","location":"科教部办公室"},
+    {"id":"p2","name":"顾院","role":"分管院长签字","location":"门上有个蓝色贴贴那个办公室"},
+    {"id":"p3","name":"高院","role":"财务分管院长签字","location":"运营管理部对面那个办公室"},
+    {"id":"p4","name":"赵院","role":"院长签字","location":"院办对面办公室"},
+    {"id":"p5","name":"叶老师","role":"院办提交材料","location":"院办"},
+    {"id":"p6","name":"刘源波","role":"财务负责人审批","location":"财务部"},
+    {"id":"p7","name":"曾琳","role":"会计审核","location":"财务部"},
+    {"id":"p8","name":"刘宇","role":"后勤保障负责人签字","location":"后勤保障部"},
+    {"id":"p9","name":"谢老师","role":"财务三收单","location":"财务部"},
+    {"id":"p10","name":"冯林","role":"信息中心 / KK8新闻稿上传","location":"信息中心"}
+  ],
   "workLogs": [
     {"id":"log1","content":"处理了省级课题申报材料的格式问题","date":"2025-07-17","time":"14:30","type":"manual"},
     {"id":"log2","content":"完成住院医师规培月度考核通知草拟","date":"2025-07-18","time":"10:15","type":"manual"}
@@ -537,6 +579,7 @@ async function loadData() {
     const builtin=JSON.parse(JSON.stringify(BUILTIN_DATA));
     if(!data.workLogs) data.workLogs=builtin.workLogs||[];
     if(!data.workCards||!data.workCards.length) data.workCards=builtin.workCards||[];
+    if(!data.people||!data.people.length) data.people=builtin.people||[];
     saveToLocal();
   }
   renderAll();
@@ -551,7 +594,7 @@ async function saveToCloudNow(){saveToLocal();try{await fetch(JSONBIN_URL,{metho
 
 function renderAll() {
   renderWeekView(); renderLongterm(); renderRecurring();
-  renderLog(); renderSOP(); renderUpcoming();
+  renderLog(); renderSOP(); renderUpcoming(); renderPeople();
   document.getElementById('todayDate').textContent=new Date().toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
   if(window.innerWidth<=768) restoreMobileTab();
 }
@@ -690,6 +733,39 @@ function saveRecurring() {
 function toggleRecurring(id){const item=(data.recurringTasks||[]).find(r=>r.id===id);if(!item)return;item.active=!item.active;renderRecurring();renderWeekView();renderUpcoming();saveToCloud();toast(item.active?'已启用':'已停用')}
 function deleteRecurring(){const id=document.getElementById('rcId').value;if(!id)return;closeRecurringModal();deleteRecurringById(id)}
 function deleteRecurringById(id){if(!confirm('确定删除？'))return;data.recurringTasks=(data.recurringTasks||[]).filter(r=>r.id!==id);renderRecurring();renderWeekView();renderUpcoming();saveToCloud();toast('已删除')}
+
+// ===== PEOPLE =====
+function renderPeople() {
+  const el=document.getElementById('peopleList'),items=data.people||[];
+  if(!items.length){el.innerHTML='<div class="empty-state">暂无</div>';return}
+  el.innerHTML=items.map(p=>{
+    return `<div class="people-item" onclick="openPeopleModal('${p.id}')">
+      <div class="pp-name">${escHtml(p.name)}</div>
+      <div class="pp-role">${escHtml(p.role||'')}</div>
+      ${p.location?`<div class="pp-location">📍 ${escHtml(p.location)}</div>`:''}
+      <div class="pp-actions"><button onclick="event.stopPropagation();openPeopleModal('${p.id}')">✎</button><button onclick="event.stopPropagation();deletePersonById('${p.id}')">×</button></div>
+    </div>`;
+  }).join('');
+}
+function openPeopleModal(id) {
+  document.getElementById('peopleModal').classList.add('show');document.getElementById('btnDeleteP').style.display='none';
+  if(id){const item=(data.people||[]).find(p=>p.id===id);if(!item)return;
+    document.getElementById('pModalTitle').textContent='编辑联系人';document.getElementById('pId').value=item.id;
+    document.getElementById('pName').value=item.name;document.getElementById('pRole').value=item.role||'';
+    document.getElementById('pLocation').value=item.location||'';document.getElementById('btnDeleteP').style.display='inline-block';
+  }else{document.getElementById('pModalTitle').textContent='添加联系人';document.getElementById('pId').value='';
+    document.getElementById('pName').value='';document.getElementById('pRole').value='';document.getElementById('pLocation').value='';}
+}
+function closePeopleModal(){document.getElementById('peopleModal').classList.remove('show');restoreMobileTab()}
+function savePerson() {
+  const id=document.getElementById('pId').value,name=document.getElementById('pName').value.trim(),role=document.getElementById('pRole').value.trim(),location=document.getElementById('pLocation').value.trim();
+  if(!name){toast('请填写姓名');return} if(!data.people) data.people=[];
+  if(id){const item=data.people.find(p=>p.id===id);if(item){item.name=name;item.role=role;item.location=location}}
+  else data.people.push({id:'p'+Date.now(),name,role,location});
+  closePeopleModal();renderPeople();saveToCloud();toast('已保存 ✅');
+}
+function deletePerson(){const id=document.getElementById('pId').value;if(!id)return;closePeopleModal();deletePersonById(id)}
+function deletePersonById(id){if(!confirm('确定删除？'))return;data.people=(data.people||[]).filter(p=>p.id!==id);renderPeople();saveToCloud();toast('已删除')}
 
 // ===== SOP CARDS =====
 function renderSOP() {
@@ -1050,7 +1126,7 @@ function quickDeleteTask(id) {
 }
 
 // ===== DOWNLOAD =====
-function downloadHTML(){saveToCloudNow();const cd={tasks:data.tasks||[],recurringTasks:data.recurringTasks||[],longtermTasks:data.longtermTasks||[],workLogs:data.workLogs||[],workCards:data.workCards||[]};const h=document.documentElement.outerHTML;const si=h.indexOf('const BUILTIN_DATA = '),ei=h.indexOf(';\n\nlet data = {};',si);let nh;if(si>=0&&ei>=0){nh='<!DOCTYPE html>\n'+h.substring(h.indexOf('<html'));nh=nh.substring(0,si+'const BUILTIN_DATA = '.length)+JSON.stringify(cd,null,2)+';\n\n'+nh.substring(ei)}else nh='<!DOCTYPE html>\n'+h.substring(h.indexOf('<html'));const b=new Blob([nh],{type:'text/html'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='workbench.html';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);toast('💾 已下载！')}
+function downloadHTML(){saveToCloudNow();const cd={tasks:data.tasks||[],recurringTasks:data.recurringTasks||[],longtermTasks:data.longtermTasks||[],workLogs:data.workLogs||[],workCards:data.workCards||[],people:data.people||[]};const h=document.documentElement.outerHTML;const si=h.indexOf('const BUILTIN_DATA = '),ei=h.indexOf(';\n\nlet data = {};',si);let nh;if(si>=0&&ei>=0){nh='<!DOCTYPE html>\n'+h.substring(h.indexOf('<html'));nh=nh.substring(0,si+'const BUILTIN_DATA = '.length)+JSON.stringify(cd,null,2)+';\n\n'+nh.substring(ei)}else nh='<!DOCTYPE html>\n'+h.substring(h.indexOf('<html'));const b=new Blob([nh],{type:'text/html'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='workbench.html';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);toast('💾 已下载！')}
 
 // ===== TOAST =====
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2000)}
@@ -1078,7 +1154,7 @@ let resizeTimer;
 window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(initMobile,200)});
 
 // Modal close on overlay click
-['taskModal','longtermModal','recurringModal','weekSummaryModal'].forEach(id=>{document.getElementById(id).addEventListener('click',function(e){if(e.target===this){if(id==='taskModal')closeTaskModal();else if(id==='longtermModal')closeLongtermModal();else if(id==='recurringModal')closeRecurringModal();else closeWeekSummary()}})});
+['taskModal','longtermModal','recurringModal','peopleModal','weekSummaryModal'].forEach(id=>{document.getElementById(id).addEventListener('click',function(e){if(e.target===this){if(id==='taskModal')closeTaskModal();else if(id==='longtermModal')closeLongtermModal();else if(id==='recurringModal')closeRecurringModal();else if(id==='peopleModal')closePeopleModal();else closeWeekSummary()}})});
 document.getElementById('sopDetailOverlay').addEventListener('click',function(e){if(e.target===this)closeSOPDetail()});
 
 // Close day popover on scroll
