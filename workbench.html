@@ -45,7 +45,7 @@
   .search-icon { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--text-muted); pointer-events: none; }
 
   /* ===== Layout ===== */
-  .layout { display: grid; grid-template-columns: 320px 1fr; gap: 16px; padding: 16px 20px; max-width: 1400px; margin: 0 auto; min-height: calc(100vh - 52px); }
+  .layout { display: grid; grid-template-columns: 280px 1fr 280px; gap: 14px; padding: 14px 16px; max-width: 1500px; margin: 0 auto; min-height: calc(100vh - 52px); }
 
   /* ===== Left: Tasks + Log ===== */
   .left-col { display: flex; flex-direction: column; gap: 14px; }
@@ -131,6 +131,7 @@
 
   /* ===== Right: SOP Knowledge Base ===== */
   .right-col { display: flex; flex-direction: column; gap: 14px; }
+  .center-col { display: flex; flex-direction: column; gap: 14px; }
 
   .sop-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
   .sop-header h2 { font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
@@ -192,6 +193,19 @@
   .sop-detail-actions { padding: 16px 28px; border-top: 1px solid rgba(0,0,0,0.06); display: flex; justify-content: flex-end; gap: 10px; }
   .sop-detail-actions button { padding: 8px 20px; border-radius: 20px; font-size: 13px; cursor: pointer; font-weight: 500; transition: var(--transition); }
 
+  /* WYSIWYG textarea styles */
+  .sop-detail-title-edit { border: 2px solid transparent; font-size: 20px; font-weight: 600; padding: 6px 10px; border-radius: 8px; width: 100%; font-family: inherit; color: var(--text); background: transparent; outline: none; transition: var(--transition); margin-bottom: 4px; margin-left: -10px; }
+  .sop-detail-title-edit:hover { background: var(--cream); }
+  .sop-detail-title-edit:focus { background: var(--white); border-color: var(--pink-accent); box-shadow: 0 0 0 3px rgba(212,134,156,0.08); }
+  .sop-process-edit, .sop-notes-edit, .sop-files-edit, .sop-contacts-edit { border: 2px solid transparent; font-size: 13px; padding: 14px 18px; border-radius: var(--radius-sm); width: 100%; font-family: inherit; outline: none; transition: var(--transition); resize: vertical; min-height: 80px; line-height: 1.8; }
+  .sop-process-edit { background: var(--cream); }
+  .sop-notes-edit { background: linear-gradient(135deg,#FAFBFD,#F3F6FB); border-left: 3px solid var(--blue-accent); }
+  .sop-files-edit { background: var(--cream); min-height: 50px; }
+  .sop-contacts-edit { background: linear-gradient(135deg,#FDF3F7,#F8E5EC); min-height: 50px; }
+  .sop-process-edit:hover, .sop-notes-edit:hover, .sop-files-edit:hover, .sop-contacts-edit:hover { background: var(--white); }
+  .sop-process-edit:focus, .sop-notes-edit:focus, .sop-files-edit:focus, .sop-contacts-edit:focus { background: var(--white); border-color: var(--pink-accent); box-shadow: 0 0 0 3px rgba(212,134,156,0.08); }
+  .inline-edit-hint { font-size: 10px; color: var(--text-muted); font-weight: 400; margin-left: 8px; opacity: 0.7; }
+
   /* ===== Modals ===== */
   .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(74,63,58,0.3); z-index: 200; align-items: center; justify-content: center; }
   .modal-overlay.show { display: flex; }
@@ -215,15 +229,15 @@
   .copy-btn:hover { transform: translateY(-1px); }
 
   /* ===== Responsive ===== */
-  @media (max-width: 1100px) { .layout { grid-template-columns: 280px 1fr; gap: 12px; padding: 12px; } .sop-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 1100px) { .layout { grid-template-columns: 240px 1fr 240px; gap: 10px; padding: 10px; } .sop-grid { grid-template-columns: 1fr; } }
   @media (max-width: 768px) {
     body { padding-bottom: 70px; }
     .header { height: 48px; padding: 0 12px; }
     .header h1 { font-size: 15px; }
     .header .search-wrap, .header .today-date, .header .btn-save { display: none; }
     .layout { grid-template-columns: 1fr; padding: 8px; gap: 8px; }
-    .left-col.mobile-hide, .right-col.mobile-hide { display: none; }
-    .left-col.mobile-show, .right-col.mobile-show { display: flex; }
+    .left-col.mobile-hide, .right-col.mobile-hide, .center-col.mobile-hide { display: none; }
+    .left-col.mobile-show, .right-col.mobile-show, .center-col.mobile-show { display: flex; }
     .sop-grid { grid-template-columns: 1fr; }
     .sop-card { min-height: 100px; padding: 14px; }
     .week-days { gap: 3px; }
@@ -270,61 +284,31 @@
 
 <div class="layout">
 
-  <!-- LEFT: Week View + Tasks + Log -->
+  <!-- LEFT: Week + Upcoming -->
   <div class="left-col" id="leftCol">
-    <!-- Mini Week View -->
     <div class="week-view">
       <h3>📅 本周概览</h3>
       <div class="week-days" id="weekDays"></div>
     </div>
-
-    <!-- Long-term -->
-    <div class="sidebar-section">
-      <h3>📋 长期工作</h3>
-      <div id="longtermList"></div>
-      <button class="lt-add-btn" onclick="openLongtermModal()">+ 添加</button>
-    </div>
-
-    <!-- Recurring -->
-    <div class="sidebar-section">
-      <h3>🔄 周期任务</h3>
-      <div id="recurringList"></div>
-      <button class="rc-add-btn" onclick="openRecurringModal()">+ 添加</button>
-    </div>
-
-    <!-- Quick Info -->
-    <div class="sidebar-section">
-      <h3>🔐 密码 / 信息</h3>
-      <div id="quickInfoList"></div>
-    </div>
-
-    <!-- Links -->
-    <div class="sidebar-section">
-      <h3>🔗 常用链接</h3>
-      <div id="linkList"></div>
-    </div>
-
-    <!-- Log -->
-    <div class="log-section">
-      <h3>📝 工作日志 <button class="week-summary-btn" onclick="openWeekSummary()">📊 本周汇总</button></h3>
-      <div class="log-list" id="logList"></div>
-      <div class="log-input-wrap">
-        <input type="text" id="logInput" placeholder="记一条工作…" onkeydown="if(event.key==='Enter')addLog()">
-        <button onclick="addLog()">记下</button>
-      </div>
-    </div>
-
-    <!-- Upcoming -->
     <div class="upcoming-section">
       <h3>⏳ 即将到期</h3>
       <div id="upcomingList"></div>
     </div>
+    <div class="sidebar-section">
+      <h3>🔐 密码 / 信息</h3>
+      <div id="quickInfoList"></div>
+    </div>
+    <div class="sidebar-section">
+      <h3>🔗 常用链接</h3>
+      <div id="linkList"></div>
+    </div>
   </div>
 
-  <!-- RIGHT: SOP Knowledge Base -->
-  <div class="right-col" id="rightCol">
+  <!-- CENTER: SOP Knowledge Base -->
+  <div class="center-col" id="centerCol">
     <div class="sop-header">
       <h2>📚 SOP 知识库 <span class="sop-count" id="sopCount"></span></h2>
+      <button class="header-btn add-btn" onclick="openNewSOPDetail()" style="font-size:11px;padding:5px 12px;">+ 新建卡片</button>
     </div>
     <div class="sop-filter" id="sopFilter">
       <button class="sop-filter-btn active" onclick="filterSOP('all')">全部</button>
@@ -333,6 +317,28 @@
       <button class="sop-filter-btn" onclick="filterSOP('teaching')">📖 教学</button>
     </div>
     <div class="sop-grid" id="sopGrid"></div>
+  </div>
+
+  <!-- RIGHT: Log + Long-term + Recurring -->
+  <div class="right-col" id="rightCol">
+    <div class="log-section">
+      <h3>📝 工作日志 <button class="week-summary-btn" onclick="openWeekSummary()">📊 本周汇总</button></h3>
+      <div class="log-list" id="logList"></div>
+      <div class="log-input-wrap">
+        <input type="text" id="logInput" placeholder="记一条工作…" onkeydown="if(event.key==='Enter')addLog()">
+        <button onclick="addLog()">记下</button>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <h3>📋 长期工作</h3>
+      <div id="longtermList"></div>
+      <button class="lt-add-btn" onclick="openLongtermModal()">+ 添加</button>
+    </div>
+    <div class="sidebar-section">
+      <h3>🔄 周期任务</h3>
+      <div id="recurringList"></div>
+      <button class="rc-add-btn" onclick="openRecurringModal()">+ 添加</button>
+    </div>
   </div>
 
 </div>
@@ -344,6 +350,9 @@
   </button>
   <button class="mobile-tab" data-tab="sop" onclick="switchMobileTab('sop')">
     <span class="tab-icon">📚</span>SOP
+  </button>
+  <button class="mobile-tab" data-tab="log" onclick="switchMobileTab('log')">
+    <span class="tab-icon">📝</span>日志
   </button>
 </nav>
 
@@ -403,56 +412,35 @@
   </div>
 </div>
 
-<!-- SOP Card Modal (Edit) -->
-<div class="modal-overlay" id="cardModal">
-  <div class="modal wide">
-    <h3 id="cardModalTitle">新建 SOP 卡片</h3><input type="hidden" id="cardId">
-    <label>卡片标题</label><input type="text" id="cardTitle" placeholder="如：课题申报">
-    <label>分类</label>
-    <select id="cardCategory"><option value="admin">📋 行政</option><option value="research">🔬 科研</option><option value="teaching">📖 教学</option><option value="learning">📚 学习</option><option value="other">📌 其他</option></select>
-    <label>标签（逗号分隔）</label><input type="text" id="cardTags" placeholder="申报,伦理,预算">
-    <label>标准流程（每一步一行）</label><textarea id="cardProcess" placeholder="1. 准备申报书&#10;2. 填写伦理审查表"></textarea>
-    <label>常用文件/模板</label><textarea id="cardFiles" placeholder="云盘路径或链接"></textarea>
-    <label>注意事项 / 踩坑记录</label><textarea id="cardNotes" placeholder="上次被退回的原因…"></textarea>
-    <label>关键联系人</label><input type="text" id="cardContacts" placeholder="审批：王主任">
-    <div class="modal-actions">
-      <button class="btn-delete" id="btnDeleteCard" style="display:none;margin-right:auto;" onclick="deleteCard()">删除</button>
-      <button class="btn-cancel" onclick="closeCardModal()">取消</button>
-      <button class="btn-submit" onclick="saveCard()">保存</button>
-    </div>
-  </div>
-</div>
-
-<!-- SOP Detail View -->
+<!-- SOP Detail View (WYSIWYG) -->
 <div class="sop-detail-overlay" id="sopDetailOverlay">
   <div class="sop-detail">
     <div class="sop-detail-header">
       <div class="sop-detail-cat" id="sopDetailCat"></div>
-      <h2 id="sopDetailTitle"></h2>
+      <input type="text" class="sop-detail-title-edit" id="sopDetailTitle" readonly onclick="this.removeAttribute('readonly');this.focus()" onblur="this.setAttribute('readonly','');saveSOPField('title',this.value)" placeholder="卡片标题">
       <div class="sop-detail-tags" id="sopDetailTags"></div>
     </div>
     <div class="sop-detail-body">
-      <div class="sop-detail-section" id="sopDetailProcessSection">
-        <h4>📋 标准流程</h4>
-        <div class="sop-process" id="sopDetailProcess"></div>
+      <div class="sop-detail-section">
+        <h4>📋 标准流程 <span class="inline-edit-hint">点击文字直接编辑</span></h4>
+        <textarea class="sop-process-edit" id="sopDetailProcess" onblur="saveSOPField('process',this.value)" placeholder="步骤1&#10;步骤2&#10;..."></textarea>
       </div>
-      <div class="sop-detail-section" id="sopDetailNotesSection">
-        <h4>⚠️ 注意事项</h4>
-        <div class="sop-notes" id="sopDetailNotes"></div>
+      <div class="sop-detail-section">
+        <h4>⚠️ 注意事项 <span class="inline-edit-hint">点击文字直接编辑</span></h4>
+        <textarea class="sop-notes-edit" id="sopDetailNotes" onblur="saveSOPField('notes',this.value)" placeholder="注意事项…"></textarea>
       </div>
-      <div class="sop-detail-section" id="sopDetailFilesSection">
-        <h4>📎 常用文件</h4>
-        <div class="sop-files" id="sopDetailFiles"></div>
+      <div class="sop-detail-section">
+        <h4>📎 常用文件 <span class="inline-edit-hint">点击文字直接编辑</span></h4>
+        <textarea class="sop-files-edit" id="sopDetailFiles" onblur="saveSOPField('files',this.value)" placeholder="云盘路径或链接…"></textarea>
       </div>
-      <div class="sop-detail-section" id="sopDetailContactsSection">
-        <h4>👤 关键联系人</h4>
-        <div class="sop-contacts-box" id="sopDetailContacts"></div>
+      <div class="sop-detail-section">
+        <h4>👤 关键联系人 <span class="inline-edit-hint">点击文字直接编辑</span></h4>
+        <textarea class="sop-contacts-edit" id="sopDetailContacts" onblur="saveSOPField('contacts',this.value)" placeholder="审批：王主任 / 签字：李科长"></textarea>
       </div>
     </div>
     <div class="sop-detail-actions">
       <button class="btn-delete" id="btnDeleteSOP" onclick="deleteSOPFromDetail()">删除</button>
       <button class="btn-cancel" onclick="closeSOPDetail()">关闭</button>
-      <button class="btn-submit" onclick="editSOPFromDetail()">编辑</button>
     </div>
   </div>
 </div>
@@ -743,52 +731,57 @@ function openSOPDetail(id) {
   const c=(data.workCards||[]).find(x=>x.id===id);if(!c)return;
   currentSOPId=id;
   document.getElementById('sopDetailCat').textContent=CARD_CAT_NAMES[c.category]||'📋 行政';
-  document.getElementById('sopDetailTitle').textContent=c.title;
+  document.getElementById('sopDetailTitle').value=c.title;
   document.getElementById('sopDetailTags').innerHTML=(c.tags||[]).map(t=>`<span class="sop-tag">${t}</span>`).join('');
-
-  const ps=document.getElementById('sopDetailProcessSection');
-  if(c.process){ps.style.display='';document.getElementById('sopDetailProcess').textContent=c.process}else ps.style.display='none';
-
-  const ns=document.getElementById('sopDetailNotesSection');
-  if(c.notes){ns.style.display='';document.getElementById('sopDetailNotes').textContent=c.notes}else ns.style.display='none';
-
-  const fs=document.getElementById('sopDetailFilesSection');
-  if(c.files){fs.style.display='';document.getElementById('sopDetailFiles').textContent=c.files}else fs.style.display='none';
-
-  const cs=document.getElementById('sopDetailContactsSection');
-  if(c.contacts){cs.style.display='';document.getElementById('sopDetailContacts').textContent=c.contacts}else cs.style.display='none';
-
+  document.getElementById('sopDetailProcess').value=c.process||'';
+  document.getElementById('sopDetailNotes').value=c.notes||'';
+  document.getElementById('sopDetailFiles').value=c.files||'';
+  document.getElementById('sopDetailContacts').value=c.contacts||'';
   document.getElementById('sopDetailOverlay').classList.add('show');
 }
-function closeSOPDetail(){document.getElementById('sopDetailOverlay').classList.remove('show');currentSOPId=null;restoreMobileTab()}
-function editSOPFromDetail(){if(!currentSOPId)return;closeSOPDetail();setTimeout(()=>openCardModal(currentSOPId),200)}
-function deleteSOPFromDetail(){if(!currentSOPId||!confirm('确定删除这张SOP卡片？'))return;closeSOPDetail();data.workCards=(data.workCards||[]).filter(c=>c.id!==currentSOPId);renderSOP();saveToCloud();toast('已删除')}
+function closeSOPDetail(){
+  if(!currentSOPId){
+    // New card being created — save it
+    saveNewSOP();
+    return;
+  }
+  document.getElementById('sopDetailOverlay').classList.remove('show');currentSOPId=null;restoreMobileTab();
+}
+function saveSOPField(field,value) {
+  if(!currentSOPId)return;
+  const c=(data.workCards||[]).find(x=>x.id===currentSOPId);if(!c)return;
+  c[field]=value.trim();
+  saveToCloud();
+  // Also update card preview on the grid
+  renderSOP();
+}
+function deleteSOPFromDetail(){if(!currentSOPId||!confirm('确定删除这张SOP卡片？'))return;const id=currentSOPId;currentSOPId=null;document.getElementById('sopDetailOverlay').classList.remove('show');data.workCards=(data.workCards||[]).filter(c=>c.id!==id);renderSOP();saveToCloud();toast('已删除')}
 
-function openCardModal(id) {
-  document.getElementById('cardModal').classList.add('show');document.getElementById('btnDeleteCard').style.display='none';
-  if(id){const c=(data.workCards||[]).find(x=>x.id===id);if(!c)return;
-    document.getElementById('cardModalTitle').textContent='编辑 SOP 卡片';document.getElementById('cardId').value=c.id;
-    document.getElementById('cardTitle').value=c.title;document.getElementById('cardCategory').value=c.category;
-    document.getElementById('cardTags').value=(c.tags||[]).join(',');document.getElementById('cardProcess').value=c.process||'';
-    document.getElementById('cardFiles').value=c.files||'';document.getElementById('cardNotes').value=c.notes||'';
-    document.getElementById('cardContacts').value=c.contacts||'';document.getElementById('btnDeleteCard').style.display='inline-block';
-  }else{document.getElementById('cardModalTitle').textContent='新建 SOP 卡片';document.getElementById('cardId').value='';
-    document.getElementById('cardTitle').value='';document.getElementById('cardCategory').value='admin';
-    document.getElementById('cardTags').value='';document.getElementById('cardProcess').value='';document.getElementById('cardFiles').value='';
-    document.getElementById('cardNotes').value='';document.getElementById('cardContacts').value='';}
+function openNewSOPDetail() {
+  currentSOPId=null;
+  document.getElementById('sopDetailCat').textContent='新建卡片';
+  document.getElementById('sopDetailTitle').value='';
+  document.getElementById('sopDetailTitle').removeAttribute('readonly');
+  document.getElementById('sopDetailTags').innerHTML='';
+  document.getElementById('sopDetailProcess').value='';
+  document.getElementById('sopDetailNotes').value='';
+  document.getElementById('sopDetailFiles').value='';
+  document.getElementById('sopDetailContacts').value='';
+  document.getElementById('sopDetailOverlay').classList.add('show');
+  document.getElementById('sopDetailTitle').focus();
 }
-function closeCardModal(){document.getElementById('cardModal').classList.remove('show');restoreMobileTab()}
-function saveCard() {
-  const id=document.getElementById('cardId').value,title=document.getElementById('cardTitle').value.trim(),category=document.getElementById('cardCategory').value;
-  const tags=document.getElementById('cardTags').value.split(',').map(t=>t.trim()).filter(Boolean);
-  const process=document.getElementById('cardProcess').value.trim(),files=document.getElementById('cardFiles').value.trim();
-  const notes=document.getElementById('cardNotes').value.trim(),contacts=document.getElementById('cardContacts').value.trim();
-  if(!title){toast('请填写标题');return} if(!data.workCards)data.workCards=[];
-  if(id){const c=data.workCards.find(x=>x.id===id);if(c){c.title=title;c.category=category;c.tags=tags;c.process=process;c.files=files;c.notes=notes;c.contacts=contacts}}
-  else data.workCards.push({id:'c'+Date.now(),title,category,tags,process,files,notes,contacts});
-  closeCardModal();renderSOP();saveToCloud();toast('卡片已保存 ✅');
+function saveNewSOP() {
+  if(currentSOPId)return; // not new
+  const title=document.getElementById('sopDetailTitle').value.trim();
+  if(!title){toast('请填写标题');return}
+  if(!data.workCards)data.workCards=[];
+  const newCard={id:'c'+Date.now(),title,category:'admin',tags:[],process:document.getElementById('sopDetailProcess').value.trim(),notes:document.getElementById('sopDetailNotes').value.trim(),files:document.getElementById('sopDetailFiles').value.trim(),contacts:document.getElementById('sopDetailContacts').value.trim()};
+  data.workCards.push(newCard);
+  currentSOPId=newCard.id;
+  document.getElementById('sopDetailCat').textContent='📋 行政';
+  document.getElementById('sopDetailTitle').setAttribute('readonly','');
+  closeSOPDetail();renderSOP();saveToCloud();toast('卡片已创建 ✅');
 }
-function deleteCard(){const id=document.getElementById('cardId').value;if(!id||!confirm('确定删除？'))return;closeCardModal();data.workCards=(data.workCards||[]).filter(c=>c.id!==id);renderSOP();saveToCloud();toast('已删除')}
 
 // ===== LOG =====
 function renderLog() {
@@ -898,22 +891,25 @@ function switchMobileTab(tab){
   currentMobileTab=tab;
   document.querySelectorAll('.mobile-tab').forEach(b=>b.classList.remove('active'));
   document.querySelector(`.mobile-tab[data-tab="${tab}"]`).classList.add('active');
-  const left=document.getElementById('leftCol'),right=document.getElementById('rightCol');
-  if(tab==='tasks'){left.classList.remove('mobile-hide');left.classList.add('mobile-show');right.classList.add('mobile-hide');right.classList.remove('mobile-show');}
-  else{left.classList.add('mobile-hide');left.classList.remove('mobile-show');right.classList.remove('mobile-hide');right.classList.add('mobile-show');}
+  const left=document.getElementById('leftCol'),center=document.getElementById('centerCol'),right=document.getElementById('rightCol');
+  const all=[left,center,right];
+  all.forEach(c=>{c.classList.add('mobile-hide');c.classList.remove('mobile-show')});
+  if(tab==='tasks'){left.classList.remove('mobile-hide');left.classList.add('mobile-show');}
+  else if(tab==='sop'){center.classList.remove('mobile-hide');center.classList.add('mobile-show');}
+  else{right.classList.remove('mobile-hide');right.classList.add('mobile-show');}
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function restoreMobileTab(){if(window.innerWidth<=768&&currentMobileTab!=='tasks')switchMobileTab(currentMobileTab)}
 function initMobile(){
   if(window.innerWidth<=768){if(!window._mobileInited){window._mobileInited=true;switchMobileTab('tasks');}}
-  else{document.getElementById('leftCol').classList.remove('mobile-hide','mobile-show');document.getElementById('rightCol').classList.remove('mobile-hide','mobile-show');window._mobileInited=false;}
+  else{document.getElementById('leftCol').classList.remove('mobile-hide','mobile-show');document.getElementById('centerCol').classList.remove('mobile-hide','mobile-show');document.getElementById('rightCol').classList.remove('mobile-hide','mobile-show');window._mobileInited=false;}
 }
 let resizeTimer;
 window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(initMobile,200)});
 
 // Modal close on overlay click
-['taskModal','longtermModal','recurringModal','cardModal','weekSummaryModal'].forEach(id=>{document.getElementById(id).addEventListener('click',function(e){if(e.target===this){if(id==='taskModal')closeTaskModal();else if(id==='longtermModal')closeLongtermModal();else if(id==='recurringModal')closeRecurringModal();else if(id==='cardModal')closeCardModal();else closeWeekSummary()}})});
-document.getElementById('sopDetailOverlay').addEventListener('click',function(e){if(e.target===this)closeSOPDetail()});
+['taskModal','longtermModal','recurringModal','weekSummaryModal'].forEach(id=>{document.getElementById(id).addEventListener('click',function(e){if(e.target===this){if(id==='taskModal')closeTaskModal();else if(id==='longtermModal')closeLongtermModal();else if(id==='recurringModal')closeRecurringModal();else closeWeekSummary()}})});
+document.getElementById('sopDetailOverlay').addEventListener('click',function(e){if(e.target===this){if(!currentSOPId)saveNewSOP();else closeSOPDetail()}});
 
 loadData();
 </script>
