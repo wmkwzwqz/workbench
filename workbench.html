@@ -707,6 +707,13 @@ async function loadData() {
   try{const res=await fetch(`${JSONBIN_URL}/latest`,{headers:JSONBIN_HEADERS});if(res.ok){data=(await res.json()).record;console.log('✅ JSONBin');loaded=true;saveToLocal()}}catch(e){console.warn('⚠️ JSONBin不可用')}
   if(!loaded) loaded=loadFromLocal();
   if(!loaded){console.warn('⚠️ 内置数据');data=JSON.parse(JSON.stringify(BUILTIN_DATA))}
+  else{
+    // Merge: ensure new fields from BUILTIN_DATA exist in loaded data
+    const builtin=JSON.parse(JSON.stringify(BUILTIN_DATA));
+    if(!data.workLogs) data.workLogs=builtin.workLogs||[];
+    if(!data.workCards||!data.workCards.length) data.workCards=builtin.workCards||[];
+    saveToLocal();
+  }
   renderAll();
 }
 
