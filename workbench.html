@@ -349,7 +349,7 @@
   <!-- RIGHT: Log + Long-term + Recurring -->
   <div class="right-col" id="rightCol">
     <div class="log-section">
-      <h3>📝 工作日志 <button class="week-summary-btn" onclick="openWeekSummary()">📊 本周汇总</button></h3>
+      <h3>📝 工作日志 <button class="week-summary-btn" onclick="openWeekSummary()">📊 本周汇总</button><button class="week-summary-btn" onclick="openLastWeekSummary()" style="margin-left:6px;">📋 上周汇总</button></h3>
       <div class="log-list" id="logList"></div>
       <div class="log-input-wrap">
         <input type="text" id="logInput" placeholder="记一条工作…" onkeydown="if(event.key==='Enter')addLog()">
@@ -850,6 +850,30 @@ function openWeekSummary() {
   document.getElementById('weekSummaryModal').classList.add('show');
 }
 function closeWeekSummary(){document.getElementById('weekSummaryModal').classList.remove('show');restoreMobileTab()}
+function openLastWeekSummary(){
+  const logs=data.workLogs||[];
+  const now=new Date(),dayOfWeek=now.getDay(),mondayOff=dayOfWeek===0?-6:1-dayOfWeek;
+  const thisMonday=new Date(now);thisMonday.setDate(now.getDate()+mondayOff);
+  const lastMonday=new Date(thisMonday);lastMonday.setDate(thisMonday.getDate()-7);
+  const lastSunday=new Date(lastMonday);lastSunday.setDate(lastMonday.getDate()+6);
+  const lms=lastMonday.toISOString().split('T')[0],lss=lastSunday.toISOString().split('T')[0];
+  const weekLogs=logs.filter(l=>l.date>=lms&&l.date<=lss).sort((a,b)=>a.date.localeCompare(b.date));
+  const doneTasks=(data.tasks||[]).filter(t=>t.status==='done'&&t.date>=lms&&t.date<=lss);
+  let summary=`📅 ${lastMonday.getMonth()+1}月${lastMonday.getDate()}日 — ${lastSunday.getMonth()+1}月${lastSunday.getDate()}日（上周）\n${'─'.repeat(30)}\n\n`;
+  if(!weekLogs.length&&!doneTasks.length){summary+='上周暂无工作记录。\n';}
+  else{
+    const dayMap={};
+    weekLogs.forEach(l=>{if(!dayMap[l.date])dayMap[l.date]=[];dayMap[l.date].push(l)});
+    doneTasks.forEach(t=>{if(!dayMap[t.date])dayMap[t.date]=[];dayMap[t.date].push({content:`✅ ${t.title}`,time:'',type:'task',date:t.date})});
+    Object.keys(dayMap).sort().forEach(d=>{
+      const dObj=new Date(d+'T00:00:00');
+      summary+=`\n📌 ${dObj.getMonth()+1}月${dObj.getDate()}日 ${FULL_WEEKDAY_NAMES[dObj.getDay()]}\n`;
+      dayMap[d].forEach(item=>{summary+=`  · ${item.content}\n`});
+    });
+  }
+  document.getElementById('weekSummaryContent').textContent=summary;
+  document.getElementById('weekSummaryModal').classList.add('show');
+}
 function copyWeekSummary(){const text=document.getElementById('weekSummaryContent').textContent;navigator.clipboard.writeText(text).then(()=>toast('已复制 📋')).catch(()=>toast('复制失败'))}
 
 // ===== UPCOMING =====
