@@ -610,6 +610,7 @@ function renderWeekView() {
 
     const dayTasks = (data.tasks || []).filter(t => t.date === ds);
     const rec = getRecurringForDate(ds);
+    const dayLongterms = (data.longtermTasks || []).filter(lt => lt.deadline === ds);
 
     // Build dots with tooltip
     const dots = [
@@ -617,7 +618,8 @@ function renderWeekView() {
         const p = t.priority === 'high' ? 'high' : t.priority === 'medium' ? 'medium' : 'low';
         return `<span class="mc-dot-wrap"><span class="mc-dot ${p}"></span><span class="mc-tooltip">${escHtml(t.title)}</span></span>`;
       }),
-      ...rec.map(rt => `<span class="mc-dot-wrap"><span class="mc-dot recurring"></span><span class="mc-tooltip">🔄 ${escHtml(rt.title)}</span></span>`)
+      ...rec.map(rt => `<span class="mc-dot-wrap"><span class="mc-dot recurring"></span><span class="mc-tooltip">🔄 ${escHtml(rt.title)}</span></span>`),
+      ...dayLongterms.map(lt => `<span class="mc-dot-wrap"><span class="mc-dot high"></span><span class="mc-tooltip">📋 DDL: ${escHtml(lt.title)}</span></span>`)
     ].slice(0, 4).join('');
 
     cells += `<div class="month-cell ${cls}" onclick="openDayPopover(event,'${ds}')">
