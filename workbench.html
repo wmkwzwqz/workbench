@@ -131,8 +131,8 @@
   .upcoming-section h3 { font-size: 11px; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px; }
   .upcoming-item { display: flex; align-items: center; gap: 6px; padding: 5px 0; border-bottom: 1px solid rgba(212,134,156,0.06); font-size: 11px; }
   .upcoming-item:last-child { border-bottom: none; }
-  .upcoming-item.upcoming-urgent { background: linear-gradient(135deg,#FFFAFB,#FFF5F7); border-radius: 4px; padding-left: 4px; }
-  .upcoming-date { font-size: 9px; color: var(--pink-accent); font-weight: 600; min-width: 38px; text-align: center; }
+  .upcoming-item.upcoming-urgent { background: linear-gradient(135deg,#FFFAFB,#FFF5F7); border-radius: 4px; }
+  .upcoming-date { font-size: 9px; color: var(--pink-accent); font-weight: 600; min-width: 38px; text-align: left; }
   .upcoming-title { flex: 1; }
   .upcoming-priority { font-size: 11px; flex-shrink: 0; }
 
@@ -190,9 +190,7 @@
   .sop-detail-overlay.show { display: flex; }
   .sop-detail { background: white; border-radius: var(--radius); width: 640px; max-width: 95vw; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(74,63,58,0.15); }
   .sop-detail-header { padding: 24px 28px 16px; border-bottom: 1px solid rgba(0,0,0,0.06); }
-  .sop-detail-header .sop-detail-cat { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
   .sop-detail-header h2 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
-  .sop-detail-header .sop-detail-tags { display: flex; gap: 6px; flex-wrap: wrap; }
   .sop-detail-body { padding: 20px 28px; }
   .sop-detail-section { margin-bottom: 20px; }
   .sop-detail-section h4 { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600; }
@@ -436,9 +434,7 @@
 <div class="sop-detail-overlay" id="sopDetailOverlay">
   <div class="sop-detail">
     <div class="sop-detail-header">
-      <div class="sop-detail-cat" id="sopDetailCat"></div>
       <input type="text" class="sop-detail-title-edit" id="sopDetailTitle" readonly onclick="this.removeAttribute('readonly');this.focus()" onblur="this.setAttribute('readonly','');saveSOPField('title',this.value)" placeholder="卡片标题">
-      <div class="sop-detail-tags" id="sopDetailTags"></div>
     </div>
     <div class="sop-detail-body">
       <div class="sop-detail-section">
@@ -710,16 +706,11 @@ function renderSOP() {
 
   el.innerHTML = filtered.map((c, i) => {
     const theme = CARD_THEMES[c.category] || 'theme-pink';
-    const icon = CARD_ICONS[c.category] || '📋';
     const preview = (c.process || '').split('\n').slice(0, 3).join('\n');
     return `<div class="sop-card ${theme}" draggable="true" data-card-id="${c.id}" ondragstart="onDragStart(event)" ondragend="onDragEnd(event)" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)" onclick="openSOPDetail('${c.id}')">
       <span class="drag-handle" title="拖拽排序" onclick="event.stopPropagation()" onmousedown="startDragFromHandle(event)">⠿</span>
-      <div class="sop-card-top">
-        <span class="sop-icon">${icon}</span>
-      </div>
       <div class="sop-title">${c.title}</div>
       <div class="sop-preview">${preview}</div>
-      <div class="sop-tags">${(c.tags || []).map(t => `<span class="sop-tag">${t}</span>`).join('')}</div>
     </div>`;
   }).join('');
 }
@@ -775,9 +766,7 @@ function onDrop(e) {
 function openSOPDetail(id) {
   const c=(data.workCards||[]).find(x=>x.id===id);if(!c)return;
   currentSOPId=id;
-  document.getElementById('sopDetailCat').textContent=CARD_CAT_NAMES[c.category]||'📋 行政';
   document.getElementById('sopDetailTitle').value=c.title;
-  document.getElementById('sopDetailTags').innerHTML=(c.tags||[]).map(t=>`<span class="sop-tag">${t}</span>`).join('');
   document.getElementById('sopDetailProcess').value=c.process||'';
   document.getElementById('sopDetailNotes').value=c.notes||'';
   document.getElementById('sopDetailOverlay').classList.add('show');
@@ -807,10 +796,8 @@ function deleteSOPFromDetail(){if(!currentSOPId||!confirm('确定删除这张SOP
 
 function openNewSOPDetail() {
   currentSOPId=null;
-  document.getElementById('sopDetailCat').textContent='新建卡片';
   document.getElementById('sopDetailTitle').value='';
   document.getElementById('sopDetailTitle').removeAttribute('readonly');
-  document.getElementById('sopDetailTags').innerHTML='';
   document.getElementById('sopDetailProcess').value='';
   document.getElementById('sopDetailNotes').value='';
   document.getElementById('sopDetailOverlay').classList.add('show');
@@ -828,7 +815,6 @@ function saveNewSOP() {
   const newCard={id:'c'+Date.now(),title,category:'admin',tags:[],process:document.getElementById('sopDetailProcess').value.trim(),notes:document.getElementById('sopDetailNotes').value.trim(),contacts:''};
   data.workCards.push(newCard);
   currentSOPId=newCard.id;
-  document.getElementById('sopDetailCat').textContent='📋 行政';
   document.getElementById('sopDetailTitle').setAttribute('readonly','');
   // Restore buttons
   document.getElementById('btnDeleteSOP').style.display='inline-block';
