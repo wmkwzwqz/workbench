@@ -456,10 +456,6 @@
         <h4>⚠️ 注意事项 <span class="inline-edit-hint">点击文字直接编辑</span></h4>
         <textarea class="sop-notes-edit" id="sopDetailNotes" onblur="saveSOPField('notes',this.value)" placeholder="注意事项…"></textarea>
       </div>
-      <div class="sop-detail-section">
-        <h4>👤 关键联系人 <span class="inline-edit-hint">点击文字直接编辑</span></h4>
-        <textarea class="sop-contacts-edit" id="sopDetailContacts" onblur="saveSOPField('contacts',this.value)" placeholder="审批：王主任 / 签字：李科长"></textarea>
-      </div>
     </div>
     <div class="sop-detail-actions">
       <button class="btn-delete" id="btnDeleteSOP" onclick="deleteSOPFromDetail()">删除</button>
@@ -757,7 +753,6 @@ function openSOPDetail(id) {
   document.getElementById('sopDetailTags').innerHTML=(c.tags||[]).map(t=>`<span class="sop-tag">${t}</span>`).join('');
   document.getElementById('sopDetailProcess').value=c.process||'';
   document.getElementById('sopDetailNotes').value=c.notes||'';
-  document.getElementById('sopDetailContacts').value=c.contacts||'';
   document.getElementById('sopDetailOverlay').classList.add('show');
 }
 function closeSOPDetail(){
@@ -786,7 +781,6 @@ function openNewSOPDetail() {
   document.getElementById('sopDetailTags').innerHTML='';
   document.getElementById('sopDetailProcess').value='';
   document.getElementById('sopDetailNotes').value='';
-  document.getElementById('sopDetailContacts').value='';
   document.getElementById('sopDetailOverlay').classList.add('show');
   document.getElementById('sopDetailTitle').focus();
 }
@@ -795,7 +789,7 @@ function saveNewSOP() {
   const title=document.getElementById('sopDetailTitle').value.trim();
   if(!title){toast('请填写标题');return}
   if(!data.workCards)data.workCards=[];
-  const newCard={id:'c'+Date.now(),title,category:'admin',tags:[],process:document.getElementById('sopDetailProcess').value.trim(),notes:document.getElementById('sopDetailNotes').value.trim(),contacts:document.getElementById('sopDetailContacts').value.trim()};
+  const newCard={id:'c'+Date.now(),title,category:'admin',tags:[],process:document.getElementById('sopDetailProcess').value.trim(),notes:document.getElementById('sopDetailNotes').value.trim(),contacts:''};
   data.workCards.push(newCard);
   currentSOPId=newCard.id;
   document.getElementById('sopDetailCat').textContent='📋 行政';
