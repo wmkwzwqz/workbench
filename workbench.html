@@ -598,7 +598,6 @@ function renderWeekView() {
 
     const dayTasks = (data.tasks || []).filter(t => t.date === ds);
     const rec = getRecurringForDate(ds);
-    const dayLongterms = (data.longtermTasks || []).filter(lt => lt.deadline === ds);
 
     // Build dots with tooltip
     const dots = [
@@ -606,8 +605,7 @@ function renderWeekView() {
         const p = t.priority === 'high' ? 'high' : t.priority === 'medium' ? 'medium' : 'low';
         return `<span class="mc-dot-wrap"><span class="mc-dot ${p}"></span><span class="mc-tooltip">${escHtml(t.title)}</span></span>`;
       }),
-      ...rec.map(rt => `<span class="mc-dot-wrap"><span class="mc-dot recurring"></span><span class="mc-tooltip">🔄 ${escHtml(rt.title)}</span></span>`),
-      ...dayLongterms.map(lt => `<span class="mc-dot-wrap"><span class="mc-dot high"></span><span class="mc-tooltip">📋 DDL: ${escHtml(lt.title)}</span></span>`)
+      ...rec.map(rt => `<span class="mc-dot-wrap"><span class="mc-dot recurring"></span><span class="mc-tooltip">🔄 ${escHtml(rt.title)}</span></span>`)
     ].slice(0, 4).join('');
 
     cells += `<div class="month-cell ${cls}" onclick="openDayPopover(event,'${ds}')">
@@ -872,7 +870,7 @@ function renderLog() {
   el.innerHTML=dates.map(d=>{
     const dObj=new Date(d+'T00:00:00'),label=`${dObj.getMonth()+1}月${dObj.getDate()}日 ${FULL_WEEKDAY_NAMES[dObj.getDay()]}`;
     const isToday=d===new Date().toISOString().split('T')[0];
-    return `<div class="log-day-group"><div class="log-day-label">${isToday?'🟡 今天':''} ${label}</div>${grouped[d].map(l=>`<div class="log-entry ${l.type==='task'?'task-done':'manual'}">${renderMarkdown(l.content)}<div class="log-time">${l.time||''}</div><button class="log-delete" onclick="deleteLog('${l.id}')">×</button></div>`).join('')}</div>`;
+    return `<div class="log-day-group"><div class="log-day-label">${label}</div>${grouped[d].map(l=>`<div class="log-entry ${l.type==='task'?'task-done':'manual'}">${renderMarkdown(l.content)}<div class="log-time">${l.time||''}</div><button class="log-delete" onclick="deleteLog('${l.id}')">×</button></div>`).join('')}</div>`;
   }).join('');
 }
 function addLog() {
