@@ -593,7 +593,9 @@ function renderWeekView() {
 
   const dim = new Date(y, m + 1, 0).getDate();
   const firstDay = new Date(y, m, 1).getDay();
-  const firstMonIdx = firstDay === 0 ? -5 : 1 - firstDay;
+  // Mon-Fri grid: Mon=col1, Tue=col2, Wed=col3, Thu=col4, Fri=col5
+  // firstDay: 0=Sun→skip→start at Mon(col0), 1=Mon→col0, 2=Tue→col1, ..., 5=Fri→col4, 6=Sat→skip→start at Mon(col0)
+  const firstMonIdx = (firstDay === 0 || firstDay === 6) ? 0 : firstDay - 1;
 
   let cells = '';
   if (firstMonIdx > 0) {
