@@ -666,6 +666,11 @@ const BUILTIN_DATA = {
 };
 
 let data = {};
+// Reset flag: add ?reset to URL to clear localStorage
+if (window.location.search.includes('reset')) {
+  localStorage.removeItem('workbench_data');
+  console.log('🔄 localStorage已清除，使用内置数据');
+}
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 let searchKeyword = '';
