@@ -101,21 +101,11 @@
   .rc-actions button { width: 18px; height: 18px; border: none; background: rgba(0,0,0,0.04); border-radius: 50%; cursor: pointer; font-size: 9px; color: var(--text-muted); }
   .rc-actions button.toggle-btn { width: auto; padding: 0 5px; border-radius: 7px; }
 
-  /* Quick Info */
-  .info-item { padding: 8px 10px; border-radius: var(--radius-sm); margin-bottom: 4px; border: 1px solid rgba(123,155,203,0.15); background: linear-gradient(135deg,#FAFBFD,#F3F6FB); }
-  .info-item .info-label { font-size: 10px; color: var(--blue-accent); font-weight: 600; margin-bottom: 2px; }
-  .info-item .info-content { font-size: 13px; font-weight: 600; font-family: 'SF Mono','Menlo','Consolas',monospace; cursor: pointer; user-select: text; }
-
   /* Password */
   .pwd-items { display: flex; flex-direction: column; gap: 6px; }
   .pwd-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid rgba(123,155,203,0.15); background: linear-gradient(135deg,#FAFBFD,#F3F6FB); }
   .pwd-label { font-size: 11px; color: var(--blue-accent); font-weight: 500; }
   .pwd-value { font-size: 14px; font-weight: 700; font-family: 'SF Mono','Menlo','Consolas',monospace; color: var(--text); cursor: pointer; user-select: text; }
-
-  /* Links */
-  .link-item { display: block; padding: 7px 10px; border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); margin-bottom: 2px; text-decoration: none; color: inherit; font-size: 12px; border: 1px solid transparent; }
-  .link-item:hover { background: var(--cream); border-color: var(--cream-dark); }
-  .link-item .link-cat { font-size: 9px; color: var(--text-muted); margin-top: 1px; }
 
   /* Log */
   .log-section { background: var(--white); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); border: 1px solid rgba(212,134,156,0.08); max-height: 280px; display: flex; flex-direction: column; }
@@ -174,6 +164,13 @@
   .sop-card .sop-contacts { font-size: 10px; color: var(--text-muted); }
   .sop-card .sop-arrow { font-size: 14px; color: var(--text-muted); transition: var(--transition); }
   .sop-card:hover .sop-arrow { transform: translateX(3px); color: var(--pink-accent); }
+
+  /* Drag & Drop */
+  .sop-card.dragging { opacity: 0.4; transform: scale(0.95); }
+  .sop-card.drag-over { border: 2px dashed var(--pink-accent); background: linear-gradient(135deg,#FFFAFB,#FFF5F7); }
+  .sop-card .drag-handle { position: absolute; top: 10px; right: 10px; font-size: 14px; color: var(--text-muted); cursor: grab; opacity: 0; transition: var(--transition); user-select: none; }
+  .sop-card:hover .drag-handle { opacity: 0.6; }
+  .sop-card .drag-handle:active { cursor: grabbing; opacity: 1; }
 
   /* Card color themes */
   .sop-card.theme-pink { border-left: 3px solid var(--pink-accent); }
@@ -459,7 +456,8 @@
     </div>
     <div class="sop-detail-actions">
       <button class="btn-delete" id="btnDeleteSOP" onclick="deleteSOPFromDetail()">删除</button>
-      <button class="btn-cancel" onclick="closeSOPDetail()">关闭</button>
+      <button class="btn-cancel" id="btnCancelSOP" onclick="closeSOPDetail()">关闭</button>
+      <button class="btn-submit" id="btnSaveNewSOP" style="display:none" onclick="saveNewSOP()">保存</button>
     </div>
   </div>
 </div>
@@ -503,16 +501,6 @@ const BUILTIN_DATA = {
   "longtermTasks": [
     {"id":"l1","deadline":"2025-10-15","title":"收集考核合格证书","detail":"10月15日前，收集各科室相关人员考核合格证书，统一归档。"},
     {"id":"l2","deadline":"2025-07-31","title":"梳理需法人身份证备案的网站/平台","detail":"请各科室全面梳理本科室名下需法人身份证备案的各类网站、线上平台，相关清单于7月底前报送至院办。后续院办统一发放新版法人身份证，组织各科室完成备案更新工作。"}
-  ],
-  "quickInfo": [{"id":1,"label":"打印执行单密码","content":"0088 / 270069","category":"密码"}],
-  "memos": [
-    {"id":1,"content":"跟进王主任课题中期检查，7月底前完成","color":"pink","createdAt":"2025-07-01"},
-    {"id":2,"content":"下季度继教项目申报材料提前准备","color":"blue","createdAt":"2025-06-28"}
-  ],
-  "links": [
-    {"id":1,"title":"四川省卫健委官网","url":"https://wsjkw.sc.gov.cn/","category":"常用链接"},
-    {"id":2,"title":"国家自然科学基金委","url":"https://www.nsfc.gov.cn/","category":"常用链接"},
-    {"id":3,"title":"中国知网","url":"https://www.cnki.net/","category":"学术资源"}
   ],
   "workLogs": [
     {"id":"log1","content":"处理了省级课题申报材料的格式问题","date":"2025-07-17","time":"14:30","type":"manual"},
@@ -716,9 +704,6 @@ function toggleRecurring(id){const item=(data.recurringTasks||[]).find(r=>r.id==
 function deleteRecurring(){const id=document.getElementById('rcId').value;if(!id)return;closeRecurringModal();deleteRecurringById(id)}
 function deleteRecurringById(id){if(!confirm('确定删除？'))return;data.recurringTasks=(data.recurringTasks||[]).filter(r=>r.id!==id);renderRecurring();renderWeekView();renderUpcoming();saveToCloud();toast('已删除')}
 
-// ===== LINKS (removed - kept stub for compatibility) =====
-function renderLinks(){}
-
 // ===== SOP CARDS =====
 function renderSOP() {
   const el = document.getElementById('sopGrid');
@@ -736,7 +721,8 @@ function renderSOP() {
     const theme = CARD_THEMES[c.category] || 'theme-pink';
     const icon = CARD_ICONS[c.category] || '📋';
     const preview = (c.process || '').split('\n').slice(0, 3).join('\n');
-    return `<div class="sop-card ${theme}" onclick="openSOPDetail('${c.id}')">
+    return `<div class="sop-card ${theme}" draggable="true" data-card-id="${c.id}" ondragstart="onDragStart(event)" ondragend="onDragEnd(event)" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)" onclick="openSOPDetail('${c.id}')">
+      <span class="drag-handle" title="拖拽排序" onclick="event.stopPropagation()" onmousedown="startDragFromHandle(event)">⠿</span>
       <div class="sop-card-top">
         <span class="sop-icon">${icon}</span>
       </div>
@@ -745,6 +731,54 @@ function renderSOP() {
       <div class="sop-tags">${(c.tags || []).map(t => `<span class="sop-tag">${t}</span>`).join('')}</div>
     </div>`;
   }).join('');
+}
+
+// ===== DRAG & DROP =====
+let dragSrcId = null;
+function startDragFromHandle(e) {
+  const card = e.target.closest('.sop-card');
+  if (card) { card.draggable = true; card.classList.add('dragging'); dragSrcId = card.dataset.cardId; }
+}
+function onDragStart(e) {
+  if (!e.target.classList.contains('sop-card')) return;
+  const card = e.target;
+  dragSrcId = card.dataset.cardId;
+  card.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', dragSrcId);
+}
+function onDragEnd(e) {
+  e.target.classList.remove('dragging');
+  document.querySelectorAll('.sop-card.drag-over').forEach(c => c.classList.remove('drag-over'));
+  dragSrcId = null;
+}
+function onDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  const card = e.target.closest('.sop-card');
+  if (card && card.dataset.cardId !== dragSrcId) {
+    card.classList.add('drag-over');
+  }
+}
+function onDragLeave(e) {
+  const card = e.target.closest('.sop-card');
+  if (card) card.classList.remove('drag-over');
+}
+function onDrop(e) {
+  e.preventDefault();
+  const card = e.target.closest('.sop-card');
+  if (!card || !dragSrcId || card.dataset.cardId === dragSrcId) return;
+  card.classList.remove('drag-over');
+  // Swap positions in the array
+  const cards = data.workCards || [];
+  const srcIdx = cards.findIndex(c => c.id === dragSrcId);
+  const dstIdx = cards.findIndex(c => c.id === card.dataset.cardId);
+  if (srcIdx === -1 || dstIdx === -1) return;
+  const [moved] = cards.splice(srcIdx, 1);
+  cards.splice(dstIdx, 0, moved);
+  renderSOP();
+  saveToCloud();
+  toast('已排序 ✅');
 }
 
 function openSOPDetail(id) {
@@ -756,11 +790,16 @@ function openSOPDetail(id) {
   document.getElementById('sopDetailProcess').value=c.process||'';
   document.getElementById('sopDetailNotes').value=c.notes||'';
   document.getElementById('sopDetailOverlay').classList.add('show');
+  // Restore buttons for existing card
+  document.getElementById('btnDeleteSOP').style.display='inline-block';
+  document.getElementById('btnCancelSOP').textContent='关闭';
+  document.getElementById('btnSaveNewSOP').style.display='none';
 }
 function closeSOPDetail(){
+  // If new card being created, just discard it
   if(!currentSOPId){
-    // New card being created — save it
-    saveNewSOP();
+    document.getElementById('sopDetailOverlay').classList.remove('show');
+    restoreMobileTab();
     return;
   }
   document.getElementById('sopDetailOverlay').classList.remove('show');currentSOPId=null;restoreMobileTab();
@@ -785,6 +824,10 @@ function openNewSOPDetail() {
   document.getElementById('sopDetailNotes').value='';
   document.getElementById('sopDetailOverlay').classList.add('show');
   document.getElementById('sopDetailTitle').focus();
+  // Show save button, hide delete, change close to "放弃"
+  document.getElementById('btnDeleteSOP').style.display='none';
+  document.getElementById('btnCancelSOP').textContent='放弃';
+  document.getElementById('btnSaveNewSOP').style.display='inline-block';
 }
 function saveNewSOP() {
   if(currentSOPId)return; // not new
@@ -796,10 +839,30 @@ function saveNewSOP() {
   currentSOPId=newCard.id;
   document.getElementById('sopDetailCat').textContent='📋 行政';
   document.getElementById('sopDetailTitle').setAttribute('readonly','');
-  closeSOPDetail();renderSOP();saveToCloud();toast('卡片已创建 ✅');
+  // Restore buttons
+  document.getElementById('btnDeleteSOP').style.display='inline-block';
+  document.getElementById('btnCancelSOP').textContent='关闭';
+  document.getElementById('btnSaveNewSOP').style.display='none';
+  renderSOP();saveToCloud();toast('卡片已创建 ✅');
 }
 
 // ===== LOG =====
+// Lightweight Markdown to HTML renderer
+function renderMarkdown(text) {
+  if (!text) return '';
+  let html = escHtml(text);
+  // Inline code: `code`
+  html = html.replace(/`([^`]+)`/g, '<code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:11px;">$1</code>');
+  // Bold: **text**
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  // Italic: *text*
+  html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  // Links: [text](url)
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" style="color:var(--blue-accent);">$1</a>');
+  // Bare URLs
+  html = html.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:var(--blue-accent);">$1</a>');
+  return html;
+}
 function renderLog() {
   const el=document.getElementById('logList'),logs=data.workLogs||[];
   if(!logs.length){el.innerHTML='<div class="empty-state">暂无记录 ✍️</div>';return}
@@ -809,7 +872,7 @@ function renderLog() {
   el.innerHTML=dates.map(d=>{
     const dObj=new Date(d+'T00:00:00'),label=`${dObj.getMonth()+1}月${dObj.getDate()}日 ${FULL_WEEKDAY_NAMES[dObj.getDay()]}`;
     const isToday=d===new Date().toISOString().split('T')[0];
-    return `<div class="log-day-group"><div class="log-day-label">${isToday?'🟡 今天':''} ${label}</div>${grouped[d].map(l=>`<div class="log-entry ${l.type==='task'?'task-done':'manual'}">${l.content}<div class="log-time">${l.time||''}</div><button class="log-delete" onclick="deleteLog('${l.id}')">×</button></div>`).join('')}</div>`;
+    return `<div class="log-day-group"><div class="log-day-label">${isToday?'🟡 今天':''} ${label}</div>${grouped[d].map(l=>`<div class="log-entry ${l.type==='task'?'task-done':'manual'}">${renderMarkdown(l.content)}<div class="log-time">${l.time||''}</div><button class="log-delete" onclick="deleteLog('${l.id}')">×</button></div>`).join('')}</div>`;
   }).join('');
 }
 function addLog() {
@@ -850,7 +913,7 @@ function openWeekSummary() {
       dayMap[d].forEach(item=>{summary+=`  · ${item.content}\n`});
     });
   }
-  document.getElementById('weekSummaryContent').textContent=summary;
+  document.getElementById('weekSummaryContent').innerHTML=renderMarkdown(summary);
   document.getElementById('weekSummaryModal').classList.add('show');
 }
 function closeWeekSummary(){document.getElementById('weekSummaryModal').classList.remove('show');restoreMobileTab()}
@@ -877,7 +940,7 @@ function openLastWeekSummary(){
       dayMap[d].forEach(item=>{summary+=`  · ${item.content}\n`});
     });
   }
-  document.getElementById('weekSummaryContent').textContent=summary;
+  document.getElementById('weekSummaryContent').innerHTML=renderMarkdown(summary);
   document.getElementById('weekSummaryModal').classList.add('show');
 }
 function copyWeekSummary(){const text=document.getElementById('weekSummaryContent').textContent;navigator.clipboard.writeText(text).then(()=>toast('已复制 📋')).catch(()=>toast('复制失败'))}
@@ -888,7 +951,7 @@ function renderUpcoming() {
   const up=tasks.filter(t=>t.status==='pending'&&t.date>=today).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,4);
   const rUp=[];const recs=data.recurringTasks||[];
   for(let i=0;i<14;i++){const d=new Date();d.setDate(d.getDate()+i);const ds=d.toISOString().split('T')[0],wd=d.getDay();
-    for(const rt of recs){if(rt.active===false||rt.weekday!==wd)continue;if(rt.weekInterval&&rt.weekInterval>1&&rt.refDate){const ref=new Date(rt.refDate+'T00:00:00'),dw=Math.round((d.getTime()-ref.getTime())/(7*86400000));if(dw%rt.weekInterval!==0)continue}rUp.push({title:'🔄 '+rt.title,date:ds,priority:'low',isRecurring:true})}}
+    for(const rt of recs){if(rt.active===false||rt.weekday!==wd)continue;if(rt.weekInterval&&rt.weekInterval>1&&rt.refDate){const ref=new Date(rt.refDate+'T00:00:00'),dw=Math.floor((d.getTime()-ref.getTime())/(7*86400000));if(dw%rt.weekInterval!==0)continue}rUp.push({title:'🔄 '+rt.title,date:ds,priority:'low',isRecurring:true})}}
   // Long-term tasks
   const ltUp=(data.longtermTasks||[]).filter(lt=>lt.deadline>=today).sort((a,b)=>a.deadline.localeCompare(b.deadline)).map(lt=>({title:'📋 '+lt.title,date:lt.deadline,priority:lt.deadline<=today?'high':'medium',isLongterm:true,ltId:lt.id}));
   const all=[...up,...rUp,...ltUp].sort((a,b)=>a.date.localeCompare(b.date)).slice(0,8);
@@ -924,7 +987,7 @@ function deleteTask(){const id=parseInt(document.getElementById('taskId').value)
 
 // ===== CALENDAR HELPERS =====
 function escHtml(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
-function getRecurringForDate(ds){const rts=data.recurringTasks||[];if(!rts.length)return[];const d=new Date(ds+'T00:00:00'),wd=d.getDay();return rts.filter(rt=>{if(rt.active===false||rt.weekday!==wd)return false;if(rt.weekInterval&&rt.weekInterval>1&&rt.refDate){const ref=new Date(rt.refDate+'T00:00:00'),dw=Math.round((d.getTime()-ref.getTime())/(7*86400000));if(dw%rt.weekInterval!==0)return false}return true})}
+function getRecurringForDate(ds){const rts=data.recurringTasks||[];if(!rts.length)return[];const d=new Date(ds+'T00:00:00'),wd=d.getDay();return rts.filter(rt=>{if(rt.active===false||rt.weekday!==wd)return false;if(rt.weekInterval&&rt.weekInterval>1&&rt.refDate){const ref=new Date(rt.refDate+'T00:00:00'),dw=Math.floor((d.getTime()-ref.getTime())/(7*86400000));if(dw%rt.weekInterval!==0)return false}return true})}
 
 // ===== DAY TASK POPOVER =====
 function openDayPopover(event, ds) {
@@ -1012,7 +1075,7 @@ function quickDeleteTask(id) {
 }
 
 // ===== DOWNLOAD =====
-function downloadHTML(){saveToCloudNow();const cd={tasks:data.tasks||[],recurringTasks:data.recurringTasks||[],longtermTasks:data.longtermTasks||[],quickInfo:data.quickInfo||[],memos:data.memos||[],links:data.links||[],workLogs:data.workLogs||[],workCards:data.workCards||[]};const h=document.documentElement.outerHTML;const si=h.indexOf('const BUILTIN_DATA = '),ei=h.indexOf(';\n\nlet data = {};',si);let nh;if(si>=0&&ei>=0){nh='<!DOCTYPE html>\n'+h.substring(h.indexOf('<html'));nh=nh.substring(0,si+'const BUILTIN_DATA = '.length)+JSON.stringify(cd,null,2)+';\n\n'+nh.substring(ei)}else nh='<!DOCTYPE html>\n'+h.substring(h.indexOf('<html'));const b=new Blob([nh],{type:'text/html'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='workbench.html';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);toast('💾 已下载！')}
+function downloadHTML(){saveToCloudNow();const cd={tasks:data.tasks||[],recurringTasks:data.recurringTasks||[],longtermTasks:data.longtermTasks||[],workLogs:data.workLogs||[],workCards:data.workCards||[]};const h=document.documentElement.outerHTML;const si=h.indexOf('const BUILTIN_DATA = '),ei=h.indexOf(';\n\nlet data = {};',si);let nh;if(si>=0&&ei>=0){nh='<!DOCTYPE html>\n'+h.substring(h.indexOf('<html'));nh=nh.substring(0,si+'const BUILTIN_DATA = '.length)+JSON.stringify(cd,null,2)+';\n\n'+nh.substring(ei)}else nh='<!DOCTYPE html>\n'+h.substring(h.indexOf('<html'));const b=new Blob([nh],{type:'text/html'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='workbench.html';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);toast('💾 已下载！')}
 
 // ===== TOAST =====
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2000)}
@@ -1041,7 +1104,7 @@ window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setT
 
 // Modal close on overlay click
 ['taskModal','longtermModal','recurringModal','weekSummaryModal'].forEach(id=>{document.getElementById(id).addEventListener('click',function(e){if(e.target===this){if(id==='taskModal')closeTaskModal();else if(id==='longtermModal')closeLongtermModal();else if(id==='recurringModal')closeRecurringModal();else closeWeekSummary()}})});
-document.getElementById('sopDetailOverlay').addEventListener('click',function(e){if(e.target===this){if(!currentSOPId)saveNewSOP();else closeSOPDetail()}});
+document.getElementById('sopDetailOverlay').addEventListener('click',function(e){if(e.target===this)closeSOPDetail()});
 
 // Close day popover on scroll
 window.addEventListener('scroll', () => { const p = document.getElementById('dayTaskPopover'); if (p.classList.contains('show')) closeDayPopover(); }, true);
