@@ -50,21 +50,27 @@
   /* ===== Left: Tasks + Log ===== */
   .left-col { display: flex; flex-direction: column; gap: 14px; }
 
-  /* Mini Week View */
+  /* Month Calendar View */
   .week-view { background: var(--white); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); border: 1px solid rgba(212,134,156,0.08); }
-  .week-view h3 { font-size: 12px; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
-  .week-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-  .week-day { text-align: center; padding: 10px 4px; border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); border: 1px solid transparent; position: relative; }
-  .week-day:hover { background: var(--cream); }
-  .week-day.today { background: linear-gradient(135deg, var(--pink), var(--pink-dark)); border-color: var(--pink-accent); }
-  .week-day.today .wd-num { color: white; background: var(--pink-accent); }
-  .week-day.past { opacity: 0.5; }
-  .week-day .wd-name { font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
-  .week-day.today .wd-name { color: var(--pink-accent); font-weight: 600; }
-  .week-day .wd-num { font-size: 14px; font-weight: 600; width: 28px; height: 28px; line-height: 28px; border-radius: 50%; margin: 0 auto 4px; }
-  .week-day .wd-dots { display: flex; justify-content: center; gap: 2px; margin-top: 4px; }
-  .wd-dot { width: 5px; height: 5px; border-radius: 50%; }
-  .wd-dot.high { background: #E07B5A; } .wd-dot.medium { background: var(--blue-accent); } .wd-dot.low { background: #C9A87C; } .wd-dot.recurring { background: var(--green-accent); }
+  .week-view h3 { font-size: 12px; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .month-nav { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+  .month-nav-btn { border: none; background: var(--cream); border-radius: 6px; padding: 3px 8px; font-size: 11px; cursor: pointer; color: var(--text-light); transition: var(--transition); }
+  .month-nav-btn:hover { background: var(--cream-dark); }
+  .month-label { font-size: 13px; font-weight: 600; flex: 1; text-align: center; }
+  .month-today-btn { font-size: 10px; padding: 2px 7px; background: var(--pink); color: var(--pink-accent); }
+  .month-weekdays { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; margin-bottom: 4px; }
+  .month-weekdays span { text-align: center; font-size: 10px; color: var(--text-muted); padding: 2px 0; font-weight: 500; }
+  .month-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; }
+  .month-cell { text-align: center; padding: 5px 2px; border-radius: 6px; cursor: pointer; transition: var(--transition); border: 1px solid transparent; min-height: 38px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .month-cell:hover { background: var(--cream); border-color: var(--cream-dark); }
+  .month-cell.empty { cursor: default; }
+  .month-cell.empty:hover { background: transparent; border-color: transparent; }
+  .month-cell.today { background: linear-gradient(135deg, var(--pink), var(--pink-dark)); border-color: var(--pink-accent); }
+  .month-cell.today .mc-num { color: white; background: var(--pink-accent); }
+  .month-cell .mc-num { font-size: 13px; font-weight: 600; width: 26px; height: 26px; line-height: 26px; border-radius: 50%; }
+  .month-cell .mc-dots { display: flex; justify-content: center; gap: 2px; margin-top: 1px; }
+  .mc-dot { width: 4px; height: 4px; border-radius: 50%; }
+  .mc-dot.high { background: #E07B5A; } .mc-dot.medium { background: var(--blue-accent); } .mc-dot.low { background: #C9A87C; } .mc-dot.recurring { background: var(--green-accent); }
 
   /* Long-term */
   .sidebar-section { background: var(--white); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); border: 1px solid rgba(212,134,156,0.08); }
@@ -95,6 +101,12 @@
   .info-item { padding: 8px 10px; border-radius: var(--radius-sm); margin-bottom: 4px; border: 1px solid rgba(123,155,203,0.15); background: linear-gradient(135deg,#FAFBFD,#F3F6FB); }
   .info-item .info-label { font-size: 10px; color: var(--blue-accent); font-weight: 600; margin-bottom: 2px; }
   .info-item .info-content { font-size: 13px; font-weight: 600; font-family: 'SF Mono','Menlo','Consolas',monospace; cursor: pointer; user-select: text; }
+
+  /* Password */
+  .pwd-items { display: flex; flex-direction: column; gap: 6px; }
+  .pwd-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid rgba(123,155,203,0.15); background: linear-gradient(135deg,#FAFBFD,#F3F6FB); }
+  .pwd-label { font-size: 11px; color: var(--blue-accent); font-weight: 500; }
+  .pwd-value { font-size: 14px; font-weight: 700; font-family: 'SF Mono','Menlo','Consolas',monospace; color: var(--text); cursor: pointer; user-select: text; }
 
   /* Links */
   .link-item { display: block; padding: 7px 10px; border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); margin-bottom: 2px; text-decoration: none; color: inherit; font-size: 12px; border: 1px solid transparent; }
@@ -136,18 +148,14 @@
   .sop-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
   .sop-header h2 { font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
   .sop-header .sop-count { font-size: 12px; color: var(--text-muted); font-weight: 400; }
-  .sop-filter { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
-  .sop-filter-btn { padding: 4px 12px; border-radius: 14px; border: 1px solid rgba(212,134,156,0.2); background: var(--white); font-size: 11px; cursor: pointer; transition: var(--transition); color: var(--text-light); }
-  .sop-filter-btn:hover { background: var(--cream); }
-  .sop-filter-btn.active { background: linear-gradient(135deg, var(--pink-accent), #C47A8E); color: white; border-color: transparent; }
 
   /* SOP Cards - Notion style */
-  .sop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  .sop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
   .sop-card {
     background: var(--white); border-radius: var(--radius); padding: 18px;
     box-shadow: var(--shadow-card); border: 1px solid rgba(0,0,0,0.04);
     cursor: pointer; transition: var(--transition); position: relative;
-    display: flex; flex-direction: column; min-height: 140px;
+    display: flex; flex-direction: column; min-height: 130px;
   }
   .sop-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
   .sop-card .sop-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
@@ -188,7 +196,6 @@
   .sop-detail-section h4 { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600; }
   .sop-detail-section .sop-process { font-size: 13px; line-height: 2; color: var(--text); white-space: pre-wrap; background: var(--cream); padding: 14px 18px; border-radius: var(--radius-sm); }
   .sop-detail-section .sop-notes { font-size: 13px; line-height: 1.8; color: var(--text-light); white-space: pre-wrap; background: linear-gradient(135deg,#FAFBFD,#F3F6FB); padding: 14px 18px; border-radius: var(--radius-sm); border-left: 3px solid var(--blue-accent); }
-  .sop-detail-section .sop-files { font-size: 12px; line-height: 1.8; color: var(--text-light); white-space: pre-wrap; background: var(--cream); padding: 12px 16px; border-radius: var(--radius-sm); }
   .sop-detail-section .sop-contacts-box { font-size: 12px; line-height: 1.8; color: var(--text); background: linear-gradient(135deg,#FDF3F7,#F8E5EC); padding: 12px 16px; border-radius: var(--radius-sm); }
   .sop-detail-actions { padding: 16px 28px; border-top: 1px solid rgba(0,0,0,0.06); display: flex; justify-content: flex-end; gap: 10px; }
   .sop-detail-actions button { padding: 8px 20px; border-radius: 20px; font-size: 13px; cursor: pointer; font-weight: 500; transition: var(--transition); }
@@ -197,13 +204,12 @@
   .sop-detail-title-edit { border: 2px solid transparent; font-size: 20px; font-weight: 600; padding: 6px 10px; border-radius: 8px; width: 100%; font-family: inherit; color: var(--text); background: transparent; outline: none; transition: var(--transition); margin-bottom: 4px; margin-left: -10px; }
   .sop-detail-title-edit:hover { background: var(--cream); }
   .sop-detail-title-edit:focus { background: var(--white); border-color: var(--pink-accent); box-shadow: 0 0 0 3px rgba(212,134,156,0.08); }
-  .sop-process-edit, .sop-notes-edit, .sop-files-edit, .sop-contacts-edit { border: 2px solid transparent; font-size: 13px; padding: 14px 18px; border-radius: var(--radius-sm); width: 100%; font-family: inherit; outline: none; transition: var(--transition); resize: vertical; min-height: 80px; line-height: 1.8; }
+  .sop-process-edit, .sop-notes-edit, .sop-contacts-edit { border: 2px solid transparent; font-size: 13px; padding: 14px 18px; border-radius: var(--radius-sm); width: 100%; font-family: inherit; outline: none; transition: var(--transition); resize: vertical; min-height: 80px; line-height: 1.8; }
   .sop-process-edit { background: var(--cream); }
   .sop-notes-edit { background: linear-gradient(135deg,#FAFBFD,#F3F6FB); border-left: 3px solid var(--blue-accent); }
-  .sop-files-edit { background: var(--cream); min-height: 50px; }
   .sop-contacts-edit { background: linear-gradient(135deg,#FDF3F7,#F8E5EC); min-height: 50px; }
-  .sop-process-edit:hover, .sop-notes-edit:hover, .sop-files-edit:hover, .sop-contacts-edit:hover { background: var(--white); }
-  .sop-process-edit:focus, .sop-notes-edit:focus, .sop-files-edit:focus, .sop-contacts-edit:focus { background: var(--white); border-color: var(--pink-accent); box-shadow: 0 0 0 3px rgba(212,134,156,0.08); }
+  .sop-process-edit:hover, .sop-notes-edit:hover, .sop-contacts-edit:hover { background: var(--white); }
+  .sop-process-edit:focus, .sop-notes-edit:focus, .sop-contacts-edit:focus { background: var(--white); border-color: var(--pink-accent); box-shadow: 0 0 0 3px rgba(212,134,156,0.08); }
   .inline-edit-hint { font-size: 10px; color: var(--text-muted); font-weight: 400; margin-left: 8px; opacity: 0.7; }
 
   /* ===== Modals ===== */
@@ -240,9 +246,8 @@
     .left-col.mobile-show, .right-col.mobile-show, .center-col.mobile-show { display: flex; }
     .sop-grid { grid-template-columns: 1fr; }
     .sop-card { min-height: 100px; padding: 14px; }
-    .week-days { gap: 3px; }
-    .week-day { padding: 6px 2px; }
-    .week-day .wd-num { font-size: 12px; width: 24px; height: 24px; line-height: 24px; }
+    .month-grid { gap: 2px; }
+    .month-cell .mc-num { font-size: 11px; width: 22px; height: 22px; line-height: 22px; }
     .modal { width: 95vw; padding: 16px; }
     .sop-detail { width: 95vw; }
     .toast { bottom: 80px; }
@@ -287,16 +292,28 @@
   <!-- LEFT: Week + Upcoming -->
   <div class="left-col" id="leftCol">
     <div class="week-view">
-      <h3>📅 本周概览</h3>
-      <div class="week-days" id="weekDays"></div>
+      <h3>📅 月历</h3>
+      <div class="month-nav">
+        <button class="month-nav-btn" onclick="changeMonth(-1)">◀</button>
+        <span class="month-label" id="monthLabel"></span>
+        <button class="month-nav-btn" onclick="changeMonth(1)">▶</button>
+        <button class="month-nav-btn month-today-btn" onclick="goToday()">今天</button>
+      </div>
+      <div class="month-weekdays">
+        <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span>
+      </div>
+      <div class="month-grid" id="monthGrid"></div>
     </div>
     <div class="upcoming-section">
       <h3>⏳ 即将到期</h3>
       <div id="upcomingList"></div>
     </div>
     <div class="sidebar-section">
-      <h3>🔐 密码 / 信息</h3>
-      <div id="quickInfoList"></div>
+      <h3>🔐 密码</h3>
+      <div class="pwd-items">
+        <div class="pwd-item"><span class="pwd-label">执行单账号</span><span class="pwd-value">0088</span></div>
+        <div class="pwd-item"><span class="pwd-label">执行单密码</span><span class="pwd-value">270069</span></div>
+      </div>
     </div>
     <div class="sidebar-section">
       <h3>🔗 常用链接</h3>
@@ -309,12 +326,6 @@
     <div class="sop-header">
       <h2>📚 SOP 知识库 <span class="sop-count" id="sopCount"></span></h2>
       <button class="header-btn add-btn" onclick="openNewSOPDetail()" style="font-size:11px;padding:5px 12px;">+ 新建卡片</button>
-    </div>
-    <div class="sop-filter" id="sopFilter">
-      <button class="sop-filter-btn active" onclick="filterSOP('all')">全部</button>
-      <button class="sop-filter-btn" onclick="filterSOP('admin')">📋 行政</button>
-      <button class="sop-filter-btn" onclick="filterSOP('research')">🔬 科研</button>
-      <button class="sop-filter-btn" onclick="filterSOP('teaching')">📖 教学</button>
     </div>
     <div class="sop-grid" id="sopGrid"></div>
   </div>
@@ -430,10 +441,6 @@
         <textarea class="sop-notes-edit" id="sopDetailNotes" onblur="saveSOPField('notes',this.value)" placeholder="注意事项…"></textarea>
       </div>
       <div class="sop-detail-section">
-        <h4>📎 常用文件 <span class="inline-edit-hint">点击文字直接编辑</span></h4>
-        <textarea class="sop-files-edit" id="sopDetailFiles" onblur="saveSOPField('files',this.value)" placeholder="云盘路径或链接…"></textarea>
-      </div>
-      <div class="sop-detail-section">
         <h4>👤 关键联系人 <span class="inline-edit-hint">点击文字直接编辑</span></h4>
         <textarea class="sop-contacts-edit" id="sopDetailContacts" onblur="saveSOPField('contacts',this.value)" placeholder="审批：王主任 / 签字：李科长"></textarea>
       </div>
@@ -508,11 +515,10 @@ const BUILTIN_DATA = {
 
 let data = {};
 if (window.location.search.includes('reset')) { localStorage.removeItem('workbench_data'); console.log('🔄 localStorage已清除'); }
-let currentMonth = new Date().getMonth();
-let currentYear = new Date().getFullYear();
+let calendarMonth = new Date().getMonth();
+let calendarYear = new Date().getFullYear();
 let searchKeyword = '';
 let saveDebounceTimer = null;
-let sopFilter = 'all';
 let currentSOPId = null;
 
 const WEEKDAY_NAMES = ['一','二','三','四','五','六','日'];
@@ -521,28 +527,6 @@ const CARD_CAT_NAMES = {admin:'📋 行政',research:'🔬 科研',teaching:'�
 const CARD_ICONS = {admin:'📋',research:'🔬',teaching:'📖',learning:'📚',other:'📌'};
 const CARD_THEMES = {admin:'theme-pink',research:'theme-blue',teaching:'theme-green',learning:'theme-yellow',other:'theme-purple'};
 
-function jsDayToCol(d) { return (d===0||d===6)?-1:d-1; }
-
-function getMonthWeeks(year, month) {
-  const weeks=[]; const dim=new Date(year,month+1,0).getDate();
-  let cw=[null,null,null,null,null];
-  for(let d=1;d<=dim;d++){
-    const col=jsDayToCol(new Date(year,month,d).getDay());
-    if(col>=0) cw[col]=d;
-    if(col===4||d===dim){ if(cw.some(x=>x!==null)) weeks.push([...cw]); cw=[null,null,null,null,null]; }
-  }
-  return weeks;
-}
-
-function getWeekendDates(year, month, wd) {
-  const vd=wd.filter(d=>d!==null); if(!vd.length) return [];
-  const fd=new Date(year,month,vd[0]); const off=fd.getDay()===0?-6:1-fd.getDay();
-  const mon=new Date(year,month,vd[0]+off);
-  const sat=new Date(mon); sat.setDate(mon.getDate()+5);
-  const sun=new Date(mon); sun.setDate(mon.getDate()+6);
-  const r=[]; if(sat.getMonth()===month) r.push(sat.getDate()); if(sun.getMonth()===month) r.push(sun.getDate());
-  return r;
-}
 
 // ===== DATA =====
 function saveToLocal() { try{localStorage.setItem('workbench_data',JSON.stringify(data))}catch(e){} }
@@ -570,7 +554,7 @@ async function saveToCloud() {
 async function saveToCloudNow(){saveToLocal();try{await fetch(JSONBIN_URL,{method:'PUT',headers:JSONBIN_HEADERS,body:JSON.stringify(data)})}catch(e){}}
 
 function renderAll() {
-  renderWeekView(); renderLongterm(); renderRecurring(); renderQuickInfo(); renderLinks();
+  renderWeekView(); renderLongterm(); renderRecurring(); renderLinks();
   renderLog(); renderSOP(); renderUpcoming();
   document.getElementById('todayDate').textContent=new Date().toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
   if(window.innerWidth<=768) restoreMobileTab();
@@ -579,35 +563,70 @@ function renderAll() {
 // ===== SEARCH =====
 function onSearch(v) { searchKeyword=v.trim().toLowerCase(); renderSOP(); }
 
-// ===== WEEK VIEW =====
+// ===== MONTH CALENDAR VIEW (Mon-Fri only) =====
 function renderWeekView() {
-  const el=document.getElementById('weekDays');
-  const today=new Date(),todayStr=today.toISOString().split('T')[0];
-  const dayOfWeek=today.getDay(),mondayOff=dayOfWeek===0?-6:1-dayOfWeek;
-  const monday=new Date(today); monday.setDate(today.getDate()+mondayOff);
+  const grid = document.getElementById('monthGrid');
+  const label = document.getElementById('monthLabel');
+  const today = new Date(), todayStr = today.toISOString().split('T')[0];
+  const y = calendarYear, m = calendarMonth;
 
-  let html='';
-  for(let i=0;i<7;i++){
-    const d=new Date(monday); d.setDate(monday.getDate()+i);
-    const ds=d.toISOString().split('T')[0];
-    const isToday=ds===todayStr;
-    const isPast=d<today && !isToday;
-    const dayTasks=(data.tasks||[]).filter(t=>t.date===ds);
-    const rec=getRecurringForDate(ds);
-    const cls=isToday?'today':isPast?'past':'';
+  label.textContent = `${y}年 ${m + 1}月`;
 
-    const dots=[
-      ...dayTasks.map(t=>{const p=t.priority==='high'?'high':t.priority==='medium'?'medium':'low';return`<span class="wd-dot ${p}"></span>`}),
-      ...rec.map(()=>`<span class="wd-dot recurring"></span>`)
-    ].slice(0,4).join('');
+  // Build month grid: Mon-Fri only
+  const dim = new Date(y, m + 1, 0).getDate();
+  const firstDay = new Date(y, m, 1).getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+  // Convert to Mon-indexed: Mon=0, Tue=1, Wed=2, Thu=3, Fri=4
+  const firstMonIdx = firstDay === 0 ? -5 : 1 - firstDay; // offset from Mon=0
 
-    html+=`<div class="week-day ${cls}" onclick="openTaskModal(null,'${ds}')">
-      <div class="wd-name">${FULL_WEEKDAY_NAMES[d.getDay()]}</div>
-      <div class="wd-num">${d.getDate()}</div>
-      <div class="wd-dots">${dots}</div>
+  let cells = '';
+  // Leading empty cells
+  if (firstMonIdx > 0) {
+    for (let i = 0; i < firstMonIdx; i++) {
+      cells += '<div class="month-cell empty"></div>';
+    }
+  }
+
+  for (let d = 1; d <= dim; d++) {
+    const date = new Date(y, m, d);
+    const dayOfWeek = date.getDay(); // 0=Sun, 6=Sat
+    // Skip Sat(6) and Sun(0)
+    if (dayOfWeek === 0 || dayOfWeek === 6) continue;
+
+    const ds = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = ds === todayStr;
+    const cls = isToday ? 'today' : '';
+
+    const dayTasks = (data.tasks || []).filter(t => t.date === ds);
+    const rec = getRecurringForDate(ds);
+    const dots = [
+      ...dayTasks.map(t => {
+        const p = t.priority === 'high' ? 'high' : t.priority === 'medium' ? 'medium' : 'low';
+        return `<span class="mc-dot ${p}"></span>`;
+      }),
+      ...rec.map(() => `<span class="mc-dot recurring"></span>`)
+    ].slice(0, 4).join('');
+
+    cells += `<div class="month-cell ${cls}" onclick="openTaskModal(null,'${ds}')">
+      <div class="mc-num">${d}</div>
+      <div class="mc-dots">${dots}</div>
     </div>`;
   }
-  el.innerHTML=html;
+
+  grid.innerHTML = cells;
+}
+
+function changeMonth(delta) {
+  calendarMonth += delta;
+  if (calendarMonth < 0) { calendarMonth = 11; calendarYear--; }
+  if (calendarMonth > 11) { calendarMonth = 0; calendarYear++; }
+  renderWeekView();
+}
+
+function goToday() {
+  const today = new Date();
+  calendarYear = today.getFullYear();
+  calendarMonth = today.getMonth();
+  renderWeekView();
 }
 
 // ===== LONG-TERM =====
@@ -681,36 +700,27 @@ function toggleRecurring(id){const item=(data.recurringTasks||[]).find(r=>r.id==
 function deleteRecurring(){const id=document.getElementById('rcId').value;if(!id)return;closeRecurringModal();deleteRecurringById(id)}
 function deleteRecurringById(id){if(!confirm('确定删除？'))return;data.recurringTasks=(data.recurringTasks||[]).filter(r=>r.id!==id);renderRecurring();renderWeekView();renderUpcoming();saveToCloud();toast('已删除')}
 
-// ===== QUICK INFO & LINKS =====
-function renderQuickInfo(){const el=document.getElementById('quickInfoList'),infos=data.quickInfo||[];if(!infos.length){el.innerHTML='<div class="empty-state">暂无</div>';return}el.innerHTML=infos.map(i=>`<div class="info-item"><div class="info-label">${i.category==='密码'?'🔒':'👤'} ${i.label}</div><div class="info-content">${i.content}</div></div>`).join('')}
+// ===== LINKS =====
 function renderLinks(){const el=document.getElementById('linkList'),links=data.links||[];if(!links.length){el.innerHTML='<div class="empty-state">暂无</div>';return}el.innerHTML=links.map(l=>`<a class="link-item" href="${l.url}" target="_blank">${l.title}<div class="link-cat">${l.category}</div></a>`).join('')}
 
 // ===== SOP CARDS =====
-function filterSOP(cat) {
-  sopFilter=cat;
-  document.querySelectorAll('.sop-filter-btn').forEach(b=>b.classList.remove('active'));
-  event.target.classList.add('active');
-  renderSOP();
-}
-
 function renderSOP() {
-  const el=document.getElementById('sopGrid');
-  const cards=data.workCards||[];
-  const filtered=sopFilter==='all'?cards:cards.filter(c=>c.category===sopFilter);
-  const searched=searchKeyword?filtered.filter(c=>{
-    const text=(c.title+' '+c.process+' '+c.notes+' '+c.contacts).toLowerCase();
+  const el = document.getElementById('sopGrid');
+  const cards = data.workCards || [];
+  const filtered = searchKeyword ? cards.filter(c => {
+    const text = (c.title + ' ' + c.process + ' ' + c.notes + ' ' + c.contacts).toLowerCase();
     return text.includes(searchKeyword);
-  }):filtered;
+  }) : cards;
 
-  document.getElementById('sopCount').textContent=`(${searched.length}张)`;
+  document.getElementById('sopCount').textContent = `(${filtered.length}张)`;
 
-  if(!searched.length){el.innerHTML='<div class="empty-state" style="grid-column:1/-1;">暂无卡片，创建一个吧 📇</div>';return}
+  if (!filtered.length) { el.innerHTML = '<div class="empty-state" style="grid-column:1/-1;">暂无卡片，创建一个吧 📇</div>'; return; }
 
-  el.innerHTML=searched.map((c,i)=>{
-    const theme=CARD_THEMES[c.category]||'theme-pink';
-    const icon=CARD_ICONS[c.category]||'📋';
-    const catName=CARD_CAT_NAMES[c.category]||'📋 行政';
-    const preview=(c.process||'').split('\n').slice(0,2).join('\n');
+  el.innerHTML = filtered.map((c, i) => {
+    const theme = CARD_THEMES[c.category] || 'theme-pink';
+    const icon = CARD_ICONS[c.category] || '📋';
+    const catName = CARD_CAT_NAMES[c.category] || '📋 行政';
+    const preview = (c.process || '').split('\n').slice(0, 3).join('\n');
     return `<div class="sop-card ${theme}" onclick="openSOPDetail('${c.id}')">
       <div class="sop-card-top">
         <span class="sop-icon">${icon}</span>
@@ -718,9 +728,9 @@ function renderSOP() {
       </div>
       <div class="sop-title">${c.title}</div>
       <div class="sop-preview">${preview}</div>
-      <div class="sop-tags">${(c.tags||[]).map(t=>`<span class="sop-tag">${t}</span>`).join('')}</div>
+      <div class="sop-tags">${(c.tags || []).map(t => `<span class="sop-tag">${t}</span>`).join('')}</div>
       <div class="sop-footer">
-        <span class="sop-contacts">${c.contacts?c.contacts.split('/')[0]:''}</span>
+        <span class="sop-contacts">${c.contacts ? c.contacts.split('/')[0] : ''}</span>
         <span class="sop-arrow">→</span>
       </div>
     </div>`;
@@ -735,7 +745,6 @@ function openSOPDetail(id) {
   document.getElementById('sopDetailTags').innerHTML=(c.tags||[]).map(t=>`<span class="sop-tag">${t}</span>`).join('');
   document.getElementById('sopDetailProcess').value=c.process||'';
   document.getElementById('sopDetailNotes').value=c.notes||'';
-  document.getElementById('sopDetailFiles').value=c.files||'';
   document.getElementById('sopDetailContacts').value=c.contacts||'';
   document.getElementById('sopDetailOverlay').classList.add('show');
 }
@@ -765,7 +774,6 @@ function openNewSOPDetail() {
   document.getElementById('sopDetailTags').innerHTML='';
   document.getElementById('sopDetailProcess').value='';
   document.getElementById('sopDetailNotes').value='';
-  document.getElementById('sopDetailFiles').value='';
   document.getElementById('sopDetailContacts').value='';
   document.getElementById('sopDetailOverlay').classList.add('show');
   document.getElementById('sopDetailTitle').focus();
@@ -775,7 +783,7 @@ function saveNewSOP() {
   const title=document.getElementById('sopDetailTitle').value.trim();
   if(!title){toast('请填写标题');return}
   if(!data.workCards)data.workCards=[];
-  const newCard={id:'c'+Date.now(),title,category:'admin',tags:[],process:document.getElementById('sopDetailProcess').value.trim(),notes:document.getElementById('sopDetailNotes').value.trim(),files:document.getElementById('sopDetailFiles').value.trim(),contacts:document.getElementById('sopDetailContacts').value.trim()};
+  const newCard={id:'c'+Date.now(),title,category:'admin',tags:[],process:document.getElementById('sopDetailProcess').value.trim(),notes:document.getElementById('sopDetailNotes').value.trim(),contacts:document.getElementById('sopDetailContacts').value.trim()};
   data.workCards.push(newCard);
   currentSOPId=newCard.id;
   document.getElementById('sopDetailCat').textContent='📋 行政';
