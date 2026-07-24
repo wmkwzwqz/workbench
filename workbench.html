@@ -69,8 +69,8 @@
   .month-cell.today .mc-num { color: white; background: var(--pink-accent); }
   .month-cell .mc-num { font-size: 13px; font-weight: 600; width: 26px; height: 26px; line-height: 26px; border-radius: 50%; }
   .month-cell .mc-dots { display: flex; justify-content: center; align-items: center; gap: 2px; margin-top: 2px; height: 8px; }
-  .mc-dot { width: 5px; height: 5px; border-radius: 50%; display: inline-block; }
-  .mc-dot.high { background: #E07B5A; } .mc-dot.medium { background: var(--blue-accent); } .mc-dot.low { background: #C9A87C; } .mc-dot.recurring { background: var(--green-accent); }
+  .mc-dot { width: 5px; height: 5px; border-radius: 50%; display: inline-block; background: var(--pink-accent); }
+  .mc-dot.recurring { background: var(--green-accent); }
   .mc-dot-wrap { position: relative; display: inline-block; }
   .mc-dot-wrap:hover .mc-tooltip { display: block; }
   .mc-tooltip { display: none; position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%); background: var(--text); color: white; font-size: 10px; padding: 3px 8px; border-radius: 4px; white-space: nowrap; z-index: 10; pointer-events: none; }
@@ -386,10 +386,6 @@
     <h3 id="modalTitle">新建任务</h3><input type="hidden" id="taskId">
     <label>任务名称</label><input type="text" id="taskTitle" placeholder="输入任务名称…">
     <label>日期</label><input type="date" id="taskDate">
-    <label>分类</label>
-    <select id="taskCategory"><option value="科研">科研</option><option value="教学">教学</option><option value="行政">行政</option><option value="学习">学习</option><option value="其他">其他</option></select>
-    <label>优先级</label>
-    <select id="taskPriority"><option value="high">🔴 紧急</option><option value="medium" selected>🔵 一般</option><option value="low">🟤 低优</option></select>
     <label>状态</label>
     <select id="taskStatus"><option value="pending">待完成</option><option value="done">已完成</option></select>
     <label>备注</label><textarea id="taskNote" placeholder="补充说明…"></textarea>
@@ -488,9 +484,9 @@ const JSONBIN_HEADERS = { 'X-Master-Key': JSONBIN_API_KEY, 'Content-Type': 'appl
 
 const BUILTIN_DATA = {
   "tasks": [
-    {"id":1,"title":"省级课题申报材料提交","date":"2025-07-18","category":"科研","priority":"high","status":"pending","note":"需准备申报书、伦理审查表、预算表"},
-    {"id":2,"title":"住院医师规培月度考核","date":"2025-07-25","category":"教学","priority":"medium","status":"pending","note":"提前通知各科室带教老师"},
-    {"id":3,"title":"处理工作餐通知","date":"2025-07-25","category":"行政","priority":"medium","status":"pending","note":"云盘 / 日常 / 工作餐通知-附件.doc"}
+    {"id":1,"title":"省级课题申报材料提交","date":"2025-07-18","status":"pending","note":"需准备申报书、伦理审查表、预算表"},
+    {"id":2,"title":"住院医师规培月度考核","date":"2025-07-25","status":"pending","note":"提前通知各科室带教老师"},
+    {"id":3,"title":"处理工作餐通知","date":"2025-07-25","status":"pending","note":"云盘 / 日常 / 工作餐通知-附件.doc"}
   ],
   "recurringTasks": [
     {"id":"r1","title":"周四固定签字","weekday":4,"category":"行政","note":"待补充：找谁签、签什么","active":true},
@@ -601,10 +597,7 @@ function renderWeekView() {
 
     // Build dots with tooltip
     const dots = [
-      ...dayTasks.map(t => {
-        const p = t.priority === 'high' ? 'high' : t.priority === 'medium' ? 'medium' : 'low';
-        return `<span class="mc-dot-wrap"><span class="mc-dot ${p}"></span><span class="mc-tooltip">${escHtml(t.title)}</span></span>`;
-      }),
+      ...dayTasks.map(t => `<span class="mc-dot-wrap"><span class="mc-dot"></span><span class="mc-tooltip">${escHtml(t.title)}</span></span>`),
       ...rec.map(rt => `<span class="mc-dot-wrap"><span class="mc-dot recurring"></span><span class="mc-tooltip">🔄 ${escHtml(rt.title)}</span></span>`)
     ].slice(0, 4).join('');
 
@@ -963,21 +956,19 @@ function openTaskModal(taskId,presetDate) {
   if(taskId){const t=(data.tasks||[]).find(x=>x.id===taskId);if(!t)return;
     document.getElementById('modalTitle').textContent='编辑任务';document.getElementById('taskId').value=t.id;
     document.getElementById('taskTitle').value=t.title;document.getElementById('taskDate').value=t.date;
-    document.getElementById('taskCategory').value=t.category;document.getElementById('taskPriority').value=t.priority;
     document.getElementById('taskStatus').value=t.status;document.getElementById('taskNote').value=t.note||'';
     document.getElementById('btnDeleteTask').style.display='inline-block';
   }else{document.getElementById('modalTitle').textContent='新建任务';document.getElementById('taskId').value='';
     document.getElementById('taskTitle').value='';document.getElementById('taskDate').value=presetDate||new Date().toISOString().split('T')[0];
-    document.getElementById('taskCategory').value='行政';document.getElementById('taskPriority').value='medium';
     document.getElementById('taskStatus').value='pending';document.getElementById('taskNote').value='';}
 }
 function closeTaskModal(){document.getElementById('taskModal').classList.remove('show');restoreMobileTab()}
 function saveTask() {
-  const id=document.getElementById('taskId').value,title=document.getElementById('taskTitle').value.trim(),date=document.getElementById('taskDate').value,category=document.getElementById('taskCategory').value,priority=document.getElementById('taskPriority').value,status=document.getElementById('taskStatus').value,note=document.getElementById('taskNote').value.trim();
+  const id=document.getElementById('taskId').value,title=document.getElementById('taskTitle').value.trim(),date=document.getElementById('taskDate').value,status=document.getElementById('taskStatus').value,note=document.getElementById('taskNote').value.trim();
   if(!title||!date){toast('请填写名称和日期');return} if(!data.tasks)data.tasks=[];
   let wasPending=true;
-  if(id){const t=data.tasks.find(x=>x.id===parseInt(id));if(t){wasPending=t.status==='pending';t.title=title;t.date=date;t.category=category;t.priority=priority;t.status=status;t.note=note}}
-  else data.tasks.push({id:Date.now(),title,date,category,priority,status,note});
+  if(id){const t=data.tasks.find(x=>x.id===parseInt(id));if(t){wasPending=t.status==='pending';t.title=title;t.date=date;t.status=status;t.note=note}}
+  else data.tasks.push({id:Date.now(),title,date,status,note});
   if(id&&status==='done'&&wasPending) autoLogTaskDone(title);
   closeTaskModal();renderAll();saveToCloud();toast('已保存 ✅');
 }
