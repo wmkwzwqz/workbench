@@ -118,23 +118,29 @@
   .pwd-value { font-size: 14px; font-weight: 700; font-family: 'SF Mono','Menlo','Consolas',monospace; color: var(--text); cursor: pointer; user-select: text; }
 
   /* Log */
-  .log-section { background: var(--white); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); border: 1px solid rgba(212,134,156,0.08); max-height: 280px; display: flex; flex-direction: column; }
-  .log-section h3 { font-size: 11px; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
-  .log-section h3 .week-summary-btn { margin-left: auto; font-size: 10px; color: var(--blue-accent); cursor: pointer; background: none; border: none; letter-spacing: 0; }
+  .log-section { background: var(--white); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); border: 1px solid rgba(212,134,156,0.08); max-height: 460px; display: flex; flex-direction: column; }
+  .log-section h3 { font-size: 11px; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+  .log-section h3 .log-action-btn { font-size: 10px; color: var(--blue-accent); cursor: pointer; background: none; border: none; letter-spacing: 0; padding: 2px 6px; border-radius: 8px; transition: var(--transition); }
+  .log-section h3 .log-action-btn:hover { background: var(--cream); }
+  .log-section h3 .log-action-btn.log-clear-btn { color: #C08080; margin-left: auto; }
+  .log-section h3 .log-action-btn.log-clear-btn:hover { background: #FFF5F5; }
   .log-list { display: flex; flex-direction: column; gap: 5px; overflow-y: auto; flex: 1; }
   .log-day-group { margin-bottom: 4px; }
   .log-day-label { font-size: 10px; font-weight: 600; color: var(--pink-accent); margin-bottom: 3px; }
-  .log-entry { padding: 7px 10px; border-radius: 8px; font-size: 12px; line-height: 1.4; position: relative; transition: var(--transition); margin-bottom: 2px; border: 1px solid transparent; }
+  .log-entry { padding: 7px 10px; border-radius: 8px; font-size: 12px; line-height: 1.5; position: relative; transition: var(--transition); margin-bottom: 3px; border: 1px solid transparent; }
   .log-entry:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
   .log-entry.manual { background: linear-gradient(135deg,#FDF3F7,#F8E5EC); border-color: rgba(212,134,156,0.15); }
   .log-entry.task-done { background: linear-gradient(135deg,#F6FAF4,#ECF4E8); border-color: rgba(107,155,94,0.15); }
-  .log-entry .log-time { font-size: 9px; color: var(--text-muted); margin-top: 2px; }
-  .log-delete { position: absolute; top: 5px; right: 7px; width: 18px; height: 18px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; border-radius: 50%; font-size: 12px; opacity: 0; transition: var(--transition); }
+  .log-entry .log-content { white-space: pre-wrap; word-break: break-word; padding-right: 20px; }
+  .log-entry .log-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 3px; }
+  .log-entry .log-time { font-size: 9px; color: var(--text-muted); }
+  .log-delete { background: none; border: none; color: var(--text-muted); cursor: pointer; border-radius: 50%; font-size: 12px; opacity: 0; transition: var(--transition); padding: 0 2px; }
   .log-entry:hover .log-delete { opacity: 0.5; }
-  .log-input-wrap { display: flex; gap: 4px; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(212,134,156,0.1); }
-  .log-input-wrap input { flex: 1; border: 1px solid rgba(212,134,156,0.2); border-radius: 16px; padding: 6px 12px; font-size: 11px; outline: none; transition: var(--transition); background: var(--cream); }
-  .log-input-wrap input:focus { border-color: var(--pink-accent); background: white; }
-  .log-input-wrap button { border: none; background: linear-gradient(135deg,var(--green-accent),#5A8A4E); color: white; border-radius: 16px; padding: 6px 12px; font-size: 11px; cursor: pointer; font-weight: 500; }
+  .log-delete:hover { opacity: 1 !important; color: #C06060; }
+  .log-input-wrap { display: flex; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(212,134,156,0.1); }
+  .log-input-wrap textarea { flex: 1; border: 1px solid rgba(212,134,156,0.2); border-radius: 10px; padding: 8px 12px; font-size: 11px; outline: none; transition: var(--transition); background: var(--cream); resize: vertical; min-height: 48px; max-height: 120px; font-family: inherit; line-height: 1.5; }
+  .log-input-wrap textarea:focus { border-color: var(--pink-accent); background: white; }
+  .log-input-wrap button { align-self: flex-end; border: none; background: linear-gradient(135deg,var(--green-accent),#5A8A4E); color: white; border-radius: 16px; padding: 6px 14px; font-size: 11px; cursor: pointer; font-weight: 500; white-space: nowrap; }
 
   /* Upcoming */
   .upcoming-section { background: var(--white); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); border: 1px solid rgba(212,134,156,0.08); max-height: 220px; overflow-y: auto; }
@@ -257,6 +263,15 @@
   .day-task-popover .pop-add-btn:hover { background: var(--cream); color: var(--text); }
   .day-task-popover .pop-empty { font-size: 11px; color: var(--text-muted); text-align: center; padding: 6px; }
 
+  /* New Task Type Picker */
+  .new-task-picker { display: none; position: fixed; background: white; border-radius: var(--radius); box-shadow: 0 8px 32px rgba(74,63,58,0.18); z-index: 260; min-width: 220px; padding: 8px; border: 1px solid rgba(212,134,156,0.1); }
+  .new-task-picker.show { display: block; }
+  .new-task-picker .ntp-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); }
+  .new-task-picker .ntp-item:hover { background: var(--cream); }
+  .new-task-picker .ntp-icon { font-size: 20px; line-height: 1; }
+  .new-task-picker .ntp-label { font-size: 13px; font-weight: 600; color: var(--text); }
+  .new-task-picker .ntp-desc { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+
   /* Week Summary Modal */
   .week-summary-content { font-size: 13px; line-height: 1.8; white-space: pre-wrap; background: var(--cream); padding: 14px; border-radius: var(--radius-sm); max-height: 400px; overflow-y: auto; }
   .copy-btn { background: linear-gradient(135deg, var(--blue-accent), #6A8AB8); color: white; border: none; padding: 6px 14px; border-radius: 16px; font-size: 11px; cursor: pointer; transition: var(--transition); margin-bottom: 10px; }
@@ -311,7 +326,7 @@
     </div>
     <span class="today-date" id="todayDate"></span>
     <button class="header-btn btn-save" onclick="downloadHTML()">💾 保存</button>
-    <button class="header-btn add-btn" onclick="openTaskModal()">+ 新建任务</button>
+    <button class="header-btn add-btn" id="newTaskBtn" onclick="toggleNewTaskPicker(event)">+ 新建</button>
   </div>
 </header>
 
@@ -357,10 +372,15 @@
   <!-- RIGHT: Log + Long-term + Recurring -->
   <div class="right-col" id="rightCol">
     <div class="log-section">
-      <h3>📝 工作日志 <button class="week-summary-btn" onclick="openWeekSummary()">📊 本周汇总</button><button class="week-summary-btn" onclick="openLastWeekSummary()" style="margin-left:6px;">📋 上周汇总</button></h3>
+      <h3>📝 剪贴板
+        <button class="log-action-btn" onclick="openWeekSummary()">📊 本周</button>
+        <button class="log-action-btn" onclick="openLastWeekSummary()">📋 上周</button>
+        <button class="log-action-btn" onclick="copyAllLogs()">📑 全部复制</button>
+        <button class="log-action-btn log-clear-btn" onclick="clearAllLogs()">🗑 清空</button>
+      </h3>
       <div class="log-list" id="logList"></div>
       <div class="log-input-wrap">
-        <input type="text" id="logInput" placeholder="记一条工作…" onkeydown="if(event.key==='Enter')addLog()">
+        <textarea id="logInput" placeholder="随手记 / 粘贴内容…（Ctrl+Enter 记下）" rows="3" onkeydown="if(event.key==='Enter'&&event.ctrlKey){event.preventDefault();addLog()}"></textarea>
         <button onclick="addLog()">记下</button>
       </div>
     </div>
@@ -501,6 +521,19 @@
 
 <!-- Day Task Popover -->
 <div class="day-task-popover" id="dayTaskPopover"></div>
+
+<!-- New Task Type Picker -->
+<div class="new-task-picker" id="newTaskPicker">
+  <div class="ntp-item" onclick="closeNewTaskPicker();openTaskModal()">
+    <span class="ntp-icon">📋</span><div><div class="ntp-label">单次任务</div><div class="ntp-desc">有具体日期的一次性任务</div></div>
+  </div>
+  <div class="ntp-item" onclick="closeNewTaskPicker();openLongtermModal()">
+    <span class="ntp-icon">📅</span><div><div class="ntp-label">长期任务</div><div class="ntp-desc">有截止日期的长线工作</div></div>
+  </div>
+  <div class="ntp-item" onclick="closeNewTaskPicker();openRecurringModal()">
+    <span class="ntp-icon">🔄</span><div><div class="ntp-label">周期任务</div><div class="ntp-desc">按星期循环的固定事务</div></div>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -923,12 +956,9 @@ function renderLog() {
   const el=document.getElementById('logList'),logs=data.workLogs||[];
   if(!logs.length){el.innerHTML='<div class="empty-state">暂无记录 ✍️</div>';return}
   const sorted=[...logs].sort((a,b)=>b.date.localeCompare(a.date)||b.time.localeCompare(a.time));
-  const grouped={};sorted.forEach(l=>{if(!grouped[l.date])grouped[l.date]=[];grouped[l.date].push(l)});
-  const dates=Object.keys(grouped).sort().reverse().slice(0,7);
-  el.innerHTML=dates.map(d=>{
-    const dObj=new Date(d+'T00:00:00'),label=`${dObj.getMonth()+1}月${dObj.getDate()}日 ${FULL_WEEKDAY_NAMES[dObj.getDay()]}`;
-    const isToday=d===new Date().toISOString().split('T')[0];
-    return `<div class="log-day-group"><div class="log-day-label">${label}</div>${grouped[d].map(l=>`<div class="log-entry ${l.type==='task'?'task-done':'manual'}">${renderMarkdown(l.content)}<div class="log-time">${l.time||''}</div><button class="log-delete" onclick="deleteLog('${l.id}')">×</button></div>`).join('')}</div>`;
+  el.innerHTML=sorted.map(l=>{
+    const dObj=new Date(l.date+'T00:00:00'),label=`${dObj.getMonth()+1}/${dObj.getDate()}`;
+    return `<div class="log-entry ${l.type==='task'?'task-done':'manual'}"><div class="log-content">${renderMarkdown(l.content)}</div><div class="log-meta"><span class="log-time">${label} ${l.time||''}</span><button class="log-delete" onclick="deleteLog('${l.id}')">×</button></div></div>`;
   }).join('');
 }
 function addLog() {
@@ -937,9 +967,22 @@ function addLog() {
   const now=new Date(),ds=now.toISOString().split('T')[0],tm=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
   if(!data.workLogs)data.workLogs=[];
   data.workLogs.push({id:'log'+Date.now(),content,date:ds,time:tm,type:'manual'});
-  input.value='';renderLog();saveToCloud();toast('已记录 📝');
+  input.value='';input.focus();renderLog();saveToCloud();toast('已记录 📝');
 }
 function deleteLog(id){if(!confirm('删除这条记录？'))return;data.workLogs=(data.workLogs||[]).filter(l=>l.id!==id);renderLog();saveToCloud();toast('已删除')}
+function copyAllLogs(){
+  const logs=data.workLogs||[];
+  if(!logs.length){toast('暂无记录');return}
+  const sorted=[...logs].sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
+  const text=sorted.map(l=>`[${l.date} ${l.time||''}] ${l.content.replace(/\n/g,'\n  ')}`).join('\n');
+  navigator.clipboard.writeText(text).then(()=>toast('已复制 '+logs.length+' 条 📋')).catch(()=>toast('复制失败'));
+}
+function clearAllLogs(){
+  const logs=data.workLogs||[];
+  if(!logs.length){toast('暂无记录');return}
+  if(!confirm(`确定清空全部 ${logs.length} 条记录？此操作不可撤销。`))return;
+  data.workLogs=[];renderLog();saveToCloud();toast('已清空 🗑');
+}
 function autoLogTaskDone(title){
   const now=new Date(),ds=now.toISOString().split('T')[0],tm=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
   if(!data.workLogs)data.workLogs=[];
@@ -1108,6 +1151,31 @@ function closeDayPopoverOnOutside(e) {
   if (!pop.contains(e.target)) closeDayPopover();
 }
 
+// ===== NEW TASK PICKER =====
+function toggleNewTaskPicker(e) {
+  e.stopPropagation();
+  const picker = document.getElementById('newTaskPicker');
+  if (picker.classList.contains('show')) { closeNewTaskPicker(); return; }
+  const btn = document.getElementById('newTaskBtn');
+  const rect = btn.getBoundingClientRect();
+  let left = rect.right - 220;
+  let top = rect.bottom + 6;
+  if (left < 10) left = 10;
+  picker.style.left = left + 'px';
+  picker.style.top = top + 'px';
+  picker.classList.add('show');
+  setTimeout(() => document.addEventListener('click', closeNewTaskPickerOnOutside), 0);
+}
+function closeNewTaskPicker() {
+  document.getElementById('newTaskPicker').classList.remove('show');
+  document.removeEventListener('click', closeNewTaskPickerOnOutside);
+}
+function closeNewTaskPickerOnOutside(e) {
+  const picker = document.getElementById('newTaskPicker');
+  if (!picker.classList.contains('show')) return;
+  if (!picker.contains(e.target) && e.target.id !== 'newTaskBtn') closeNewTaskPicker();
+}
+
 function quickDoneTask(id) {
   const t = (data.tasks || []).find(x => x.id === id);
   if (!t) return;
@@ -1161,7 +1229,7 @@ window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setT
 document.getElementById('sopDetailOverlay').addEventListener('click',function(e){if(e.target===this)closeSOPDetail()});
 
 // Close day popover on scroll
-window.addEventListener('scroll', () => { const p = document.getElementById('dayTaskPopover'); if (p.classList.contains('show')) closeDayPopover(); }, true);
+window.addEventListener('scroll', () => { const p = document.getElementById('dayTaskPopover'); if (p.classList.contains('show')) closeDayPopover(); const np = document.getElementById('newTaskPicker'); if (np.classList.contains('show')) closeNewTaskPicker(); }, true);
 
 loadData();
 </script>
