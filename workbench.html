@@ -198,10 +198,12 @@
   /* SOP Detail View (when card clicked) */
   .sop-detail-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(74,63,58,0.4); z-index: 300; align-items: center; justify-content: center; padding: 20px; }
   .sop-detail-overlay.show { display: flex; }
-  .sop-detail { background: white; border-radius: var(--radius); width: 640px; max-width: 95vw; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(74,63,58,0.15); }
-  .sop-detail-header { padding: 24px 28px 16px; border-bottom: 1px solid rgba(0,0,0,0.06); }
+  .sop-detail { background: white; border-radius: var(--radius); width: 880px; max-width: 95vw; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(74,63,58,0.15); }
+  .sop-detail-header { padding: 20px 28px 14px; border-bottom: 1px solid rgba(0,0,0,0.06); }
   .sop-detail-header h2 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
-  .sop-detail-body { padding: 20px 28px; }
+  .sop-detail-body { display: flex; gap: 20px; padding: 20px 28px; }
+  .sop-detail-col { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .sop-detail-col h4 { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600; }
   .sop-detail-section { margin-bottom: 20px; }
   .sop-detail-section h4 { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600; }
   .sop-detail-section .sop-process { font-size: 13px; line-height: 2; color: var(--text); white-space: pre-wrap; background: var(--cream); padding: 14px 18px; border-radius: var(--radius-sm); }
@@ -209,6 +211,7 @@
   .sop-detail-section .sop-contacts-box { font-size: 12px; line-height: 1.8; color: var(--text); background: linear-gradient(135deg,#FDF3F7,#F8E5EC); padding: 12px 16px; border-radius: var(--radius-sm); }
   .sop-detail-actions { padding: 16px 28px; border-top: 1px solid rgba(0,0,0,0.06); display: flex; justify-content: flex-end; gap: 10px; }
   .sop-detail-actions button { padding: 8px 20px; border-radius: 20px; font-size: 13px; cursor: pointer; font-weight: 500; transition: var(--transition); }
+  @media (max-width: 768px) { .sop-detail-body { flex-direction: column; } }
 
   /* WYSIWYG textarea styles */
   .sop-detail-title-edit { border: 2px solid transparent; font-size: 20px; font-weight: 600; padding: 6px 10px; border-radius: 8px; width: 100%; font-family: inherit; color: var(--text); background: transparent; outline: none; transition: var(--transition); margin-bottom: 4px; margin-left: -10px; }
@@ -434,8 +437,8 @@
     <select id="rcWeekday"><option value="1">周一</option><option value="2">周二</option><option value="3">周三</option><option value="4">周四</option><option value="5">周五</option><option value="6">周六</option><option value="0">周日</option></select>
     <label>间隔周数（1=每周, 2=隔周）</label><input type="number" id="rcInterval" value="1" min="1" max="8">
     <label>参考起始日期</label><input type="date" id="rcRefDate">
-    <label>分类</label>
-    <select id="rcCategory"><option value="行政">行政</option><option value="科研">科研</option><option value="教学">教学</option><option value="学习">学习</option><option value="其他">其他</option></select>
+    <label style="display:none">分类</label>
+    <select id="rcCategory" style="display:none"><option value="行政">行政</option><option value="科研">科研</option><option value="教学">教学</option><option value="学习">学习</option><option value="其他">其他</option></select>
     <label>备注</label><textarea id="rcNote" placeholder="补充说明…"></textarea>
     <div class="modal-actions">
       <button class="btn-delete" id="btnDeleteRC" style="display:none;margin-right:auto;" onclick="deleteRecurring()">删除</button>
@@ -467,13 +470,13 @@
       <input type="text" class="sop-detail-title-edit" id="sopDetailTitle" readonly onclick="this.removeAttribute('readonly');this.focus()" onblur="this.setAttribute('readonly','');saveSOPField('title',this.value)" placeholder="卡片标题">
     </div>
     <div class="sop-detail-body">
-      <div class="sop-detail-section">
-        <h4>📋 标准流程 <span class="inline-edit-hint">点击文字直接编辑</span></h4>
-        <textarea class="sop-process-edit" id="sopDetailProcess" onblur="saveSOPField('process',this.value)" placeholder="步骤1&#10;步骤2&#10;..."></textarea>
+      <div class="sop-detail-col">
+        <h4>📋 标准流程 <span class="inline-edit-hint">点击编辑</span></h4>
+        <textarea class="sop-process-edit" id="sopDetailProcess" onblur="saveSOPField('process',this.value)" placeholder="步骤1&#10;步骤2&#10;..." style="flex:1;min-height:180px;"></textarea>
       </div>
-      <div class="sop-detail-section">
-        <h4>⚠️ 注意事项 <span class="inline-edit-hint">点击文字直接编辑</span></h4>
-        <textarea class="sop-notes-edit" id="sopDetailNotes" onblur="saveSOPField('notes',this.value)" placeholder="注意事项…"></textarea>
+      <div class="sop-detail-col">
+        <h4>⚠️ 注意事项 <span class="inline-edit-hint">点击编辑</span></h4>
+        <textarea class="sop-notes-edit" id="sopDetailNotes" onblur="saveSOPField('notes',this.value)" placeholder="注意事项…" style="flex:1;min-height:180px;"></textarea>
       </div>
     </div>
     <div class="sop-detail-actions">
@@ -705,7 +708,7 @@ function renderRecurring() {
   el.innerHTML=items.map(rt=>{
     const wd=FULL_WEEKDAY_NAMES[rt.weekday], iv=(rt.weekInterval&&rt.weekInterval>1)?`·每${rt.weekInterval}周`:'·每周';
     return `<div class="recurring-item${rt.active===false?' inactive':''}">
-      <div class="rc-title">🔄 ${rt.title}</div><div class="rc-meta">${wd}${iv}·${rt.category}${rt.note?'·'+rt.note:''}</div>
+      <div class="rc-title">🔄 ${rt.title}</div><div class="rc-meta">${wd}${iv}${rt.note?'·'+rt.note:''}</div>
       <div class="rc-actions"><button class="toggle-btn" onclick="toggleRecurring('${rt.id}')">${rt.active===false?'启用':'停用'}</button><button onclick="openRecurringModal('${rt.id}')">✎</button><button onclick="deleteRecurringById('${rt.id}')">×</button></div>
     </div>`;
   }).join('');
