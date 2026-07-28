@@ -45,7 +45,7 @@
   .search-icon { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--text-muted); pointer-events: none; }
 
   /* ===== Layout ===== */
-  .layout { display: grid; grid-template-columns: 280px 1fr 280px; gap: 14px; padding: 14px 16px; max-width: 1500px; margin: 0 auto; min-height: calc(100vh - 52px); }
+  .layout { display: grid; grid-template-columns: 300px 1fr 320px; gap: 14px; padding: 14px 16px; max-width: 1500px; margin: 0 auto; min-height: calc(100vh - 52px); }
 
   /* ===== Left: Tasks + Log ===== */
   .left-col { display: flex; flex-direction: column; gap: 14px; }
@@ -332,7 +332,7 @@
 
 <div class="layout">
 
-  <!-- LEFT: Week + Upcoming -->
+  <!-- LEFT: Calendar + Upcoming + Long-term + Recurring -->
   <div class="left-col" id="leftCol">
     <div class="week-view">
       <h3>📅 月历</h3>
@@ -352,11 +352,14 @@
       <div id="upcomingList"></div>
     </div>
     <div class="sidebar-section">
-      <h3>🔐 密码</h3>
-      <div class="pwd-items">
-        <div class="pwd-item"><span class="pwd-label">执行单账号</span><span class="pwd-value">***REMOVED***</span></div>
-        <div class="pwd-item"><span class="pwd-label">执行单密码</span><span class="pwd-value">***REMOVED***</span></div>
-      </div>
+      <h3>📋 长期工作</h3>
+      <div id="longtermList"></div>
+      <button class="lt-add-btn" onclick="openLongtermModal()">+ 添加</button>
+    </div>
+    <div class="sidebar-section">
+      <h3>🔄 周期任务</h3>
+      <div id="recurringList"></div>
+      <button class="rc-add-btn" onclick="openRecurringModal()">+ 添加</button>
     </div>
   </div>
 
@@ -369,7 +372,7 @@
     <div class="sop-grid" id="sopGrid"></div>
   </div>
 
-  <!-- RIGHT: Log + Long-term + Recurring -->
+  <!-- RIGHT: Clipboard + Passwords + People -->
   <div class="right-col" id="rightCol">
     <div class="log-section">
       <h3>📝 剪贴板
@@ -385,14 +388,11 @@
       </div>
     </div>
     <div class="sidebar-section">
-      <h3>📋 长期工作</h3>
-      <div id="longtermList"></div>
-      <button class="lt-add-btn" onclick="openLongtermModal()">+ 添加</button>
-    </div>
-    <div class="sidebar-section">
-      <h3>🔄 周期任务</h3>
-      <div id="recurringList"></div>
-      <button class="rc-add-btn" onclick="openRecurringModal()">+ 添加</button>
+      <h3>🔐 密码</h3>
+      <div class="pwd-items">
+        <div class="pwd-item"><span class="pwd-label">执行单账号</span><span class="pwd-value">***REMOVED***</span></div>
+        <div class="pwd-item"><span class="pwd-label">执行单密码</span><span class="pwd-value">***REMOVED***</span></div>
+      </div>
     </div>
     <div class="sidebar-section">
       <h3>👥 常联系人</h3>
