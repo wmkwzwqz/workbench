@@ -30,7 +30,7 @@
   /* ===== Header ===== */
   .header { background: var(--white); border-bottom: 1px solid rgba(212,134,156,0.15); padding: 0 24px; height: 52px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 4px rgba(74,63,58,0.04); position: sticky; top: 0; z-index: 100; }
   .header-left { display: flex; align-items: center; gap: 10px; }
-  .logo-icon { font-size: 18px; line-height: 1; font-weight: 700; color: var(--pink-accent); letter-spacing: -1px; }
+  .logo-icon { width: 26px; height: 26px; flex-shrink: 0; }
   .header h1 { font-size: 16px; font-weight: 600; }
   .header-right { display: flex; align-items: center; gap: 10px; }
   .today-date { font-size: 12px; color: var(--text-light); }
@@ -352,7 +352,7 @@
 <body>
 
 <header class="header">
-  <div class="header-left"><span class="logo-icon">W</span><h1>工作台</h1></div>
+  <div class="header-left"><svg class="logo-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><ellipse cx="17" cy="8" rx="3.5" ry="9" fill="#F0D0DC"/><ellipse cx="31" cy="8" rx="3.5" ry="9" fill="#F0D0DC"/><ellipse cx="17" cy="9" rx="1.8" ry="6.5" fill="#F8E5EC"/><ellipse cx="31" cy="9" rx="1.8" ry="6.5" fill="#F8E5EC"/><circle cx="24" cy="30" r="14" fill="#FEF9F0" stroke="#D4869C" stroke-width="1.5"/><circle cx="19" cy="28" r="2" fill="#4A3F3A"/><circle cx="29" cy="28" r="2" fill="#4A3F3A"/><circle cx="19.7" cy="27.3" r="0.6" fill="white"/><circle cx="29.7" cy="27.3" r="0.6" fill="white"/><ellipse cx="24" cy="33" rx="2" ry="1.5" fill="#D4869C"/><path d="M24 34.5 Q22 36.5 20.5 35.5" stroke="#4A3F3A" stroke-width="1" stroke-linecap="round" fill="none"/><path d="M24 34.5 Q26 36.5 27.5 35.5" stroke="#4A3F3A" stroke-width="1" stroke-linecap="round" fill="none"/><circle cx="17" cy="32" r="2.5" fill="#F8E5EC" opacity="0.6"/><circle cx="31" cy="32" r="2.5" fill="#F8E5EC" opacity="0.6"/></svg><h1>工作台</h1></div>
   <div class="header-right">
     <div class="search-wrap">
       <span class="search-icon"></span>
@@ -887,7 +887,7 @@ function renderLongterm() {
       <div class="lt-deadline">${isUrgent?'<span class="lt-urgent-dot"></span>':'<span class="lt-date-dot"></span>'} ${d.getMonth()+1}月${d.getDate()}日截止</div>
       <div class="lt-title">${escHtml(item.title)}</div>
       ${item.detail?`<div class="lt-detail">${escHtml(item.detail)}</div>`:''}
-      <div class="lt-actions"><button class="lt-done-btn" onclick="event.stopPropagation();completeLongtermById('${item.id}')" title="标记完成">完成</button><button onclick="event.stopPropagation();openLongtermModal('${item.id}')" title="编辑">编</button><button onclick="event.stopPropagation();deleteLongtermById('${item.id}')" title="删除">删</button></div>
+      <div class="lt-actions"><button class="lt-done-btn" onclick="event.stopPropagation();completeLongtermById('${item.id}')" title="标记完成">完</button><button onclick="event.stopPropagation();openLongtermModal('${item.id}')" title="编辑">编</button><button onclick="event.stopPropagation();deleteLongtermById('${item.id}')" title="删除">删</button></div>
     </div>`;
   }).join('');
   if(done.length){
