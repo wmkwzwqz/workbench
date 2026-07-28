@@ -82,6 +82,9 @@
   .sidebar-section h3 { font-size: 11px; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
   .longterm-item { padding: 10px 12px; border-radius: var(--radius-sm); margin-bottom: 6px; border: 1px solid rgba(212,134,156,0.12); background: linear-gradient(135deg,#FFFAFB,#FFF5F7); transition: var(--transition); cursor: pointer; position: relative; }
   .longterm-item:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+  .longterm-item.completed { background: linear-gradient(135deg,#F4FAF2,#E8F4E4); border-color: rgba(107,155,94,0.2); opacity: 0.85; }
+  .longterm-item.completed .lt-title { text-decoration: line-through; text-decoration-color: var(--green-accent); text-decoration-thickness: 1.5px; color: var(--text-muted); }
+  .longterm-item.completed .lt-deadline { color: var(--green-accent); }
   .longterm-item .lt-deadline { font-size: 10px; font-weight: 700; color: #E07B5A; margin-bottom: 3px; }
   .longterm-item .lt-title { font-size: 12px; font-weight: 500; line-height: 1.4; }
   .longterm-item .lt-detail { font-size: 10px; color: var(--text-muted); line-height: 1.4; margin-top: 2px; }
@@ -89,6 +92,11 @@
   .longterm-item:hover .lt-actions { opacity: 1; }
   .lt-actions button { width: 20px; height: 20px; border: none; background: rgba(0,0,0,0.04); border-radius: 50%; cursor: pointer; font-size: 10px; color: var(--text-muted); }
   .lt-actions button:hover { background: rgba(0,0,0,0.1); color: var(--text); }
+  .lt-actions .lt-done-btn { background: rgba(107,155,94,0.12); color: var(--green-accent); font-size: 11px; }
+  .lt-actions .lt-done-btn:hover { background: var(--green-accent); color: white; }
+  .lt-done-divider { font-size: 10px; color: var(--text-muted); margin: 8px 0 4px; padding-top: 8px; border-top: 1px dashed rgba(212,134,156,0.12); display: flex; align-items: center; gap: 4px; cursor: pointer; }
+  .lt-done-divider:hover { color: var(--text-light); }
+  .lt-done-count { background: var(--green); color: var(--green-accent); font-size: 9px; padding: 1px 6px; border-radius: 8px; font-weight: 600; }
   .lt-add-btn, .rc-add-btn { width: 100%; padding: 7px; border: 1px dashed rgba(212,134,156,0.3); background: transparent; border-radius: var(--radius-sm); cursor: pointer; font-size: 11px; color: var(--text-muted); transition: var(--transition); margin-top: 2px; }
   .lt-add-btn:hover, .rc-add-btn:hover { background: var(--cream); color: var(--text); }
 
@@ -469,6 +477,7 @@
     <label>详细说明</label><textarea id="ltDetail" placeholder="补充说明…"></textarea>
     <div class="modal-actions">
       <button class="btn-delete" id="btnDeleteLT" style="display:none;margin-right:auto;" onclick="deleteLongterm()">删除</button>
+      <button class="btn-submit" id="btnCompleteLT" style="display:none;background:linear-gradient(135deg,var(--green-accent),#5A8A4E);margin-right:auto;" onclick="completeLongtermFromModal()">标记完成</button>
       <button class="btn-cancel" onclick="closeLongtermModal()">取消</button>
       <button class="btn-submit" onclick="saveLongterm()">保存</button>
     </div>
@@ -863,28 +872,75 @@ function goToday() {
 }
 
 // ===== LONG-TERM =====
+let ltShowCompleted = false;
+
 function renderLongterm() {
   const el=document.getElementById('longtermList'); const items=data.longtermTasks||[];
   if(!items.length){el.innerHTML='<div class="empty-state">暂无</div>';return}
-  el.innerHTML=[...items].sort((a,b)=>a.deadline.localeCompare(b.deadline)).map(item=>{
-    const today=new Date().toISOString().split('T')[0], isUrgent=item.deadline<=today;
+  const active=items.filter(l=>!l.completed).sort((a,b)=>a.deadline.localeCompare(b.deadline));
+  const done=items.filter(l=>l.completed).sort((a,b)=>(b.completedDate||'').localeCompare(a.completedDate||''));
+  const today=new Date().toISOString().split('T')[0];
+  let html=active.map(item=>{
+    const isUrgent=item.deadline<=today;
     const d=new Date(item.deadline+'T00:00:00');
     return `<div class="longterm-item" onclick="openLongtermModal('${item.id}')">
       <div class="lt-deadline">${isUrgent?'<span class="lt-urgent-dot"></span>':'<span class="lt-date-dot"></span>'} ${d.getMonth()+1}月${d.getDate()}日截止</div>
-      <div class="lt-title">${item.title}</div>
-      ${item.detail?`<div class="lt-detail">${item.detail}</div>`:''}
-      <div class="lt-actions"><button onclick="event.stopPropagation();openLongtermModal('${item.id}')" title="编辑">编</button><button onclick="event.stopPropagation();deleteLongtermById('${item.id}')" title="删除">删</button></div>
+      <div class="lt-title">${escHtml(item.title)}</div>
+      ${item.detail?`<div class="lt-detail">${escHtml(item.detail)}</div>`:''}
+      <div class="lt-actions"><button class="lt-done-btn" onclick="event.stopPropagation();completeLongtermById('${item.id}')" title="标记完成">完成</button><button onclick="event.stopPropagation();openLongtermModal('${item.id}')" title="编辑">编</button><button onclick="event.stopPropagation();deleteLongtermById('${item.id}')" title="删除">删</button></div>
     </div>`;
   }).join('');
+  if(done.length){
+    html+=`<div class="lt-done-divider" onclick="toggleLtCompleted()">已完成 <span class="lt-done-count">${done.length}</span> <span style="font-size:9px">${ltShowCompleted?'收起':'展开'}</span></div>`;
+    if(ltShowCompleted){
+      html+=done.map(item=>{
+        const d=new Date(item.deadline+'T00:00:00');
+        const cd=item.completedDate?new Date(item.completedDate+'T00:00:00'):null;
+        return `<div class="longterm-item completed" onclick="openLongtermModal('${item.id}')">
+          <div class="lt-deadline"><span class="lt-date-dot" style="background:var(--green-accent)"></span> ${cd?cd.getMonth()+1+'月'+cd.getDate()+'日完成':'已完成'}</div>
+          <div class="lt-title">${escHtml(item.title)}</div>
+          <div class="lt-actions"><button onclick="event.stopPropagation();reopenLongtermById('${item.id}')" title="重新打开">撤</button><button onclick="event.stopPropagation();deleteLongtermById('${item.id}')" title="删除">删</button></div>
+        </div>`;
+      }).join('');
+    }
+  }
+  el.innerHTML=html;
+}
+
+function toggleLtCompleted(){ltShowCompleted=!ltShowCompleted;renderLongterm()}
+
+function completeLongtermById(id){
+  const item=(data.longtermTasks||[]).find(l=>l.id===id);if(!item)return;
+  item.completed=true;item.completedDate=new Date().toISOString().split('T')[0];
+  // Auto-log to clipboard
+  const now=new Date(),ds=now.toISOString().split('T')[0],tm=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  if(!data.workLogs)data.workLogs=[];
+  data.workLogs.push({id:'log'+Date.now(),content:`[完成] 长期工作：${item.title}`,date:ds,time:tm,type:'task'});
+  renderLongterm();renderUpcoming();renderLog();saveToCloud();toast('已完成，干得好');
+}
+
+function reopenLongtermById(id){
+  const item=(data.longtermTasks||[]).find(l=>l.id===id);if(!item)return;
+  delete item.completed;delete item.completedDate;
+  renderLongterm();renderUpcoming();saveToCloud();toast('已重新打开');
 }
 function openLongtermModal(id) {
-  document.getElementById('longtermModal').classList.add('show');document.getElementById('btnDeleteLT').style.display='none';
+  document.getElementById('longtermModal').classList.add('show');
+  document.getElementById('btnDeleteLT').style.display='none';
+  document.getElementById('btnCompleteLT').style.display='none';
   if(id){const item=(data.longtermTasks||[]).find(l=>l.id===id);if(!item)return;
-    document.getElementById('ltModalTitle').textContent='编辑长期工作';document.getElementById('ltId').value=item.id;
+    document.getElementById('ltModalTitle').textContent=item.completed?'查看长期工作':'编辑长期工作';
+    document.getElementById('ltId').value=item.id;
     document.getElementById('ltTitle').value=item.title;document.getElementById('ltDeadline').value=item.deadline;
-    document.getElementById('ltDetail').value=item.detail||'';document.getElementById('btnDeleteLT').style.display='inline-block';
+    document.getElementById('ltDetail').value=item.detail||'';
+    document.getElementById('btnDeleteLT').style.display='inline-block';
+    if(!item.completed) document.getElementById('btnCompleteLT').style.display='inline-block';
   }else{document.getElementById('ltModalTitle').textContent='添加长期工作';document.getElementById('ltId').value='';
     document.getElementById('ltTitle').value='';document.getElementById('ltDeadline').value='';document.getElementById('ltDetail').value='';}
+}
+function completeLongtermFromModal(){
+  const id=document.getElementById('ltId').value;if(!id)return;
+  closeLongtermModal();completeLongtermById(id);
 }
 function closeLongtermModal(){document.getElementById('longtermModal').classList.remove('show');restoreMobileTab()}
 function saveLongterm() {
@@ -1215,7 +1271,7 @@ function renderUpcoming() {
   for(let i=0;i<14;i++){const d=new Date();d.setDate(d.getDate()+i);const ds=d.toISOString().split('T')[0],wd=d.getDay();
     for(const rt of recs){if(rt.active===false||rt.weekday!==wd)continue;if(rt.weekInterval&&rt.weekInterval>1&&rt.refDate){const ref=new Date(rt.refDate+'T00:00:00'),dw=Math.floor((d.getTime()-ref.getTime())/(7*86400000));if(dw%rt.weekInterval!==0)continue}rUp.push({title:'[循环] '+rt.title,date:ds,priority:'low',isRecurring:true})}}
   // Long-term tasks
-  const ltUp=(data.longtermTasks||[]).filter(lt=>lt.deadline>=today).sort((a,b)=>a.deadline.localeCompare(b.deadline)).map(lt=>({title:'[长期] '+lt.title,date:lt.deadline,priority:lt.deadline<=today?'high':'medium',isLongterm:true,ltId:lt.id}));
+  const ltUp=(data.longtermTasks||[]).filter(lt=>!lt.completed&&lt.deadline>=today).sort((a,b)=>a.deadline.localeCompare(b.deadline)).map(lt=>({title:'[长期] '+lt.title,date:lt.deadline,priority:lt.deadline<=today?'high':'medium',isLongterm:true,ltId:lt.id}));
   const all=[...up,...rUp,...ltUp].sort((a,b)=>a.date.localeCompare(b.date)).slice(0,8);
   if(!all.length){el.innerHTML='<div class="empty-state">暂无待办</div>';return}
   el.innerHTML=all.map(t=>{const dt=t.date.slice(5);const isUrgent=t.date<=today;return`<div class="upcoming-item${isUrgent?' upcoming-urgent':''}"><span class="upcoming-date">${dt}</span><span class="upcoming-title" style="cursor:${t.isLongterm?'pointer':'default'}" onclick="${t.isLongterm?`openLongtermModal('${t.ltId}')`:''}">${t.title}</span>${isUrgent?'<span class="upcoming-dot-red"></span>':''}</div>`}).join('');
