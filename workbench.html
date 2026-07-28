@@ -645,6 +645,23 @@ const CARD_THEMES = {admin:'theme-pink',research:'theme-blue',teaching:'theme-gr
 function saveToLocal() { try{localStorage.setItem('workbench_data',JSON.stringify(data))}catch(e){} }
 function loadFromLocal() { try{const r=localStorage.getItem('workbench_data');if(r){data=JSON.parse(r);return true}}catch(e){} return false; }
 
+// Strip emoji and variation selectors from any string
+function stripEmoji(s) {
+  if (typeof s !== 'string') return s;
+  return s.replace(/[\u{1F000}-\u{1FFFF}]|[\u{2600}-\u{27BF}]|\u{FE0F}/gu, '');
+}
+function cleanDataEmoji(obj) {
+  if (obj == null) return obj;
+  if (typeof obj === 'string') return stripEmoji(obj);
+  if (Array.isArray(obj)) return obj.map(cleanDataEmoji);
+  if (typeof obj === 'object') {
+    const out = {};
+    for (const k in obj) out[k] = cleanDataEmoji(obj[k]);
+    return out;
+  }
+  return obj;
+}
+
 async function loadData() {
   let loaded=false;
   try{const res=await fetch(`${JSONBIN_URL}/latest`,{headers:JSONBIN_HEADERS});if(res.ok){data=(await res.json()).record;console.log('JSONBin loaded');loaded=true;saveToLocal()}}catch(e){console.warn('JSONBin不可用')}
@@ -655,6 +672,8 @@ async function loadData() {
     if(!data.workLogs) data.workLogs=builtin.workLogs||[];
     if(!data.workCards||!data.workCards.length) data.workCards=builtin.workCards||[];
     if(!data.people||!data.people.length) data.people=builtin.people||[];
+    // Always strip emoji from cloud/local data (migration safety)
+    data = cleanDataEmoji(data);
     saveToLocal();
   }
   renderAll();
