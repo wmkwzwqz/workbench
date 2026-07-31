@@ -538,7 +538,7 @@
     <div class="sop-detail-actions">
       <button class="btn-delete" id="btnDeleteSOP" onclick="deleteSOPFromDetail()">删除</button>
       <button class="btn-cancel" id="btnCancelSOP" onclick="closeSOPDetail()">关闭</button>
-      <button class="btn-submit" id="btnSaveNewSOP" style="display:none" onclick="saveNewSOP()">保存</button>
+      <button class="btn-submit" id="btnSaveSOP" onclick="saveSOP()" style="display:none">保存</button>
     </div>
   </div>
 </div>
@@ -1117,13 +1117,14 @@ function openSOPDetail(id) {
   const c=(data.workCards||[]).find(x=>x.id===id);if(!c)return;
   currentSOPId=id;
   document.getElementById('sopDetailTitle').value=c.title;
+  document.getElementById('sopDetailTitle').removeAttribute('readonly');
   document.getElementById('sopDetailProcess').value=c.process||'';
   document.getElementById('sopDetailNotes').value=c.notes||'';
   document.getElementById('sopDetailOverlay').classList.add('show');
-  // Restore buttons for existing card
+  // Edit mode: show delete + save buttons
   document.getElementById('btnDeleteSOP').style.display='inline-block';
   document.getElementById('btnCancelSOP').textContent='关闭';
-  document.getElementById('btnSaveNewSOP').style.display='none';
+  document.getElementById('btnSaveSOP').style.display='inline-block';
 }
 function closeSOPDetail(){
   // If new card being created, just discard it
@@ -1132,6 +1133,7 @@ function closeSOPDetail(){
     restoreMobileTab();
     return;
   }
+  // Existing card: just close (already saved via onblur or explicit save button)
   document.getElementById('sopDetailOverlay').classList.remove('show');currentSOPId=null;restoreMobileTab();
 }
 function saveSOPField(field,value) {
@@ -1144,6 +1146,32 @@ function saveSOPField(field,value) {
 }
 function deleteSOPFromDetail(){if(!currentSOPId||!confirm('确定删除这张SOP卡片？'))return;const id=currentSOPId;currentSOPId=null;document.getElementById('sopDetailOverlay').classList.remove('show');data.workCards=(data.workCards||[]).filter(c=>c.id!==id);renderSOP();saveToCloud();toast('已删除')}
 
+function saveSOP() {
+  const title=document.getElementById('sopDetailTitle').value.trim();
+  if(!title){toast('请填写标题');return}
+
+  if(currentSOPId) {
+    // Editing existing card
+    const c=(data.workCards||[]).find(x=>x.id===currentSOPId);
+    if(!c)return;
+    c.title=title;
+    c.process=document.getElementById('sopDetailProcess').value.trim();
+    c.notes=document.getElementById('sopDetailNotes').value.trim();
+    renderSOP();saveToCloud();toast('已保存');
+  } else {
+    // Creating new card
+    if(!data.workCards)data.workCards=[];
+    const newCard={id:'c'+Date.now(),title,category:'admin',tags:[],process:document.getElementById('sopDetailProcess').value.trim(),notes:document.getElementById('sopDetailNotes').value.trim(),contacts:''};
+    data.workCards.push(newCard);
+    currentSOPId=newCard.id;
+    // Restore buttons
+    document.getElementById('btnDeleteSOP').style.display='inline-block';
+    document.getElementById('btnCancelSOP').textContent='关闭';
+    document.getElementById('btnSaveSOP').style.display='inline-block';
+    renderSOP();saveToCloud();toast('卡片已创建');
+  }
+}
+
 function openNewSOPDetail() {
   currentSOPId=null;
   document.getElementById('sopDetailTitle').value='';
@@ -1155,22 +1183,7 @@ function openNewSOPDetail() {
   // Show save button, hide delete, change close to "放弃"
   document.getElementById('btnDeleteSOP').style.display='none';
   document.getElementById('btnCancelSOP').textContent='放弃';
-  document.getElementById('btnSaveNewSOP').style.display='inline-block';
-}
-function saveNewSOP() {
-  if(currentSOPId)return; // not new
-  const title=document.getElementById('sopDetailTitle').value.trim();
-  if(!title){toast('请填写标题');return}
-  if(!data.workCards)data.workCards=[];
-  const newCard={id:'c'+Date.now(),title,category:'admin',tags:[],process:document.getElementById('sopDetailProcess').value.trim(),notes:document.getElementById('sopDetailNotes').value.trim(),contacts:''};
-  data.workCards.push(newCard);
-  currentSOPId=newCard.id;
-  document.getElementById('sopDetailTitle').setAttribute('readonly','');
-  // Restore buttons
-  document.getElementById('btnDeleteSOP').style.display='inline-block';
-  document.getElementById('btnCancelSOP').textContent='关闭';
-  document.getElementById('btnSaveNewSOP').style.display='none';
-  renderSOP();saveToCloud();toast('卡片已创建');
+  document.getElementById('btnSaveSOP').style.display='inline-block';
 }
 
 // ===== LOG =====
