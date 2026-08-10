@@ -46,7 +46,7 @@
   .search-icon::after { content: ''; position: absolute; right: -3px; bottom: -3px; width: 5px; height: 1.5px; background: var(--text-muted); transform: rotate(45deg); border-radius: 1px; transform-origin: left center; }
 
   /* ===== Layout ===== */
-  .layout { display: grid; grid-template-columns: 300px 1fr 320px; gap: 14px; padding: 14px 16px; max-width: 1500px; margin: 0 auto; min-height: calc(100vh - 52px); }
+  .layout { display: grid; grid-template-columns: 300px 1fr 1fr; gap: 14px; padding: 14px 16px; max-width: 1500px; margin: 0 auto; min-height: calc(100vh - 52px); }
 
   /* ===== Left: Tasks + Log ===== */
   .left-col { display: flex; flex-direction: column; gap: 14px; }
@@ -150,6 +150,14 @@
   .log-input-wrap textarea { flex: 1; border: 1px solid rgba(212,134,156,0.2); border-radius: 10px; padding: 8px 12px; font-size: 11px; outline: none; transition: var(--transition); background: var(--cream); resize: vertical; min-height: 48px; max-height: 120px; font-family: inherit; line-height: 1.5; }
   .log-input-wrap textarea:focus { border-color: var(--pink-accent); background: white; }
   .log-input-wrap button { align-self: flex-end; border: none; background: linear-gradient(135deg,var(--green-accent),#5A8A4E); color: white; border-radius: 16px; padding: 6px 14px; font-size: 11px; cursor: pointer; font-weight: 500; white-space: nowrap; }
+
+  /* Memo (center column, editable clipboard) */
+  .memo-section { max-height: none; flex: 1; min-height: 320px; }
+  .memo-section .log-list { min-height: 240px; }
+  .memo-hint { font-size: 9px; color: var(--text-muted); font-weight: 400; letter-spacing: 0; background: var(--cream); padding: 2px 8px; border-radius: 8px; }
+  .log-entry .log-content { cursor: text; border-radius: 6px; transition: background 0.15s ease; }
+  .log-entry .log-content:hover { background: rgba(0,0,0,0.03); }
+  .log-edit-area { width: 100%; border: 1px solid var(--pink-accent); border-radius: 8px; padding: 6px 8px; font-size: 12px; font-family: inherit; line-height: 1.5; outline: none; resize: vertical; min-height: 48px; background: white; color: var(--text); box-sizing: border-box; }
 
   /* Upcoming */
   .upcoming-section { background: var(--white); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); border: 1px solid rgba(212,134,156,0.08); max-height: 220px; overflow-y: auto; }
@@ -287,7 +295,7 @@
   .copy-btn:hover { transform: translateY(-1px); }
 
   /* ===== Responsive ===== */
-  @media (max-width: 1100px) { .layout { grid-template-columns: 240px 1fr 240px; gap: 10px; padding: 10px; } .sop-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 1100px) { .layout { grid-template-columns: 240px 1fr 1fr; gap: 10px; padding: 10px; } .sop-grid { grid-template-columns: 1fr; } }
   @media (max-width: 768px) {
     body { padding-bottom: 70px; }
     .header { height: 48px; padding: 0 12px; }
@@ -398,19 +406,11 @@
     </div>
   </div>
 
-  <!-- CENTER: SOP Knowledge Base -->
+  <!-- CENTER: Memo (editable clipboard) + Passwords + People -->
   <div class="center-col" id="centerCol">
-    <div class="sop-header">
-      <h2>SOP 知识库 <span class="sop-count" id="sopCount"></span></h2>
-      <button class="header-btn add-btn" onclick="openNewSOPDetail()" style="font-size:11px;padding:5px 12px;">+ 新建卡片</button>
-    </div>
-    <div class="sop-grid" id="sopGrid"></div>
-  </div>
-
-  <!-- RIGHT: Clipboard + Passwords + People -->
-  <div class="right-col" id="rightCol">
-    <div class="log-section">
-      <h3>剪贴板
+    <div class="log-section memo-section">
+      <h3>备忘录
+        <span class="memo-hint">点击条目即可编辑</span>
         <button class="log-action-btn" onclick="openWeekSummary()">本周</button>
         <button class="log-action-btn" onclick="openLastWeekSummary()">上周</button>
         <button class="log-action-btn" onclick="copyAllLogs()">全部复制</button>
@@ -418,7 +418,7 @@
       </h3>
       <div class="log-list" id="logList"></div>
       <div class="log-input-wrap">
-        <textarea id="logInput" placeholder="随手记 / 粘贴内容…（Ctrl+Enter 记下）" rows="3" onkeydown="if(event.key==='Enter'&&event.ctrlKey){event.preventDefault();addLog()}"></textarea>
+        <textarea id="logInput" placeholder="随手记 / 粘贴没整理的信息…（Ctrl+Enter 记下）" rows="3" onkeydown="if(event.key==='Enter'&&event.ctrlKey){event.preventDefault();addLog()}"></textarea>
         <button onclick="addLog()">记下</button>
       </div>
     </div>
@@ -436,6 +436,15 @@
     </div>
   </div>
 
+  <!-- RIGHT: SOP Knowledge Base -->
+  <div class="right-col" id="rightCol">
+    <div class="sop-header">
+      <h2>SOP 知识库 <span class="sop-count" id="sopCount"></span></h2>
+      <button class="header-btn add-btn" onclick="openNewSOPDetail()" style="font-size:11px;padding:5px 12px;">+ 新建卡片</button>
+    </div>
+    <div class="sop-grid" id="sopGrid"></div>
+  </div>
+
 </div>
 
 <!-- Mobile Bottom Tab Bar -->
@@ -443,11 +452,11 @@
   <button class="mobile-tab active" data-tab="tasks" onclick="switchMobileTab('tasks')">
     <span class="tab-icon">—</span>任务
   </button>
+  <button class="mobile-tab" data-tab="memo" onclick="switchMobileTab('memo')">
+    <span class="tab-icon">≡</span>备忘
+  </button>
   <button class="mobile-tab" data-tab="sop" onclick="switchMobileTab('sop')">
     <span class="tab-icon">≡</span>SOP
-  </button>
-  <button class="mobile-tab" data-tab="log" onclick="switchMobileTab('log')">
-    <span class="tab-icon">≡</span>日志
   </button>
 </nav>
 
@@ -775,7 +784,7 @@ function renderGlobalSearch(kw) {
     return (l.content || '').toLowerCase().includes(kwLower);
   });
   if (logs.length) {
-    html += `<div class="sr-group"><div class="sr-group-title">剪贴板 (${logs.length})</div>`;
+    html += `<div class="sr-group"><div class="sr-group-title">备忘录 (${logs.length})</div>`;
     logs.slice(0, 10).forEach(l => {
       html += `<div class="sr-item" onclick="closeSearchPanel()"><div class="sr-title">${highlightText(l.content.slice(0, 60), kw)}</div><div class="sr-sub">${l.date} ${l.time || ''}</div></div>`;
     });
@@ -1209,8 +1218,28 @@ function renderLog() {
   const sorted=[...logs].sort((a,b)=>b.date.localeCompare(a.date)||b.time.localeCompare(a.time));
   el.innerHTML=sorted.map(l=>{
     const dObj=new Date(l.date+'T00:00:00'),label=`${dObj.getMonth()+1}/${dObj.getDate()}`;
-    return `<div class="log-entry ${l.type==='task'?'task-done':'manual'}"><div class="log-content">${renderMarkdown(l.content)}</div><div class="log-meta"><span class="log-time">${label} ${l.time||''}</span><button class="log-delete" onclick="deleteLog('${l.id}')" title="删除">×</button></div></div>`;
+    return `<div class="log-entry ${l.type==='task'?'task-done':'manual'}" data-id="${l.id}"><div class="log-content" onclick="editLog('${l.id}',event)" title="点击编辑">${renderMarkdown(l.content)}</div><div class="log-meta"><span class="log-time">${label} ${l.time||''}</span><button class="log-delete" onclick="deleteLog('${l.id}')" title="删除">×</button></div></div>`;
   }).join('');
+}
+function editLog(id,e){
+  if(e&&e.target&&(e.target.closest('a')||e.target.closest('button')))return;
+  const l=(data.workLogs||[]).find(x=>x.id===id);if(!l)return;
+  const entry=document.querySelector(`.log-entry[data-id="${id}"]`);if(!entry||entry.dataset.editing)return;
+  entry.dataset.editing='1';
+  const contentEl=entry.querySelector('.log-content');
+  const ta=document.createElement('textarea');
+  ta.className='log-edit-area';ta.value=l.content;ta.rows=Math.min(Math.max(l.content.split('\n').length+1,3),14);
+  contentEl.replaceWith(ta);ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length);
+  ta.addEventListener('keydown',function(ev){
+    if(ev.key==='Enter'&&ev.ctrlKey){ev.preventDefault();saveLogEdit(id,ta.value)}
+    else if(ev.key==='Escape'){ta.dataset.cancel='1';renderLog()}
+  });
+  ta.addEventListener('blur',function(){saveLogEdit(id,ta.value)});
+}
+function saveLogEdit(id,val){
+  const l=(data.workLogs||[]).find(x=>x.id===id);
+  if(l){const v=val.trim();if(v&&v!==l.content){l.content=v;saveToCloud();toast('已保存修改')}}
+  renderLog();
 }
 function addLog() {
   const input=document.getElementById('logInput'),content=input.value.trim();
@@ -1463,7 +1492,7 @@ function switchMobileTab(tab){
   const all=[left,center,right];
   all.forEach(c=>{c.classList.add('mobile-hide');c.classList.remove('mobile-show')});
   if(tab==='tasks'){left.classList.remove('mobile-hide');left.classList.add('mobile-show');}
-  else if(tab==='sop'){center.classList.remove('mobile-hide');center.classList.add('mobile-show');}
+  else if(tab==='memo'){center.classList.remove('mobile-hide');center.classList.add('mobile-show');}
   else{right.classList.remove('mobile-hide');right.classList.add('mobile-show');}
   window.scrollTo({top:0,behavior:'smooth'});
 }
