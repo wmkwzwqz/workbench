@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🐰 工作台</title>
+<title>🎀 工作台</title>
 <style>
   :root {
     --cream: #FEF9F0; --cream-dark: #F5EDE0;
@@ -163,6 +163,9 @@
   .upcoming-date { font-size: 9px; color: var(--pink-accent); font-weight: 600; min-width: 38px; text-align: left; }
   .upcoming-title { flex: 1; }
   .upcoming-priority { font-size: 11px; flex-shrink: 0; }
+  .upcoming-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
+  .upcoming-dot.recurring { background: var(--green-accent); }
+  .upcoming-dot.longterm { background: var(--blue-accent); }
 
   /* ===== Right: SOP Knowledge Base ===== */
   .right-col { display: flex; flex-direction: column; gap: 14px; }
@@ -355,7 +358,7 @@
 <body>
 
 <header class="header">
-  <div class="header-left"><span class="logo-icon" style="font-size:22px;display:flex;align-items:center;justify-content:center;">🐰</span><h1>工作台</h1></div>
+  <div class="header-left"><span class="logo-icon" style="font-size:22px;display:flex;align-items:center;justify-content:center;">🎀</span><h1>工作台</h1></div>
   <div class="header-right">
     <div class="search-wrap">
       <span class="search-icon"></span>
@@ -859,7 +862,7 @@ function renderWeekView() {
     // Build dots with tooltip
     const dots = [
       ...dayTasks.map(t => `<span class="mc-dot-wrap"><span class="mc-dot"></span><span class="mc-tooltip">${escHtml(t.title)}</span></span>`),
-      ...rec.map(rt => `<span class="mc-dot-wrap"><span class="mc-dot recurring"></span><span class="mc-tooltip">[循环] ${escHtml(rt.title)}</span></span>`)
+      ...rec.map(rt => `<span class="mc-dot-wrap"><span class="mc-dot recurring"></span><span class="mc-tooltip">${escHtml(rt.title)}</span></span>`)
     ].slice(0, 4).join('');
 
     cells += `<div class="month-cell ${cls}${weekendCls}" onclick="openDayPopover(event,'${ds}')">
@@ -974,7 +977,7 @@ function renderRecurring() {
   el.innerHTML=items.map(rt=>{
     const wd=FULL_WEEKDAY_NAMES[rt.weekday], iv=(rt.weekInterval&&rt.weekInterval>1)?`·每${rt.weekInterval}周`:'·每周';
     return `<div class="recurring-item${rt.active===false?' inactive':''}">
-      <div class="rc-title">[循环] ${rt.title}</div><div class="rc-meta">${wd}${iv}${rt.note?'·'+rt.note:''}</div>
+      <div class="rc-title">${rt.title}</div><div class="rc-meta">${wd}${iv}${rt.note?'·'+rt.note:''}</div>
       <div class="rc-actions"><button class="toggle-btn" onclick="toggleRecurring('${rt.id}')">${rt.active===false?'启用':'停用'}</button><button onclick="openRecurringModal('${rt.id}')" title="编辑">编</button><button onclick="deleteRecurringById('${rt.id}')" title="删除">删</button></div>
     </div>`;
   }).join('');
@@ -1318,10 +1321,10 @@ function renderUpcoming() {
   for(let i=0;i<14;i++){const d=new Date();d.setDate(d.getDate()+i);const ds=d.toISOString().split('T')[0],wd=d.getDay();
     for(const rt of recs){if(rt.active===false||rt.weekday!==wd)continue;if(rt.weekInterval&&rt.weekInterval>1&&rt.refDate){const ref=new Date(rt.refDate+'T00:00:00'),dw=Math.floor((d.getTime()-ref.getTime())/(7*86400000));if(dw%rt.weekInterval!==0)continue}rUp.push({title:rt.title,date:ds,priority:'low',isRecurring:true})}}
   // Long-term tasks
-  const ltUp=(data.longtermTasks||[]).filter(lt=>!lt.completed&&lt.deadline>=today).sort((a,b)=>a.deadline.localeCompare(b.deadline)).map(lt=>({title:'[长期] '+lt.title,date:lt.deadline,priority:lt.deadline<=today?'high':'medium',isLongterm:true,ltId:lt.id}));
+  const ltUp=(data.longtermTasks||[]).filter(lt=>!lt.completed&&lt.deadline>=today).sort((a,b)=>a.deadline.localeCompare(b.deadline)).map(lt=>({title:lt.title,date:lt.deadline,priority:lt.deadline<=today?'high':'medium',isLongterm:true,ltId:lt.id}));
   const all=[...up,...rUp,...ltUp].sort((a,b)=>a.date.localeCompare(b.date)).slice(0,8);
   if(!all.length){el.innerHTML='<div class="empty-state">暂无待办</div>';return}
-  el.innerHTML=all.map(t=>{const dt=t.date.slice(5);const isUrgent=t.date<=today;return`<div class="upcoming-item${isUrgent?' upcoming-urgent':''}"><span class="upcoming-date">${dt}</span><span class="upcoming-title" style="cursor:${t.isLongterm?'pointer':'default'}" onclick="${t.isLongterm?`openLongtermModal('${t.ltId}')`:''}">${t.title}</span>${isUrgent?'<span class="upcoming-dot-red"></span>':''}</div>`}).join('');
+  el.innerHTML=all.map(t=>{const dt=t.date.slice(5);const isUrgent=t.date<=today;const dot=t.isRecurring?'<span class="upcoming-dot recurring" title="周期任务"></span>':t.isLongterm?'<span class="upcoming-dot longterm" title="长期工作"></span>':'';return`<div class="upcoming-item${isUrgent?' upcoming-urgent':''}"><span class="upcoming-date">${dt}</span>${dot}<span class="upcoming-title" style="cursor:${t.isLongterm?'pointer':'default'}" onclick="${t.isLongterm?`openLongtermModal('${t.ltId}')`:''}">${t.title}</span>${isUrgent?'<span class="upcoming-dot-red"></span>':''}</div>`}).join('');
 }
 
 // ===== TASK MODAL =====
@@ -1378,7 +1381,7 @@ function openDayPopover(event, ds) {
     // Recurring (read-only info)
     rec.forEach(rt => {
       html += `<div class="pop-task-item" style="cursor:default">
-        <span class="pop-title">[循环] ${escHtml(rt.title)}</span>
+        <span class="pop-title">${escHtml(rt.title)}</span>
         <span style="font-size:9px;color:var(--text-muted)">周期</span>
       </div>`;
     });
