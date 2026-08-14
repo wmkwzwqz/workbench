@@ -46,7 +46,7 @@
   .search-icon::after { content: ''; position: absolute; right: -3px; bottom: -3px; width: 5px; height: 1.5px; background: var(--text-muted); transform: rotate(45deg); border-radius: 1px; transform-origin: left center; }
 
   /* ===== Layout ===== */
-  .layout { display: grid; grid-template-columns: 300px 1fr 1fr; gap: 14px; padding: 14px 16px; max-width: 1500px; margin: 0 auto; min-height: calc(100vh - 52px); }
+  .layout { display: grid; grid-template-columns: 280px 1.35fr 0.85fr; gap: 14px; padding: 14px 16px; max-width: 1560px; margin: 0 auto; min-height: calc(100vh - 52px); }
 
   /* ===== Left: Tasks + Log ===== */
   .left-col { display: flex; flex-direction: column; gap: 14px; }
@@ -120,12 +120,6 @@
   .people-item:hover .pp-actions { opacity: 1; }
   .pp-actions button { width: 18px; height: 18px; border: none; background: rgba(0,0,0,0.04); border-radius: 50%; cursor: pointer; font-size: 9px; color: var(--text-muted); }
 
-  /* Password */
-  .pwd-items { display: flex; flex-direction: column; gap: 6px; }
-  .pwd-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid rgba(123,155,203,0.15); background: linear-gradient(135deg,#FAFBFD,#F3F6FB); }
-  .pwd-label { font-size: 11px; color: var(--blue-accent); font-weight: 500; }
-  .pwd-value { font-size: 14px; font-weight: 700; font-family: 'SF Mono','Menlo','Consolas',monospace; color: var(--text); cursor: pointer; user-select: text; }
-
   /* Log */
   .log-section { background: var(--white); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); border: 1px solid rgba(212,134,156,0.08); max-height: 460px; display: flex; flex-direction: column; }
   .log-section h3 { font-size: 11px; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
@@ -136,7 +130,7 @@
   .log-list { display: flex; flex-direction: column; gap: 5px; overflow-y: auto; flex: 1; }
   .log-day-group { margin-bottom: 4px; }
   .log-day-label { font-size: 10px; font-weight: 600; color: var(--pink-accent); margin-bottom: 3px; }
-  .log-entry { padding: 7px 10px; border-radius: 8px; font-size: 12px; line-height: 1.5; position: relative; transition: var(--transition); margin-bottom: 3px; border: 1px solid transparent; }
+  .log-entry { padding: 10px 12px; border-radius: 8px; font-size: 15px; line-height: 1.55; position: relative; transition: var(--transition); margin-bottom: 4px; border: 1px solid transparent; }
   .log-entry:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
   .log-entry.manual { background: linear-gradient(135deg,#FDF3F7,#F8E5EC); border-color: rgba(212,134,156,0.15); }
   .log-entry.task-done { background: linear-gradient(135deg,#F6FAF4,#ECF4E8); border-color: rgba(107,155,94,0.15); }
@@ -147,17 +141,18 @@
   .log-entry:hover .log-delete { opacity: 0.5; }
   .log-delete:hover { opacity: 1 !important; color: #C06060; }
   .log-input-wrap { display: flex; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(212,134,156,0.1); }
-  .log-input-wrap textarea { flex: 1; border: 1px solid rgba(212,134,156,0.2); border-radius: 10px; padding: 8px 12px; font-size: 11px; outline: none; transition: var(--transition); background: var(--cream); resize: vertical; min-height: 48px; max-height: 120px; font-family: inherit; line-height: 1.5; }
+  .log-input-wrap textarea { flex: 1; border: 1px solid rgba(212,134,156,0.2); border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; transition: var(--transition); background: var(--cream); resize: vertical; min-height: 52px; max-height: 160px; font-family: inherit; line-height: 1.5; }
   .log-input-wrap textarea:focus { border-color: var(--pink-accent); background: white; }
   .log-input-wrap button { align-self: flex-end; border: none; background: linear-gradient(135deg,var(--green-accent),#5A8A4E); color: white; border-radius: 16px; padding: 6px 14px; font-size: 11px; cursor: pointer; font-weight: 500; white-space: nowrap; }
 
   /* Memo (center column, editable clipboard) */
-  .memo-section { max-height: none; flex: 1; min-height: 320px; }
-  .memo-section .log-list { min-height: 240px; }
-  .memo-hint { font-size: 9px; color: var(--text-muted); font-weight: 400; letter-spacing: 0; background: var(--cream); padding: 2px 8px; border-radius: 8px; }
+  .memo-section { max-height: none; flex: 1; min-height: 480px; }
+  .memo-section .log-list { min-height: 360px; }
+  .memo-section h3 { font-size: 13px; }
+  .memo-hint { font-size: 10px; color: var(--text-muted); font-weight: 400; letter-spacing: 0; background: var(--cream); padding: 2px 8px; border-radius: 8px; }
   .log-entry .log-content { cursor: text; border-radius: 6px; transition: background 0.15s ease; }
   .log-entry .log-content:hover { background: rgba(0,0,0,0.03); }
-  .log-edit-area { width: 100%; border: 1px solid var(--pink-accent); border-radius: 8px; padding: 6px 8px; font-size: 12px; font-family: inherit; line-height: 1.5; outline: none; resize: vertical; min-height: 48px; background: white; color: var(--text); box-sizing: border-box; }
+  .log-edit-area { width: 100%; border: 1px solid var(--pink-accent); border-radius: 8px; padding: 6px 8px; font-size: 15px; font-family: inherit; line-height: 1.55; outline: none; resize: vertical; min-height: 48px; background: white; color: var(--text); box-sizing: border-box; }
 
   /* Upcoming */
   .upcoming-section { background: var(--white); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); border: 1px solid rgba(212,134,156,0.08); max-height: 220px; overflow-y: auto; }
@@ -295,7 +290,7 @@
   .copy-btn:hover { transform: translateY(-1px); }
 
   /* ===== Responsive ===== */
-  @media (max-width: 1100px) { .layout { grid-template-columns: 240px 1fr 1fr; gap: 10px; padding: 10px; } .sop-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 1100px) { .layout { grid-template-columns: 240px 1.3fr 0.8fr; gap: 10px; padding: 10px; } .sop-grid { grid-template-columns: 1fr; } }
   @media (max-width: 768px) {
     body { padding-bottom: 70px; }
     .header { height: 48px; padding: 0 12px; }
@@ -411,8 +406,6 @@
     <div class="log-section memo-section">
       <h3>备忘录
         <span class="memo-hint">点击条目即可编辑</span>
-        <button class="log-action-btn" onclick="openWeekSummary()">本周</button>
-        <button class="log-action-btn" onclick="openLastWeekSummary()">上周</button>
         <button class="log-action-btn" onclick="copyAllLogs()">全部复制</button>
         <button class="log-action-btn log-clear-btn" onclick="clearAllLogs()">清空</button>
       </h3>
@@ -420,13 +413,6 @@
       <div class="log-input-wrap">
         <textarea id="logInput" placeholder="随手记 / 粘贴没整理的信息…（Ctrl+Enter 记下）" rows="3" onkeydown="if(event.key==='Enter'&&event.ctrlKey){event.preventDefault();addLog()}"></textarea>
         <button onclick="addLog()">记下</button>
-      </div>
-    </div>
-    <div class="sidebar-section">
-      <h3>密码</h3>
-      <div class="pwd-items">
-        <div class="pwd-item"><span class="pwd-label">执行单账号</span><span class="pwd-value">***REMOVED***</span></div>
-        <div class="pwd-item"><span class="pwd-label">执行单密码</span><span class="pwd-value">***REMOVED***</span></div>
       </div>
     </div>
     <div class="sidebar-section">
@@ -1330,7 +1316,7 @@ function renderUpcoming() {
   const up=tasks.filter(t=>t.status==='pending'&&t.date>=today).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,4);
   const rUp=[];const recs=data.recurringTasks||[];
   for(let i=0;i<14;i++){const d=new Date();d.setDate(d.getDate()+i);const ds=d.toISOString().split('T')[0],wd=d.getDay();
-    for(const rt of recs){if(rt.active===false||rt.weekday!==wd)continue;if(rt.weekInterval&&rt.weekInterval>1&&rt.refDate){const ref=new Date(rt.refDate+'T00:00:00'),dw=Math.floor((d.getTime()-ref.getTime())/(7*86400000));if(dw%rt.weekInterval!==0)continue}rUp.push({title:'[循环] '+rt.title,date:ds,priority:'low',isRecurring:true})}}
+    for(const rt of recs){if(rt.active===false||rt.weekday!==wd)continue;if(rt.weekInterval&&rt.weekInterval>1&&rt.refDate){const ref=new Date(rt.refDate+'T00:00:00'),dw=Math.floor((d.getTime()-ref.getTime())/(7*86400000));if(dw%rt.weekInterval!==0)continue}rUp.push({title:rt.title,date:ds,priority:'low',isRecurring:true})}}
   // Long-term tasks
   const ltUp=(data.longtermTasks||[]).filter(lt=>!lt.completed&&lt.deadline>=today).sort((a,b)=>a.deadline.localeCompare(b.deadline)).map(lt=>({title:'[长期] '+lt.title,date:lt.deadline,priority:lt.deadline<=today?'high':'medium',isLongterm:true,ltId:lt.id}));
   const all=[...up,...rUp,...ltUp].sort((a,b)=>a.date.localeCompare(b.date)).slice(0,8);
