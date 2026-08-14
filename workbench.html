@@ -130,7 +130,7 @@
   .log-list { display: flex; flex-direction: column; gap: 5px; overflow-y: auto; flex: 1; }
   .log-day-group { margin-bottom: 4px; }
   .log-day-label { font-size: 10px; font-weight: 600; color: var(--pink-accent); margin-bottom: 3px; }
-  .log-entry { padding: 10px 12px; border-radius: 8px; font-size: 15px; line-height: 1.55; position: relative; transition: var(--transition); margin-bottom: 4px; border: 1px solid transparent; }
+  .log-entry { padding: 9px 12px; border-radius: 8px; font-size: 13px; line-height: 1.55; position: relative; transition: var(--transition); margin-bottom: 4px; border: 1px solid transparent; }
   .log-entry:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
   .log-entry.manual { background: linear-gradient(135deg,#FDF3F7,#F8E5EC); border-color: rgba(212,134,156,0.15); }
   .log-entry.task-done { background: linear-gradient(135deg,#F6FAF4,#ECF4E8); border-color: rgba(107,155,94,0.15); }
@@ -141,7 +141,7 @@
   .log-entry:hover .log-delete { opacity: 0.5; }
   .log-delete:hover { opacity: 1 !important; color: #C06060; }
   .log-input-wrap { display: flex; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(212,134,156,0.1); }
-  .log-input-wrap textarea { flex: 1; border: 1px solid rgba(212,134,156,0.2); border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; transition: var(--transition); background: var(--cream); resize: vertical; min-height: 52px; max-height: 160px; font-family: inherit; line-height: 1.5; }
+  .log-input-wrap textarea { flex: 1; border: 1px solid rgba(212,134,156,0.2); border-radius: 10px; padding: 9px 12px; font-size: 13px; outline: none; transition: var(--transition); background: var(--cream); resize: vertical; min-height: 52px; max-height: 160px; font-family: inherit; line-height: 1.5; }
   .log-input-wrap textarea:focus { border-color: var(--pink-accent); background: white; }
   .log-input-wrap button { align-self: flex-end; border: none; background: linear-gradient(135deg,var(--green-accent),#5A8A4E); color: white; border-radius: 16px; padding: 6px 14px; font-size: 11px; cursor: pointer; font-weight: 500; white-space: nowrap; }
 
@@ -152,7 +152,7 @@
   .memo-hint { font-size: 10px; color: var(--text-muted); font-weight: 400; letter-spacing: 0; background: var(--cream); padding: 2px 8px; border-radius: 8px; }
   .log-entry .log-content { cursor: text; border-radius: 6px; transition: background 0.15s ease; }
   .log-entry .log-content:hover { background: rgba(0,0,0,0.03); }
-  .log-edit-area { width: 100%; border: 1px solid var(--pink-accent); border-radius: 8px; padding: 6px 8px; font-size: 15px; font-family: inherit; line-height: 1.55; outline: none; resize: vertical; min-height: 48px; background: white; color: var(--text); box-sizing: border-box; }
+  .log-edit-area { width: 100%; border: 1px solid var(--pink-accent); border-radius: 8px; padding: 6px 8px; font-size: 13px; font-family: inherit; line-height: 1.55; outline: none; resize: vertical; min-height: 48px; background: white; color: var(--text); box-sizing: border-box; }
 
   /* Upcoming */
   .upcoming-section { background: var(--white); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); border: 1px solid rgba(212,134,156,0.08); max-height: 220px; overflow-y: auto; }
@@ -163,6 +163,9 @@
   .upcoming-date { font-size: 9px; color: var(--pink-accent); font-weight: 600; min-width: 38px; text-align: left; }
   .upcoming-title { flex: 1; }
   .upcoming-priority { font-size: 11px; flex-shrink: 0; }
+  .upcoming-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; display: inline-block; background: var(--pink-accent); }
+  .upcoming-dot.recurring { background: var(--green-accent); }
+  .upcoming-dot.longterm { background: var(--blue-accent); }
 
   /* ===== Right: SOP Knowledge Base ===== */
   .right-col { display: flex; flex-direction: column; gap: 14px; }
@@ -1320,7 +1323,7 @@ function renderUpcoming() {
   const ltUp=(data.longtermTasks||[]).filter(lt=>!lt.completed&&lt.deadline>=today).sort((a,b)=>a.deadline.localeCompare(b.deadline)).map(lt=>({title:lt.title,date:lt.deadline,priority:lt.deadline<=today?'high':'medium',isLongterm:true,ltId:lt.id}));
   const all=[...up,...rUp,...ltUp].sort((a,b)=>a.date.localeCompare(b.date)).slice(0,8);
   if(!all.length){el.innerHTML='<div class="empty-state">暂无待办</div>';return}
-  el.innerHTML=all.map(t=>{const dt=t.date.slice(5);const isUrgent=t.date<=today;return`<div class="upcoming-item${isUrgent?' upcoming-urgent':''}"><span class="upcoming-date">${dt}</span><span class="upcoming-title" style="cursor:${t.isLongterm?'pointer':'default'}" onclick="${t.isLongterm?`openLongtermModal('${t.ltId}')`:''}">${t.title}</span></div>`}).join('');
+  el.innerHTML=all.map(t=>{const dt=t.date.slice(5);const isUrgent=t.date<=today;const dotClass=t.isRecurring?'recurring':t.isLongterm?'longterm':'';const dotTitle=t.isRecurring?'周期任务':t.isLongterm?'长期工作':'任务';return`<div class="upcoming-item${isUrgent?' upcoming-urgent':''}"><span class="upcoming-date">${dt}</span><span class="upcoming-dot ${dotClass}" title="${dotTitle}"></span><span class="upcoming-title" style="cursor:${t.isLongterm?'pointer':'default'}" onclick="${t.isLongterm?`openLongtermModal('${t.ltId}')`:''}">${t.title}</span></div>`}).join('');
 }
 
 // ===== TASK MODAL =====
