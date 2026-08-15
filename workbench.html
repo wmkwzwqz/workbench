@@ -593,6 +593,9 @@ const JSONBIN_BIN_ID = '6a61e24cda38895dfe839303';
 const JSONBIN_API_KEY = '$2a$10$y7mtFMt0nMTjwiQFXoP1OeawGMemnxNTufkmLHbYjJaHN5pvyVasy';
 const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 const JSONBIN_HEADERS = { 'X-Master-Key': JSONBIN_API_KEY, 'Content-Type': 'application/json' };
+// 备份 bin：每次保存自动同步一份到备份，防止主 bin 被覆盖后数据丢失
+const JSONBIN_BACKUP_ID = '6a804cf4f5f4af5e29199815';
+const JSONBIN_BACKUP_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BACKUP_ID}`;
 
 const BUILTIN_DATA = {
   "tasks": [
@@ -697,9 +700,23 @@ async function loadData() {
 async function saveToCloud() {
   saveToLocal();
   if(saveDebounceTimer) clearTimeout(saveDebounceTimer);
-  saveDebounceTimer=setTimeout(async()=>{try{await fetch(JSONBIN_URL,{method:'PUT',headers:JSONBIN_HEADERS,body:JSON.stringify(data)});console.log('已同步')}catch(e){console.warn('同步失败')}},800);
+  saveDebounceTimer=setTimeout(async()=>{
+    try{
+      // 主 bin：保存时带 versioning=true，保留历史版本，以后任何误操作都能回滚
+      await fetch(JSONBIN_URL+'?versioning=true',{method:'PUT',headers:JSONBIN_HEADERS,body:JSON.stringify(data)});
+      console.log('已同步(含版本历史)');
+    }catch(e){console.warn('主同步失败')}
+    try{
+      // 备份 bin：再同步一份到备份，双重保险
+      await fetch(JSONBIN_BACKUP_URL,{method:'PUT',headers:JSONBIN_HEADERS,body:JSON.stringify(data)});
+    }catch(e){console.warn('备份同步失败')}
+  },800);
 }
-async function saveToCloudNow(){saveToLocal();try{await fetch(JSONBIN_URL,{method:'PUT',headers:JSONBIN_HEADERS,body:JSON.stringify(data)})}catch(e){}}
+async function saveToCloudNow(){
+  saveToLocal();
+  try{await fetch(JSONBIN_URL+'?versioning=true',{method:'PUT',headers:JSONBIN_HEADERS,body:JSON.stringify(data)})}catch(e){}
+  try{await fetch(JSONBIN_BACKUP_URL,{method:'PUT',headers:JSONBIN_HEADERS,body:JSON.stringify(data)})}catch(e){}
+}
 
 function renderAll() {
   renderWeekView(); renderLongterm(); renderRecurring();
