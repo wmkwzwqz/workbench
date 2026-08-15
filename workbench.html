@@ -134,9 +134,15 @@
   .log-entry:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
   .log-entry.manual { background: linear-gradient(135deg,#FDF3F7,#F8E5EC); border-color: rgba(212,134,156,0.15); }
   .log-entry.task-done { background: linear-gradient(135deg,#F6FAF4,#ECF4E8); border-color: rgba(107,155,94,0.15); }
+  .log-entry.pinned { background: linear-gradient(135deg,#FFF8E1,#FFF3C4); border-color: rgba(212,134,156,0.3); border-left: 3px solid var(--pink-accent); }
   .log-entry .log-content { white-space: pre-wrap; word-break: break-word; padding-right: 20px; }
   .log-entry .log-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 3px; }
   .log-entry .log-time { font-size: 9px; color: var(--text-muted); }
+  .log-pin { background: none; border: none; cursor: pointer; font-size: 11px; opacity: 0; transition: var(--transition); padding: 0 2px; color: var(--text-muted); }
+  .log-entry:hover .log-pin { opacity: 0.6; }
+  .log-pin:hover { opacity: 1 !important; color: var(--pink-accent); }
+  .log-entry.pinned .log-pin { opacity: 1; color: var(--pink-accent); }
+  .log-pin-badge { font-size: 9px; color: var(--pink-accent); font-weight: 600; margin-right: 4px; }
   .log-delete { background: none; border: none; color: var(--text-muted); cursor: pointer; border-radius: 50%; font-size: 12px; opacity: 0; transition: var(--transition); padding: 0 2px; }
   .log-entry:hover .log-delete { opacity: 0.5; }
   .log-delete:hover { opacity: 1 !important; color: #C06060; }
@@ -162,7 +168,6 @@
   .upcoming-item.upcoming-urgent { background: linear-gradient(135deg,#FFFAFB,#FFF5F7); border-radius: 4px; }
   .upcoming-date { font-size: 9px; color: var(--pink-accent); font-weight: 600; min-width: 38px; text-align: left; }
   .upcoming-title { flex: 1; }
-  .upcoming-priority { font-size: 11px; flex-shrink: 0; }
   .upcoming-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; display: inline-block; background: var(--pink-accent); }
   .upcoming-dot.recurring { background: var(--green-accent); }
   .upcoming-dot.longterm { background: var(--blue-accent); }
@@ -230,6 +235,13 @@
   .sop-detail-section .sop-process { font-size: 13px; line-height: 2; color: var(--text); white-space: pre-wrap; background: var(--cream); padding: 14px 18px; border-radius: var(--radius-sm); }
   .sop-detail-section .sop-notes { font-size: 13px; line-height: 1.8; color: var(--text-light); white-space: pre-wrap; background: linear-gradient(135deg,#FAFBFD,#F3F6FB); padding: 14px 18px; border-radius: var(--radius-sm); border-left: 3px solid var(--blue-accent); }
   .sop-detail-section .sop-contacts-box { font-size: 12px; line-height: 1.8; color: var(--text); background: linear-gradient(135deg,#FDF3F7,#F8E5EC); padding: 12px 16px; border-radius: var(--radius-sm); }
+  .sop-files-edit { width: 100%; border: 1px solid rgba(212,134,156,0.2); border-radius: 8px; padding: 8px 10px; font-size: 12px; font-family: inherit; line-height: 1.6; outline: none; resize: vertical; background: var(--cream); color: var(--text); box-sizing: border-box; transition: var(--transition); }
+  .sop-files-edit:focus { border-color: var(--pink-accent); background: white; }
+  .sop-files-list { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+  .sop-file-link { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; padding: 4px 10px; border-radius: 8px; background: var(--cream); color: var(--pink-accent); text-decoration: none; transition: var(--transition); cursor: pointer; word-break: break-all; }
+  .sop-file-link:hover { background: var(--pink); }
+  .sop-card-files { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+  .sop-card-files .sop-file-chip { font-size: 10px; padding: 2px 7px; border-radius: 6px; background: var(--cream); color: var(--pink-accent); display: inline-flex; align-items: center; gap: 3px; }
   .sop-detail-actions { padding: 16px 28px; border-top: 1px solid rgba(0,0,0,0.06); display: flex; justify-content: flex-end; gap: 10px; }
   .sop-detail-actions button { padding: 8px 20px; border-radius: 20px; font-size: 13px; cursor: pointer; font-weight: 500; transition: var(--transition); }
   @media (max-width: 768px) { .sop-detail-body { flex-direction: column; } }
@@ -490,8 +502,6 @@
     <select id="rcWeekday"><option value="1">周一</option><option value="2">周二</option><option value="3">周三</option><option value="4">周四</option><option value="5">周五</option><option value="6">周六</option><option value="0">周日</option></select>
     <label>间隔周数（1=每周, 2=隔周）</label><input type="number" id="rcInterval" value="1" min="1" max="8">
     <label>参考起始日期</label><input type="date" id="rcRefDate">
-    <label style="display:none">分类</label>
-    <select id="rcCategory" style="display:none"><option value="行政">行政</option><option value="科研">科研</option><option value="教学">教学</option><option value="学习">学习</option><option value="其他">其他</option></select>
     <label>备注</label><textarea id="rcNote" placeholder="补充说明…"></textarea>
     <div class="modal-actions">
       <button class="btn-delete" id="btnDeleteRC" style="display:none;margin-right:auto;" onclick="deleteRecurring()">删除</button>
@@ -526,6 +536,10 @@
       <div class="sop-detail-col">
         <h4>标准流程 <span class="inline-edit-hint">点击编辑</span></h4>
         <textarea class="sop-process-edit" id="sopDetailProcess" onblur="saveSOPField('process',this.value)" placeholder="步骤1&#10;步骤2&#10;..." style="flex:1;min-height:180px;"></textarea>
+        <div class="sop-detail-section" style="margin-top:16px">
+          <h4>文件链接 <span class="inline-edit-hint">每行一个，格式：名称 | 链接 或直接贴链接</span></h4>
+          <textarea class="sop-files-edit" id="sopDetailFiles" onblur="saveSOPField('files',this.value)" placeholder="每行一个，格式：&#10;行政例会汇报表.docx | 云盘 / 行政例会汇报表.docx&#10;在线文档 | https://docs.qq.com/xxx" style="min-height:60px;"></textarea>
+        </div>
       </div>
       <div class="sop-detail-col">
         <h4>注意事项 <span class="inline-edit-hint">点击编辑</span></h4>
@@ -587,10 +601,10 @@ const BUILTIN_DATA = {
     {"id":3,"title":"处理工作餐通知","date":"2025-07-25","status":"pending","note":"云盘 / 日常 / 工作餐通知-附件.doc"}
   ],
   "recurringTasks": [
-    {"id":"r1","title":"周四固定签字","weekday":4,"category":"行政","note":"待补充：找谁签、签什么","active":true},
-    {"id":"r2","title":"提醒大家填工作完成表","weekday":5,"category":"行政","note":"每周五提醒各科室填写","active":true},
-    {"id":"r3","title":"统一上传工作完成表","weekday":1,"category":"行政","note":"每周一汇总上传","active":true},
-    {"id":"r4","title":"准备行政例会汇报表（双周）","weekday":5,"weekInterval":2,"category":"行政","note":"每两周周五汇总近两周已完成工作，填写行政例会汇报表，为周日院办例会做准备。模版：云盘 / 行政例会汇报表.docx","active":true,"refDate":"2025-07-04"}
+    {"id":"r1","title":"周四固定签字","weekday":4,"note":"待补充：找谁签、签什么","active":true},
+    {"id":"r2","title":"提醒大家填工作完成表","weekday":5,"note":"每周五提醒各科室填写","active":true},
+    {"id":"r3","title":"统一上传工作完成表","weekday":1,"note":"每周一汇总上传","active":true},
+    {"id":"r4","title":"准备行政例会汇报表（双周）","weekday":5,"weekInterval":2,"note":"每两周周五汇总近两周已完成工作，填写行政例会汇报表，为周日院办例会做准备。模版：云盘 / 行政例会汇报表.docx","active":true,"refDate":"2025-07-04"}
   ],
   "longtermTasks": [
     {"id":"l1","deadline":"2025-10-15","title":"收集考核合格证书","detail":"10月15日前，收集各科室相关人员考核合格证书，统一归档。"},
@@ -669,6 +683,10 @@ async function loadData() {
     if(!data.workLogs) data.workLogs=builtin.workLogs||[];
     if(!data.workCards||!data.workCards.length) data.workCards=builtin.workCards||[];
     if(!data.people||!data.people.length) data.people=builtin.people||[];
+    // Clean up obsolete fields (migration)
+    delete data.links; delete data.quickInfo;
+    if(data.tasks) data.tasks.forEach(t=>{delete t.priority;delete t.category});
+    if(data.recurringTasks) data.recurringTasks.forEach(r=>delete r.category);
     // Always strip emoji from cloud/local data (migration safety)
     data = cleanDataEmoji(data);
     saveToLocal();
@@ -987,18 +1005,18 @@ function openRecurringModal(id) {
     document.getElementById('rcModalTitle').textContent='编辑周期任务';document.getElementById('rcId').value=item.id;
     document.getElementById('rcTitle').value=item.title;document.getElementById('rcWeekday').value=item.weekday;
     document.getElementById('rcInterval').value=item.weekInterval||1;document.getElementById('rcRefDate').value=item.refDate||'';
-    document.getElementById('rcCategory').value=item.category||'行政';document.getElementById('rcNote').value=item.note||'';
+    document.getElementById('rcNote').value=item.note||'';
     document.getElementById('btnDeleteRC').style.display='inline-block';
   }else{document.getElementById('rcModalTitle').textContent='添加周期任务';document.getElementById('rcId').value='';
     document.getElementById('rcTitle').value='';document.getElementById('rcWeekday').value='1';document.getElementById('rcInterval').value='1';
-    document.getElementById('rcRefDate').value='';document.getElementById('rcCategory').value='行政';document.getElementById('rcNote').value='';}
+    document.getElementById('rcRefDate').value='';document.getElementById('rcNote').value='';}
 }
 function closeRecurringModal(){document.getElementById('recurringModal').classList.remove('show');restoreMobileTab()}
 function saveRecurring() {
-  const id=document.getElementById('rcId').value,title=document.getElementById('rcTitle').value.trim(),weekday=parseInt(document.getElementById('rcWeekday').value),weekInterval=parseInt(document.getElementById('rcInterval').value)||1,refDate=document.getElementById('rcRefDate').value,category=document.getElementById('rcCategory').value,note=document.getElementById('rcNote').value.trim();
+  const id=document.getElementById('rcId').value,title=document.getElementById('rcTitle').value.trim(),weekday=parseInt(document.getElementById('rcWeekday').value),weekInterval=parseInt(document.getElementById('rcInterval').value)||1,refDate=document.getElementById('rcRefDate').value,note=document.getElementById('rcNote').value.trim();
   if(!title){toast('请填写名称');return} if(!data.recurringTasks) data.recurringTasks=[];
-  if(id){const item=data.recurringTasks.find(r=>r.id===id);if(item){item.title=title;item.weekday=weekday;item.weekInterval=weekInterval>1?weekInterval:undefined;item.refDate=weekInterval>1?refDate:undefined;item.category=category;item.note=note}}
-  else{const ni={id:'r'+Date.now(),title,weekday,category,note,active:true};if(weekInterval>1){ni.weekInterval=weekInterval;ni.refDate=refDate}data.recurringTasks.push(ni)}
+  if(id){const item=data.recurringTasks.find(r=>r.id===id);if(item){item.title=title;item.weekday=weekday;item.weekInterval=weekInterval>1?weekInterval:undefined;item.refDate=weekInterval>1?refDate:undefined;item.note=note}}
+  else{const ni={id:'r'+Date.now(),title,weekday,note,active:true};if(weekInterval>1){ni.weekInterval=weekInterval;ni.refDate=refDate}data.recurringTasks.push(ni)}
   closeRecurringModal();renderRecurring();renderWeekView();renderUpcoming();saveToCloud();toast('已保存');
 }
 function toggleRecurring(id){const item=(data.recurringTasks||[]).find(r=>r.id===id);if(!item)return;item.active=!item.active;renderRecurring();renderWeekView();renderUpcoming();saveToCloud();toast(item.active?'已启用':'已停用')}
@@ -1043,7 +1061,7 @@ function renderSOP() {
   const el = document.getElementById('sopGrid');
   const cards = data.workCards || [];
   const filtered = searchKeyword ? cards.filter(c => {
-    const text = (c.title + ' ' + c.process + ' ' + c.notes + ' ' + c.contacts).toLowerCase();
+    const text = (c.title + ' ' + c.process + ' ' + c.notes + ' ' + c.contacts + ' ' + (c.files||'')).toLowerCase();
     return text.includes(searchKeyword);
   }) : cards;
 
@@ -1054,12 +1072,38 @@ function renderSOP() {
   el.innerHTML = filtered.map((c, i) => {
     const theme = CARD_THEMES[c.category] || 'theme-pink';
     const preview = (c.process || '').split('\n').slice(0, 3).join('\n');
+    const fileLinks = parseSOPFiles(c.files||'');
+    const filesHtml = fileLinks.length ? `<div class="sop-card-files" onclick="event.stopPropagation()">${fileLinks.map(f=>`<span class="sop-file-chip" onclick="handleSOPFileClick('${f.url.replace(/'/g,"\\'")}','${f.label.replace(/'/g,"\\'")}')" title="${f.url}">📎 ${f.label}</span>`).join('')}</div>` : '';
     return `<div class="sop-card ${theme}" draggable="true" data-card-id="${c.id}" ondragstart="onDragStart(event)" ondragend="onDragEnd(event)" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)" onclick="openSOPDetail('${c.id}')">
       <span class="drag-handle" title="拖拽排序" onclick="event.stopPropagation()" onmousedown="startDragFromHandle(event)">≡</span>
       <div class="sop-title">${c.title}</div>
       <div class="sop-preview">${preview}</div>
+      ${filesHtml}
     </div>`;
   }).join('');
+}
+
+// Parse files field: each line is either "label | url" or just "url"
+function parseSOPFiles(str) {
+  if(!str||!str.trim())return [];
+  return str.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{
+    const idx=l.indexOf('|');
+    if(idx>-1){
+      const label=l.slice(0,idx).trim(),url=l.slice(idx+1).trim();
+      return{label:label||url,url:label||url};
+    }
+    // If line looks like a URL, use it directly
+    return{label:l.length>30?l.slice(0,30)+'…':l,url:l};
+  });
+}
+function handleSOPFileClick(url,label,e) {
+  if(e){e.stopPropagation();e.preventDefault()}
+  if(/^https?:\/\//i.test(url)){
+    window.open(url,'_blank');
+  }else{
+    // Not a URL — copy to clipboard (e.g. cloud drive paths)
+    navigator.clipboard.writeText(url).then(()=>toast('已复制：'+label)).catch(()=>toast('复制失败，请手动复制'));
+  }
 }
 
 // ===== DRAG & DROP =====
@@ -1117,6 +1161,7 @@ function openSOPDetail(id) {
   document.getElementById('sopDetailTitle').removeAttribute('readonly');
   document.getElementById('sopDetailProcess').value=c.process||'';
   document.getElementById('sopDetailNotes').value=c.notes||'';
+  document.getElementById('sopDetailFiles').value=c.files||'';
   document.getElementById('sopDetailOverlay').classList.add('show');
   // Edit mode: show delete + save buttons
   document.getElementById('btnDeleteSOP').style.display='inline-block';
@@ -1154,11 +1199,12 @@ function saveSOP() {
     c.title=title;
     c.process=document.getElementById('sopDetailProcess').value.trim();
     c.notes=document.getElementById('sopDetailNotes').value.trim();
+    c.files=document.getElementById('sopDetailFiles').value.trim();
     renderSOP();saveToCloud();toast('已保存');
   } else {
     // Creating new card
     if(!data.workCards)data.workCards=[];
-    const newCard={id:'c'+Date.now(),title,category:'admin',tags:[],process:document.getElementById('sopDetailProcess').value.trim(),notes:document.getElementById('sopDetailNotes').value.trim(),contacts:''};
+    const newCard={id:'c'+Date.now(),title,category:'admin',tags:[],process:document.getElementById('sopDetailProcess').value.trim(),notes:document.getElementById('sopDetailNotes').value.trim(),files:document.getElementById('sopDetailFiles').value.trim(),contacts:''};
     data.workCards.push(newCard);
     currentSOPId=newCard.id;
     // Restore buttons
@@ -1175,6 +1221,7 @@ function openNewSOPDetail() {
   document.getElementById('sopDetailTitle').removeAttribute('readonly');
   document.getElementById('sopDetailProcess').value='';
   document.getElementById('sopDetailNotes').value='';
+  document.getElementById('sopDetailFiles').value='';
   document.getElementById('sopDetailOverlay').classList.add('show');
   document.getElementById('sopDetailTitle').focus();
   // Show save button, hide delete, change close to "放弃"
@@ -1203,10 +1250,17 @@ function renderMarkdown(text) {
 function renderLog() {
   const el=document.getElementById('logList'),logs=data.workLogs||[];
   if(!logs.length){el.innerHTML='<div class="empty-state">暂无记录</div>';return}
-  const sorted=[...logs].sort((a,b)=>b.date.localeCompare(a.date)||b.time.localeCompare(a.time));
+  const sorted=[...logs].sort((a,b)=>{
+    if(a.pinned&&!b.pinned)return -1;
+    if(!a.pinned&&b.pinned)return 1;
+    return b.date.localeCompare(a.date)||b.time.localeCompare(a.time);
+  });
   el.innerHTML=sorted.map(l=>{
     const dObj=new Date(l.date+'T00:00:00'),label=`${dObj.getMonth()+1}/${dObj.getDate()}`;
-    return `<div class="log-entry ${l.type==='task'?'task-done':'manual'}" data-id="${l.id}"><div class="log-content" onclick="editLog('${l.id}',event)" title="点击编辑">${renderMarkdown(l.content)}</div><div class="log-meta"><span class="log-time">${label} ${l.time||''}</span><button class="log-delete" onclick="deleteLog('${l.id}')" title="删除">×</button></div></div>`;
+    const pinCls=l.pinned?' pinned':'';
+    const typeCls=l.type==='task'?'task-done':'manual';
+    const pinBadge=l.pinned?'<span class="log-pin-badge">📌</span>':'';
+    return `<div class="log-entry ${typeCls}${pinCls}" data-id="${l.id}"><div class="log-content" onclick="editLog('${l.id}',event)" title="点击编辑">${pinBadge}${renderMarkdown(l.content)}</div><div class="log-meta"><span class="log-time">${label} ${l.time||''}</span><span><button class="log-pin" onclick="togglePinLog('${l.id}')" title="${l.pinned?'取消置顶':'置顶'}">${l.pinned?'📌':'📌'}</button><button class="log-delete" onclick="deleteLog('${l.id}')" title="删除">×</button></span></div></div>`;
   }).join('');
 }
 function editLog(id,e){
@@ -1238,11 +1292,16 @@ function addLog() {
   input.value='';input.focus();renderLog();saveToCloud();toast('已记录');
 }
 function deleteLog(id){if(!confirm('删除这条记录？'))return;data.workLogs=(data.workLogs||[]).filter(l=>l.id!==id);renderLog();saveToCloud();toast('已删除')}
+function togglePinLog(id){const l=(data.workLogs||[]).find(x=>x.id===id);if(!l)return;l.pinned=!l.pinned;renderLog();saveToCloud();toast(l.pinned?'已置顶':'已取消置顶')}
 function copyAllLogs(){
   const logs=data.workLogs||[];
   if(!logs.length){toast('暂无记录');return}
-  const sorted=[...logs].sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
-  const text=sorted.map(l=>`[${l.date} ${l.time||''}] ${l.content.replace(/\n/g,'\n  ')}`).join('\n');
+  const sorted=[...logs].sort((a,b)=>{
+    if(a.pinned&&!b.pinned)return -1;
+    if(!a.pinned&&b.pinned)return 1;
+    return a.date.localeCompare(b.date)||a.time.localeCompare(b.time);
+  });
+  const text=sorted.map(l=>`[${l.date} ${l.time||''}]${l.pinned?'[置顶]':''} ${l.content.replace(/\n/g,'\n  ')}`).join('\n');
   navigator.clipboard.writeText(text).then(()=>toast('已复制 '+logs.length+' 条')).catch(()=>toast('复制失败'));
 }
 function clearAllLogs(){
@@ -1318,9 +1377,9 @@ function renderUpcoming() {
   const up=tasks.filter(t=>t.status==='pending'&&t.date>=today).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,4);
   const rUp=[];const recs=data.recurringTasks||[];
   for(let i=0;i<14;i++){const d=new Date();d.setDate(d.getDate()+i);const ds=d.toISOString().split('T')[0],wd=d.getDay();
-    for(const rt of recs){if(rt.active===false||rt.weekday!==wd)continue;if(rt.weekInterval&&rt.weekInterval>1&&rt.refDate){const ref=new Date(rt.refDate+'T00:00:00'),dw=Math.floor((d.getTime()-ref.getTime())/(7*86400000));if(dw%rt.weekInterval!==0)continue}rUp.push({title:rt.title,date:ds,priority:'low',isRecurring:true})}}
+    for(const rt of recs){if(rt.active===false||rt.weekday!==wd)continue;if(rt.weekInterval&&rt.weekInterval>1&&rt.refDate){const ref=new Date(rt.refDate+'T00:00:00'),dw=Math.floor((d.getTime()-ref.getTime())/(7*86400000));if(dw%rt.weekInterval!==0)continue}rUp.push({title:rt.title,date:ds,isRecurring:true})}}
   // Long-term tasks
-  const ltUp=(data.longtermTasks||[]).filter(lt=>!lt.completed&&lt.deadline>=today).sort((a,b)=>a.deadline.localeCompare(b.deadline)).map(lt=>({title:lt.title,date:lt.deadline,priority:lt.deadline<=today?'high':'medium',isLongterm:true,ltId:lt.id}));
+  const ltUp=(data.longtermTasks||[]).filter(lt=>!lt.completed&&lt.deadline>=today).sort((a,b)=>a.deadline.localeCompare(b.deadline)).map(lt=>({title:lt.title,date:lt.deadline,isLongterm:true,ltId:lt.id}));
   const all=[...up,...rUp,...ltUp].sort((a,b)=>a.date.localeCompare(b.date)).slice(0,8);
   if(!all.length){el.innerHTML='<div class="empty-state">暂无待办</div>';return}
   el.innerHTML=all.map(t=>{const dt=t.date.slice(5);const isUrgent=t.date<=today;const dotClass=t.isRecurring?'recurring':t.isLongterm?'longterm':'';const dotTitle=t.isRecurring?'周期任务':t.isLongterm?'长期工作':'任务';return`<div class="upcoming-item${isUrgent?' upcoming-urgent':''}"><span class="upcoming-date">${dt}</span><span class="upcoming-dot ${dotClass}" title="${dotTitle}"></span><span class="upcoming-title" style="cursor:${t.isLongterm?'pointer':'default'}" onclick="${t.isLongterm?`openLongtermModal('${t.ltId}')`:''}">${t.title}</span></div>`}).join('');

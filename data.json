@@ -4,8 +4,6 @@
       "id": 1,
       "title": "省级课题申报材料提交",
       "date": "2025-07-18",
-      "category": "科研",
-      "priority": "high",
       "status": "pending",
       "note": "需准备申报书、伦理审查表、预算表"
     },
@@ -13,8 +11,6 @@
       "id": 2,
       "title": "住院医师规培月度考核",
       "date": "2025-07-25",
-      "category": "教学",
-      "priority": "medium",
       "status": "pending",
       "note": "提前通知各科室带教老师"
     },
@@ -22,8 +18,6 @@
       "id": 3,
       "title": "处理工作餐通知",
       "date": "2025-07-25",
-      "category": "行政",
-      "priority": "medium",
       "status": "pending",
       "note": "云盘 / 日常 / 工作餐通知-附件.doc"
     },
@@ -31,8 +25,6 @@
       "id": 4,
       "title": "熟悉申请工作餐的流程",
       "date": "2026-07-24",
-      "category": "学习",
-      "priority": "medium",
       "status": "pending",
       "note": ""
     }
@@ -42,7 +34,6 @@
       "id": "r1",
       "title": "周四固定签字",
       "weekday": 4,
-      "category": "行政",
       "note": "待补充：找谁签、签什么",
       "active": true
     },
@@ -50,7 +41,6 @@
       "id": "r2",
       "title": "提醒大家填工作完成表",
       "weekday": 5,
-      "category": "行政",
       "note": "每周五下午15:00提醒各科室更新周工作完成情况及下周工作计划",
       "active": true
     },
@@ -58,7 +48,6 @@
       "id": "r3",
       "title": "导出工作完成表给领导",
       "weekday": 5,
-      "category": "行政",
       "note": "每周五17:00前导出工作完成表给领导（顾院长、谭院长）",
       "active": true
     },
@@ -67,7 +56,6 @@
       "title": "准备行政例会汇报表（双周）",
       "weekday": 5,
       "weekInterval": 2,
-      "category": "行政",
       "note": "每两周周五汇总近两周已完成工作，填写行政例会汇报表，为周日院办例会做准备。",
       "active": true,
       "refDate": "2026-07-17"
@@ -87,35 +75,7 @@
       "detail": "请各科室全面梳理本科室名下需法人身份证备案的各类网站、线上平台，相关清单于7月底前报送至院办。"
     }
   ],
-  "quickInfo": [
-    {
-      "id": 1,
-      "label": "打印执行单密码",
-      "content": "***REMOVED*** / ***REMOVED***",
-      "category": "密码"
-    }
-  ],
   "memos": [],
-  "links": [
-    {
-      "id": 1,
-      "title": "四川省卫健委官网",
-      "url": "https://wsjkw.sc.gov.cn/",
-      "category": "常用链接"
-    },
-    {
-      "id": 2,
-      "title": "国家自然科学基金委",
-      "url": "https://www.nsfc.gov.cn/",
-      "category": "常用链接"
-    },
-    {
-      "id": 3,
-      "title": "中国知网",
-      "url": "https://www.cnki.net/",
-      "category": "学术资源"
-    }
-  ],
   "workLogs": [
     {
       "id": "log1785140392919",
