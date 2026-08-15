@@ -153,9 +153,8 @@
 
   /* Memo (center column, editable clipboard) */
   .memo-section { max-height: none; flex: 1; min-height: 480px; }
-  .memo-section .log-list { min-height: 360px; }
+  .memo-section .log-list { min-height: 0; }
   .memo-section h3 { font-size: 13px; }
-  .memo-hint { font-size: 10px; color: var(--text-muted); font-weight: 400; letter-spacing: 0; background: var(--cream); padding: 2px 8px; border-radius: 8px; }
   .log-entry .log-content { cursor: text; border-radius: 6px; transition: background 0.15s ease; }
   .log-entry .log-content:hover { background: rgba(0,0,0,0.03); }
   .log-edit-area { width: 100%; border: 1px solid var(--pink-accent); border-radius: 8px; padding: 6px 8px; font-size: 13px; font-family: inherit; line-height: 1.55; outline: none; resize: vertical; min-height: 48px; background: white; color: var(--text); box-sizing: border-box; }
@@ -256,7 +255,6 @@
   .sop-contacts-edit { background: linear-gradient(135deg,#FDF3F7,#F8E5EC); min-height: 50px; }
   .sop-process-edit:hover, .sop-notes-edit:hover, .sop-contacts-edit:hover { background: var(--white); }
   .sop-process-edit:focus, .sop-notes-edit:focus, .sop-contacts-edit:focus { background: var(--white); border-color: var(--pink-accent); box-shadow: 0 0 0 3px rgba(212,134,156,0.08); }
-  .inline-edit-hint { font-size: 10px; color: var(--text-muted); font-weight: 400; margin-left: 8px; opacity: 0.7; }
 
   /* ===== Modals ===== */
   .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(74,63,58,0.3); z-index: 200; align-items: center; justify-content: center; }
@@ -419,7 +417,6 @@
   <div class="center-col" id="centerCol">
     <div class="log-section memo-section">
       <h3>备忘录
-        <span class="memo-hint">点击条目即可编辑</span>
         <button class="log-action-btn" onclick="copyAllLogs()">全部复制</button>
         <button class="log-action-btn log-clear-btn" onclick="clearAllLogs()">清空</button>
       </h3>
@@ -534,15 +531,15 @@
     </div>
     <div class="sop-detail-body">
       <div class="sop-detail-col">
-        <h4>标准流程 <span class="inline-edit-hint">点击编辑</span></h4>
+        <h4>标准流程</h4>
         <textarea class="sop-process-edit" id="sopDetailProcess" onblur="saveSOPField('process',this.value)" placeholder="步骤1&#10;步骤2&#10;..." style="flex:1;min-height:180px;"></textarea>
         <div class="sop-detail-section" style="margin-top:16px">
-          <h4>文件链接 <span class="inline-edit-hint">每行一个，格式：名称 | 链接 或直接贴链接</span></h4>
-          <textarea class="sop-files-edit" id="sopDetailFiles" onblur="saveSOPField('files',this.value)" placeholder="每行一个，格式：&#10;行政例会汇报表.docx | 云盘 / 行政例会汇报表.docx&#10;在线文档 | https://docs.qq.com/xxx" style="min-height:60px;"></textarea>
+          <h4>文件链接</h4>
+          <textarea class="sop-files-edit" id="sopDetailFiles" onblur="saveSOPField('files',this.value)" placeholder="文件链接…" style="min-height:60px;"></textarea>
         </div>
       </div>
       <div class="sop-detail-col">
-        <h4>注意事项 <span class="inline-edit-hint">点击编辑</span></h4>
+        <h4>注意事项</h4>
         <textarea class="sop-notes-edit" id="sopDetailNotes" onblur="saveSOPField('notes',this.value)" placeholder="注意事项…" style="flex:1;min-height:180px;"></textarea>
       </div>
     </div>
@@ -1277,7 +1274,7 @@ function renderLog() {
     const pinCls=l.pinned?' pinned':'';
     const typeCls=l.type==='task'?'task-done':'manual';
     const pinBadge=l.pinned?'<span class="log-pin-badge">📌</span>':'';
-    return `<div class="log-entry ${typeCls}${pinCls}" data-id="${l.id}"><div class="log-content" onclick="editLog('${l.id}',event)" title="点击编辑">${pinBadge}${renderMarkdown(l.content)}</div><div class="log-meta"><span class="log-time">${label} ${l.time||''}</span><span><button class="log-pin" onclick="togglePinLog('${l.id}')" title="${l.pinned?'取消置顶':'置顶'}">${l.pinned?'📌':'📌'}</button><button class="log-delete" onclick="deleteLog('${l.id}')" title="删除">×</button></span></div></div>`;
+    return `<div class="log-entry ${typeCls}${pinCls}" data-id="${l.id}"><div class="log-content" onclick="editLog('${l.id}',event)">${pinBadge}${renderMarkdown(l.content)}</div><div class="log-meta"><span class="log-time">${label} ${l.time||''}</span><span><button class="log-pin" onclick="togglePinLog('${l.id}')" title="${l.pinned?'取消置顶':'置顶'}">${l.pinned?'📌':'📌'}</button><button class="log-delete" onclick="deleteLog('${l.id}')" title="删除">×</button></span></div></div>`;
   }).join('');
 }
 function editLog(id,e){
