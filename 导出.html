@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>工作台数据导出</title>
+<style>
+  body { font-family: -apple-system, sans-serif; padding: 16px; background: #fafafa; }
+  h2 { color: #333; font-size: 18px; }
+  .card { background: #fff; border-radius: 12px; padding: 14px; margin: 10px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .btn { background: #d4869c; color: #fff; border: none; padding: 12px 18px; border-radius: 8px; font-size: 15px; margin: 6px 4px; }
+  textarea { width: 100%; height: 280px; font-size: 11px; font-family: monospace; border: 1px solid #ddd; border-radius: 8px; padding: 8px; box-sizing: border-box; }
+  .info { color: #555; font-size: 14px; line-height: 1.6; }
+  .ok { color: #27ae60; font-weight: bold; }
+  .warn { color: #c0392b; font-weight: bold; }
+  .stat { font-size: 13px; color: #666; margin: 4px 0; }
+</style>
+</head>
+<body>
+<h2>工作台数据导出</h2>
+<div class="card">
+  <p class="info">点下面按钮读取本浏览器里保存的工作台数据。<b>先别联网</b>，确保读到的是本地（周五）的数据。</p>
+  <button class="btn" onclick="read()">读取数据</button>
+  <button class="btn" style="background:#5b7baa;" onclick="copyAll()">一键复制</button>
+</div>
+<div class="card" id="out" style="display:none;">
+  <p id="status"></p>
+  <div id="stats"></div>
+  <textarea id="txt" readonly></textarea>
+</div>
+<script>
+function read(){
+  try{
+    var raw = localStorage.getItem('workbench_data');
+    if(!raw){ document.getElementById('status').innerHTML='<span class="warn">❌ 没找到数据</span>（这个浏览器没打开过工作台，或数据被清除了）'; document.getElementById('out').style.display='block'; return; }
+    var d = JSON.parse(raw);
+    var s = document.getElementById('status');
+    s.innerHTML = '<span class="ok">✅ 找到数据！</span>';
+    var st = document.getElementById('stats');
+    var html = '';
+    if(d.workLogs) html += '<div class="stat">备忘录：'+d.workLogs.length+' 条</div>';
+    if(d.tasks) html += '<div class="stat">任务：'+d.tasks.length+' 条</div>';
+    if(d.workCards) html += '<div class="stat">SOP卡片：'+d.workCards.length+' 张</div>';
+    if(d.recurringTasks) html += '<div class="stat">周期任务：'+d.recurringTasks.length+' 条</div>';
+    if(d.longtermTasks) html += '<div class="stat">长期工作：'+d.longtermTasks.length+' 条</div>';
+    if(d.people) html += '<div class="stat">联系人：'+d.people.length+' 人</div>';
+    st.innerHTML = html;
+    document.getElementById('txt').value = JSON.stringify(d);
+    document.getElementById('out').style.display='block';
+  }catch(e){
+    document.getElementById('status').innerHTML='<span class="warn">❌ 读取失败：'+e.message+'</span>';
+    document.getElementById('out').style.display='block';
+  }
+}
+function copyAll(){
+  var t = document.getElementById('txt');
+  if(!t.value){ alert('请先点「读取数据」'); return; }
+  t.select();
+  try{ document.execCommand('copy'); alert('已复制！请粘贴发给AI'); }
+  catch(e){ alert('复制失败，请长按文本框全选手动复制'); }
+}
+</script>
+</body>
+</html>
