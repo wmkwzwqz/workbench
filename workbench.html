@@ -697,12 +697,13 @@ function cleanDataEmoji(obj) {
 }
 
 // 数据迁移：清理明文敏感信息（防止从云端/旧 localStorage 拉到已废弃的密码）
+// 旧版曾在 SOP 卡片 process 字段以「账号 XXXX / 密码 XXXXXX」明文保存，用通用模式匹配清理。
 function migrateData(obj) {
   if (obj == null) return obj;
   const sensitivePatterns = [
-    /账号\s****REMOVED***\s*[/／、,，]\s*密码\s****REMOVED***/gi,
-    /账号\s****REMOVED***/gi,
-    /密码\s****REMOVED***/gi
+    /账号\s*\d{3,6}\s*[/／、,，]\s*密码\s*\d{4,8}/gi,
+    /账号\s*\d{3,6}/gi,
+    /密码\s*\d{4,8}/gi
   ];
   const sanitize = (s) => {
     if (typeof s !== 'string') return s;
