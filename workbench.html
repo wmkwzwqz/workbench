@@ -302,7 +302,7 @@
     body { padding-bottom: 70px; }
     .header { height: 48px; padding: 0 12px; }
     .header h1 { font-size: 15px; }
-    .header .search-wrap, .header .today-date, .header .btn-save:not(.btn-backup) { display: none; }
+    .header .search-wrap, .header .today-date, .header .btn-save:not(.btn-backup):not(.btn-sync) { display: none; }
     .layout { grid-template-columns: 1fr; padding: 8px; gap: 8px; }
     .left-col.mobile-hide, .right-col.mobile-hide, .center-col.mobile-hide { display: none; }
     .left-col.mobile-show, .right-col.mobile-show, .center-col.mobile-show { display: flex; }
@@ -369,6 +369,7 @@
     </div>
     <span class="today-date" id="todayDate"></span>
     <button class="header-btn btn-save btn-backup" onclick="openBackupPanel()">备份</button>
+    <button class="header-btn btn-save btn-sync" onclick="syncNow()">立即保存</button>
     <button class="header-btn btn-save" onclick="downloadHTML()">保存</button>
     <button class="header-btn add-btn" id="newTaskBtn" onclick="toggleNewTaskPicker(event)">+ 新建</button>
   </div>
@@ -624,7 +625,6 @@ if (window.location.search.includes('reset')) { localStorage.removeItem('workben
 let calendarMonth = new Date().getMonth();
 let calendarYear = new Date().getFullYear();
 let searchKeyword = '';
-let saveDebounceTimer = null;
 let currentSOPId = null;
 
 const WEEKDAY_NAMES = ['一','二','三','四','五','六','日'];
@@ -743,7 +743,6 @@ async function loadData() {
     }
     if (dataChanged) {
       saveToLocal();
-      saveToCloudNow();
     }
     saveToLocal();
   }
@@ -751,20 +750,10 @@ async function loadData() {
 }
 
 async function saveToCloud() {
+  // 手动同步模式：日常操作只保存到本地 + 本地快照，不上传云端。
+  // 上传云端由「立即保存」按钮（syncNow -> saveToCloudNow）手动触发。
   saveToLocal();
   autoBackup();
-  if(saveDebounceTimer) clearTimeout(saveDebounceTimer);
-  saveDebounceTimer=setTimeout(async()=>{
-    try{
-      // 主 bin：保存当前数据（JSONBin 免费版无版本历史，历史快照由本地 autoBackup 承担）
-      await fetch(JSONBIN_URL,{method:'PUT',headers:JSONBIN_HEADERS,body:JSON.stringify(data)});
-      console.log('已同步');
-    }catch(e){console.warn('主同步失败')}
-    try{
-      // 备份 bin：再同步一份到备份，双重保险
-      await fetch(JSONBIN_BACKUP_URL,{method:'PUT',headers:JSONBIN_HEADERS,body:JSON.stringify(data)});
-    }catch(e){console.warn('备份同步失败')}
-  },800);
 }
 
 // ===== AUTO BACKUP（本地历史快照，防止误删/丢数据） =====
@@ -806,7 +795,6 @@ function restoreBackup(idx) {
   data = JSON.parse(JSON.stringify(b.data));
   saveToLocal();
   renderAll();
-  saveToCloudNow();
   closeBackupPanel();
   toast('已恢复备份');
 }
@@ -838,8 +826,19 @@ function closeBackupPanel() {
 }
 async function saveToCloudNow(){
   saveToLocal();
-  try{await fetch(JSONBIN_URL,{method:'PUT',headers:JSONBIN_HEADERS,body:JSON.stringify(data)})}catch(e){}
-  try{await fetch(JSONBIN_BACKUP_URL,{method:'PUT',headers:JSONBIN_HEADERS,body:JSON.stringify(data)})}catch(e){}
+  let ok=false;
+  try{await fetch(JSONBIN_URL,{method:'PUT',headers:JSONBIN_HEADERS,body:JSON.stringify(data)});ok=true}catch(e){}
+  try{await fetch(JSONBIN_BACKUP_URL,{method:'PUT',headers:JSONBIN_HEADERS,body:JSON.stringify(data)});ok=true}catch(e){}
+  return ok;
+}
+
+// 手动「立即保存」：把当前数据立刻上传云端，并给用户明确反馈
+async function syncNow(){
+  const btn = document.querySelector('.btn-sync');
+  if(btn){btn.disabled=true;btn.textContent='同步中…';}
+  const ok = await saveToCloudNow();
+  if(btn){btn.disabled=false;btn.textContent='立即保存';}
+  toast(ok ? '已上传云端' : '上传失败，请重试');
 }
 
 function renderAll() {
@@ -1587,7 +1586,7 @@ function quickDeleteTask(id) {
 }
 
 // ===== DOWNLOAD =====
-function downloadHTML(){saveToCloudNow();const cd={tasks:data.tasks||[],recurringTasks:data.recurringTasks||[],longtermTasks:data.longtermTasks||[],workLogs:data.workLogs||[],workCards:data.workCards||[],people:data.people||[]};const h=document.documentElement.outerHTML;const si=h.indexOf('const BUILTIN_DATA = '),ei=h.indexOf(';\n\nlet data = {};',si);let nh;if(si>=0&&ei>=0){nh='<!DOCTYPE html>\n'+h.substring(h.indexOf('<html'));nh=nh.substring(0,si+'const BUILTIN_DATA = '.length)+JSON.stringify(cd,null,2)+';\n\n'+nh.substring(ei)}else nh='<!DOCTYPE html>\n'+h.substring(h.indexOf('<html'));const b=new Blob([nh],{type:'text/html'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='workbench.html';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);toast('已下载')}
+function downloadHTML(){const cd={tasks:data.tasks||[],recurringTasks:data.recurringTasks||[],longtermTasks:data.longtermTasks||[],workLogs:data.workLogs||[],workCards:data.workCards||[],people:data.people||[]};const h=document.documentElement.outerHTML;const si=h.indexOf('const BUILTIN_DATA = '),ei=h.indexOf(';\n\nlet data = {};',si);let nh;if(si>=0&&ei>=0){nh='<!DOCTYPE html>\n'+h.substring(h.indexOf('<html'));nh=nh.substring(0,si+'const BUILTIN_DATA = '.length)+JSON.stringify(cd,null,2)+';\n\n'+nh.substring(ei)}else nh='<!DOCTYPE html>\n'+h.substring(h.indexOf('<html'));const b=new Blob([nh],{type:'text/html'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='workbench.html';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);toast('已下载')}
 
 // ===== TOAST =====
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2000)}
