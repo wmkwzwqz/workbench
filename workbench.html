@@ -296,11 +296,6 @@
   .new-task-picker .ntp-label { font-size: 13px; font-weight: 600; color: var(--text); }
   .new-task-picker .ntp-desc { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
 
-  /* Week Summary Modal */
-  .week-summary-content { font-size: 13px; line-height: 1.8; white-space: pre-wrap; background: var(--cream); padding: 14px; border-radius: var(--radius-sm); max-height: 400px; overflow-y: auto; }
-  .copy-btn { background: linear-gradient(135deg, var(--blue-accent), #6A8AB8); color: white; border: none; padding: 6px 14px; border-radius: 16px; font-size: 11px; cursor: pointer; transition: var(--transition); margin-bottom: 10px; }
-  .copy-btn:hover { transform: translateY(-1px); }
-
   /* ===== Responsive ===== */
   @media (max-width: 1100px) { .layout { grid-template-columns: 240px 1.3fr 0.8fr; gap: 10px; padding: 10px; } .sop-grid { grid-template-columns: 1fr; } }
   @media (max-width: 768px) {
@@ -547,18 +542,6 @@
   </div>
 </div>
 
-<!-- Week Summary Modal -->
-<div class="modal-overlay" id="weekSummaryModal">
-  <div class="modal wide">
-    <h3>本周工作汇总</h3>
-    <button class="copy-btn" onclick="copyWeekSummary()">一键复制</button>
-    <div class="week-summary-content" id="weekSummaryContent"></div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeWeekSummary()">关闭</button>
-    </div>
-  </div>
-</div>
-
 <!-- Backup Panel Modal -->
 <div class="modal-overlay" id="backupPanel">
   <div class="modal">
@@ -773,9 +756,9 @@ async function saveToCloud() {
   if(saveDebounceTimer) clearTimeout(saveDebounceTimer);
   saveDebounceTimer=setTimeout(async()=>{
     try{
-      // 主 bin：保存时带 versioning=true，保留历史版本，以后任何误操作都能回滚
-      await fetch(JSONBIN_URL+'?versioning=true',{method:'PUT',headers:JSONBIN_HEADERS,body:JSON.stringify(data)});
-      console.log('已同步(含版本历史)');
+      // 主 bin：保存当前数据（JSONBin 免费版无版本历史，历史快照由本地 autoBackup 承担）
+      await fetch(JSONBIN_URL,{method:'PUT',headers:JSONBIN_HEADERS,body:JSON.stringify(data)});
+      console.log('已同步');
     }catch(e){console.warn('主同步失败')}
     try{
       // 备份 bin：再同步一份到备份，双重保险
@@ -855,7 +838,7 @@ function closeBackupPanel() {
 }
 async function saveToCloudNow(){
   saveToLocal();
-  try{await fetch(JSONBIN_URL+'?versioning=true',{method:'PUT',headers:JSONBIN_HEADERS,body:JSON.stringify(data)})}catch(e){}
+  try{await fetch(JSONBIN_URL,{method:'PUT',headers:JSONBIN_HEADERS,body:JSON.stringify(data)})}catch(e){}
   try{await fetch(JSONBIN_BACKUP_URL,{method:'PUT',headers:JSONBIN_HEADERS,body:JSON.stringify(data)})}catch(e){}
 }
 
@@ -1451,61 +1434,6 @@ function autoLogTaskDone(title){
   data.workLogs.push({id:'log'+Date.now(),content:`[完成] ${title}`,date:ds,time:tm,type:'task'});
 }
 
-// ===== WEEK SUMMARY =====
-function openWeekSummary() {
-  const logs=data.workLogs||[];
-  const now=new Date(),dayOfWeek=now.getDay(),mondayOff=dayOfWeek===0?-6:1-dayOfWeek;
-  const monday=new Date(now);monday.setDate(now.getDate()+mondayOff);
-  const sunday=new Date(monday);sunday.setDate(monday.getDate()+6);
-  const mds=monday.toISOString().split('T')[0],sds=sunday.toISOString().split('T')[0];
-  const weekLogs=logs.filter(l=>l.date>=mds&&l.date<=sds).sort((a,b)=>a.date.localeCompare(b.date));
-  const doneTasks=(data.tasks||[]).filter(t=>t.status==='done'&&t.date>=mds&&t.date<=sds);
-  let summary=`${monday.getMonth()+1}月${monday.getDate()}日 — ${sunday.getMonth()+1}月${sunday.getDate()}日\n${'─'.repeat(30)}\n\n`;
-  if(!weekLogs.length&&!doneTasks.length){summary+='本周暂无工作记录。\n';}
-  else{
-    const dayMap={};
-    weekLogs.forEach(l=>{if(!dayMap[l.date])dayMap[l.date]=[];dayMap[l.date].push(l)});
-    // 去重：日志里已有的完成记录不再重复
-    const loggedTitles = new Set(weekLogs.map(l => l.content.replace(/^\[完成\] /, '').trim()));
-    doneTasks.forEach(t=>{if(!loggedTitles.has(t.title)){if(!dayMap[t.date])dayMap[t.date]=[];dayMap[t.date].push({content:`[完成] ${t.title}`,time:'',type:'task',date:t.date})}});
-    Object.keys(dayMap).sort().forEach(d=>{
-      const dObj=new Date(d+'T00:00:00');
-      summary+=`\n■ ${dObj.getMonth()+1}月${dObj.getDate()}日 ${FULL_WEEKDAY_NAMES[dObj.getDay()]}\n`;
-      dayMap[d].forEach(item=>{summary+=`  · ${item.content}\n`});
-    });
-  }
-  document.getElementById('weekSummaryContent').innerHTML=renderMarkdown(summary);
-  document.getElementById('weekSummaryModal').classList.add('show');
-}
-function closeWeekSummary(){document.getElementById('weekSummaryModal').classList.remove('show');restoreMobileTab()}
-function openLastWeekSummary(){
-  const logs=data.workLogs||[];
-  const now=new Date(),dayOfWeek=now.getDay(),mondayOff=dayOfWeek===0?-6:1-dayOfWeek;
-  const thisMonday=new Date(now);thisMonday.setDate(now.getDate()+mondayOff);
-  const lastMonday=new Date(thisMonday);lastMonday.setDate(thisMonday.getDate()-7);
-  const lastSunday=new Date(lastMonday);lastSunday.setDate(lastMonday.getDate()+6);
-  const lms=lastMonday.toISOString().split('T')[0],lss=lastSunday.toISOString().split('T')[0];
-  const weekLogs=logs.filter(l=>l.date>=lms&&l.date<=lss).sort((a,b)=>a.date.localeCompare(b.date));
-  const doneTasks=(data.tasks||[]).filter(t=>t.status==='done'&&t.date>=lms&&t.date<=lss);
-  let summary=`${lastMonday.getMonth()+1}月${lastMonday.getDate()}日 — ${lastSunday.getMonth()+1}月${lastSunday.getDate()}日（上周）\n${'─'.repeat(30)}\n\n`;
-  if(!weekLogs.length&&!doneTasks.length){summary+='上周暂无工作记录。\n';}
-  else{
-    const dayMap={};
-    weekLogs.forEach(l=>{if(!dayMap[l.date])dayMap[l.date]=[];dayMap[l.date].push(l)});
-    // 去重：日志里已有的完成记录不再重复
-    const loggedTitles = new Set(weekLogs.map(l => l.content.replace(/^\[完成\] /, '').trim()));
-    doneTasks.forEach(t=>{if(!loggedTitles.has(t.title)){if(!dayMap[t.date])dayMap[t.date]=[];dayMap[t.date].push({content:`[完成] ${t.title}`,time:'',type:'task',date:t.date})}});
-    Object.keys(dayMap).sort().forEach(d=>{
-      const dObj=new Date(d+'T00:00:00');
-      summary+=`\n■ ${dObj.getMonth()+1}月${dObj.getDate()}日 ${FULL_WEEKDAY_NAMES[dObj.getDay()]}\n`;
-      dayMap[d].forEach(item=>{summary+=`  · ${item.content}\n`});
-    });
-  }
-  document.getElementById('weekSummaryContent').innerHTML=renderMarkdown(summary);
-  document.getElementById('weekSummaryModal').classList.add('show');
-}
-function copyWeekSummary(){const text=document.getElementById('weekSummaryContent').textContent;navigator.clipboard.writeText(text).then(()=>toast('已复制')).catch(()=>toast('复制失败'))}
-
 // ===== UPCOMING =====
 function renderUpcoming() {
   const el=document.getElementById('upcomingList'),tasks=data.tasks||[],today=new Date().toISOString().split('T')[0];
@@ -1688,7 +1616,7 @@ let resizeTimer;
 window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(initMobile,200)});
 
 // Modal close on overlay click
-['taskModal','longtermModal','recurringModal','peopleModal','weekSummaryModal'].forEach(id=>{document.getElementById(id).addEventListener('click',function(e){if(e.target===this){if(id==='taskModal')closeTaskModal();else if(id==='longtermModal')closeLongtermModal();else if(id==='recurringModal')closeRecurringModal();else if(id==='peopleModal')closePeopleModal();else closeWeekSummary()}})});
+['taskModal','longtermModal','recurringModal','peopleModal'].forEach(id=>{document.getElementById(id).addEventListener('click',function(e){if(e.target===this){if(id==='taskModal')closeTaskModal();else if(id==='longtermModal')closeLongtermModal();else if(id==='recurringModal')closeRecurringModal();else closePeopleModal()}})});
 document.getElementById('sopDetailOverlay').addEventListener('click',function(e){if(e.target===this)closeSOPDetail()});
 
 // Close day popover and search panel on scroll
