@@ -227,6 +227,10 @@
   .sop-detail-header h2 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
   .sop-detail-body { display: flex; flex-direction: column; gap: 0; padding: 20px 28px; }
   .sop-detail-section { margin-bottom: 18px; }
+  .sop-more-toggle { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; color: var(--text-muted); padding: 8px 0; cursor: pointer; border-top: 1px dashed rgba(212,134,156,0.2); user-select: none; }
+  .sop-more-toggle:hover { color: var(--pink-accent); }
+  .sop-more-arrow { font-size: 12px; transition: transform 0.2s; }
+  .sop-more-panel { padding-top: 4px; }
   .sop-detail-section h4 { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600; }
   .sop-detail-section .sop-process { font-size: 13px; line-height: 2; color: var(--text); white-space: pre-wrap; background: var(--cream); padding: 14px 18px; border-radius: var(--radius-sm); }
   .sop-detail-section .sop-notes { font-size: 13px; line-height: 1.8; color: var(--text-light); white-space: pre-wrap; background: linear-gradient(135deg,#FAFBFD,#F3F6FB); padding: 14px 18px; border-radius: var(--radius-sm); border-left: 3px solid var(--blue-accent); }
@@ -461,7 +465,7 @@
     <span class="tab-icon">≡</span>备忘
   </button>
   <button class="mobile-tab" data-tab="sop" onclick="switchMobileTab('sop')">
-    <span class="tab-icon">≡</span>SOP
+    <span class="tab-icon">≡</span>知识
   </button>
 </nav>
 
@@ -546,13 +550,18 @@
         <h4>备注</h4>
         <textarea class="sop-notes-edit" id="sopDetailNotes" onblur="saveSOPField('notes',this.value)" placeholder="补充说明、注意事项…" style="min-height:100px;"></textarea>
       </div>
-      <div class="sop-detail-section">
-        <h4>文件链接</h4>
-        <textarea class="sop-files-edit" id="sopDetailFiles" onblur="saveSOPField('files',this.value)" placeholder="每行一个链接，格式：名称 | 链接" style="min-height:60px;"></textarea>
+      <div class="sop-more-toggle" onclick="toggleSopMore()">
+        <span id="sopMoreToggleText">更多（联系人 / 文件）</span><span class="sop-more-arrow" id="sopMoreArrow">▾</span>
       </div>
-      <div class="sop-detail-section">
-        <h4>联系人</h4>
-        <textarea class="sop-contacts-edit" id="sopDetailContacts" onblur="saveSOPField('contacts',this.value)" placeholder="相关联系人…" style="min-height:50px;"></textarea>
+      <div class="sop-more-panel" id="sopMorePanel" style="display:none;">
+        <div class="sop-detail-section">
+          <h4>联系人</h4>
+          <textarea class="sop-contacts-edit" id="sopDetailContacts" onblur="saveSOPField('contacts',this.value)" placeholder="相关联系人…" style="min-height:50px;"></textarea>
+        </div>
+        <div class="sop-detail-section">
+          <h4>文件链接</h4>
+          <textarea class="sop-files-edit" id="sopDetailFiles" onblur="saveSOPField('files',this.value)" placeholder="每行一个链接，格式：名称 | 链接" style="min-height:60px;"></textarea>
+        </div>
       </div>
     </div>
     <div class="sop-detail-actions">
@@ -1307,6 +1316,10 @@ function openSOPDetail(id) {
   document.getElementById('sopDetailNotes').value=c.notes||'';
   document.getElementById('sopDetailFiles').value=c.files||'';
   document.getElementById('sopDetailContacts').value=c.contacts||'';
+  // Reset "更多" 折叠区为收起状态
+  document.getElementById('sopMorePanel').style.display='none';
+  document.getElementById('sopMoreArrow').textContent='▾';
+  document.getElementById('sopMoreToggleText').textContent='更多（联系人 / 文件）';
   document.getElementById('sopDetailOverlay').classList.add('show');
   // Edit mode: show delete + save buttons
   document.getElementById('btnDeleteSOP').style.display='inline-block';
@@ -1330,6 +1343,16 @@ function saveSOPField(field,value) {
   saveToCloud();
   // Also update card preview on the grid
   renderSOP();
+}
+
+function toggleSopMore() {
+  const panel = document.getElementById('sopMorePanel');
+  const arrow = document.getElementById('sopMoreArrow');
+  const text = document.getElementById('sopMoreToggleText');
+  const hidden = panel.style.display === 'none';
+  panel.style.display = hidden ? 'block' : 'none';
+  arrow.textContent = hidden ? '▴' : '▾';
+  text.textContent = hidden ? '收起' : '更多（联系人 / 文件）';
 }
 function deleteSOPFromDetail(){if(!currentSOPId||!confirm('确定删除这张SOP卡片？'))return;const id=currentSOPId;currentSOPId=null;document.getElementById('sopDetailOverlay').classList.remove('show');data.workCards=(data.workCards||[]).filter(c=>c.id!==id);renderSOP();saveToCloud();toast('已删除')}
 
@@ -1369,6 +1392,10 @@ function openNewSOPDetail() {
   document.getElementById('sopDetailNotes').value='';
   document.getElementById('sopDetailFiles').value='';
   document.getElementById('sopDetailContacts').value='';
+  // Reset "更多" 折叠区为收起状态
+  document.getElementById('sopMorePanel').style.display='none';
+  document.getElementById('sopMoreArrow').textContent='▾';
+  document.getElementById('sopMoreToggleText').textContent='更多（联系人 / 文件）';
   document.getElementById('sopDetailOverlay').classList.add('show');
   document.getElementById('sopDetailTitle').focus();
   // Show save button, hide delete, change close to "放弃"
