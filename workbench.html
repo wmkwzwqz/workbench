@@ -1014,7 +1014,10 @@ function renderWeekView() {
   const dim = new Date(y, m + 1, 0).getDate();
   const firstDay = new Date(y, m, 1).getDay();
   // Convert JS getDay (0=Sun..6=Sat) to Monday-first index (0=Mon..6=Sun)
-  const firstCol = firstDay === 0 ? 6 : firstDay - 1;
+  // 7列(含周末)沿用周一制偏移；5列(工作日)若1号落在周末则首日偏移归零
+  const firstCol = showWeekend
+    ? (firstDay === 0 ? 6 : firstDay - 1)
+    : (firstDay >= 1 && firstDay <= 5 ? firstDay - 1 : 0);
 
   let cells = '';
   // Padding for first week
