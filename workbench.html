@@ -368,9 +368,9 @@
       <input type="text" class="search-input" id="searchInput" placeholder="搜索…" oninput="onSearch(this.value)">
     </div>
     <span class="today-date" id="todayDate"></span>
-    <button class="header-btn btn-save btn-backup" onclick="openBackupPanel()">备份</button>
+    <button class="header-btn btn-save btn-backup" onclick="openBackupPanel()">历史</button>
     <button class="header-btn btn-save btn-sync" onclick="syncNow()">保存</button>
-    <button class="header-btn btn-save" onclick="downloadHTML()">下载</button>
+    <button class="header-btn btn-save" onclick="downloadHTML()">导出</button>
     <button class="header-btn add-btn" id="newTaskBtn" onclick="toggleNewTaskPicker(event)">+ 新建</button>
   </div>
 </header>
@@ -546,7 +546,7 @@
 <!-- Backup Panel Modal -->
 <div class="modal-overlay" id="backupPanel">
   <div class="modal">
-    <h3>历史备份 <span class="sop-count" style="font-size:12px;color:var(--text-muted);font-weight:400;">（最多保留 20 份）</span></h3>
+    <h3>历史快照 <span class="sop-count" style="font-size:12px;color:var(--text-muted);font-weight:400;">（最多保留 20 份）</span></h3>
     <div class="backup-list" id="backupList"></div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeBackupPanel()">关闭</button>
@@ -791,19 +791,19 @@ function restoreBackup(idx) {
   const backups = getBackups();
   const b = backups[idx];
   if (!b) return;
-  if (!confirm('确定恢复到 ' + new Date(b.time).toLocaleString('zh-CN') + ' 的备份吗？当前数据会被覆盖。')) return;
+  if (!confirm('确定恢复到 ' + new Date(b.time).toLocaleString('zh-CN') + ' 的快照吗？当前数据会被覆盖。')) return;
   data = JSON.parse(JSON.stringify(b.data));
   saveToLocal();
   renderAll();
   closeBackupPanel();
-  toast('已恢复备份');
+  toast('已恢复');
 }
 
 function openBackupPanel() {
   const list = document.getElementById('backupList');
   const backups = getBackups();
   if (!backups.length) {
-    list.innerHTML = '<div class="backup-empty">暂无备份。每次保存数据时都会自动生成一份历史快照。</div>';
+    list.innerHTML = '<div class="backup-empty">暂无历史快照。每次保存数据时都会自动生成一份。</div>';
   } else {
     list.innerHTML = backups.slice().reverse().map((b, i) => {
       const idx = backups.length - 1 - i; // 反转后对应的真实索引
