@@ -964,7 +964,7 @@ function completeLongtermById(id){
   const now=new Date(),ds=now.toISOString().split('T')[0],tm=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
   if(!data.workLogs)data.workLogs=[];
   data.workLogs.push({id:'log'+Date.now(),content:`[完成] 长期工作：${item.title}`,date:ds,time:tm,type:'task'});
-  renderLongterm();renderUpcoming();renderLog();saveToCloud();toast('已完成，干得好');
+  renderLongterm();renderUpcoming();renderLog();saveToCloud();praiseToast();
 }
 
 function reopenLongtermById(id){
@@ -1419,7 +1419,7 @@ function saveTask() {
   if(id){const t=data.tasks.find(x=>x.id===parseInt(id));if(t){wasPending=t.status==='pending';t.title=title;t.date=date;t.status=status;t.note=note}}
   else data.tasks.push({id:Date.now(),title,date,status,note});
   if(id&&status==='done'&&wasPending) autoLogTaskDone(title);
-  closeTaskModal();renderAll();saveToCloud();toast('已保存');
+  closeTaskModal();renderAll();saveToCloud();(id&&status==='done'&&wasPending)?praiseToast():toast('已保存');
 }
 function deleteTask(){const id=parseInt(document.getElementById('taskId').value);if(!id||!confirm('确定删除？'))return;data.tasks=(data.tasks||[]).filter(t=>t.id!==id);closeTaskModal();renderAll();saveToCloud();toast('已删除')}
 
@@ -1525,7 +1525,7 @@ function quickDoneTask(id) {
   closeDayPopover();
   renderAll();
   saveToCloud();
-  toast('已标记完成');
+  praiseToast();
 }
 
 function quickDeleteTask(id) {
@@ -1542,6 +1542,7 @@ function downloadHTML(){saveToCloudNow();const cd={tasks:data.tasks||[],recurrin
 
 // ===== TOAST =====
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2000)}
+function praiseToast(){const list=['又搞定一件啦，真棒！(｡•̀ᴗ-)✧','漂亮！给你点个赞 (๑•̀ㅂ•́)و✧','耶～完成啦，厉害哦！(´▽`ʃ♡ƪ)','太能干了吧，收工！(◕‿◕✿)','轻轻松松搞定，不愧是你 ( •̀ ω •́ )✧','搞定收工，辛苦啦～ (´∀｀)♡','又清掉一件，舒坦！(＾▽＾)','棒棒哒，继续加油鸭 (๑˃̵ᴗ˂̵)و','效率爆表，超厉害的！(≧∇≦)ﾉ','完成咯，奖励你一朵小花花 ✿(。◕‿◕。)✿'];const m=list[Math.floor(Math.random()*list.length)];toast(m)}
 
 // ===== MOBILE =====
 let currentMobileTab='tasks';
