@@ -150,10 +150,10 @@
   .log-input-wrap textarea:focus { border-color: var(--pink-accent); background: white; }
   .log-input-wrap button { align-self: flex-end; border: none; background: linear-gradient(135deg,var(--green-accent),#5A8A4E); color: white; border-radius: 16px; padding: 6px 14px; font-size: 11px; cursor: pointer; font-weight: 500; white-space: nowrap; }
 
-  /* Memo (center column, editable clipboard) */
-  .memo-section { flex: 0 0 auto; max-height: none; }
-  .memo-section .log-list { min-height: 0; }
-  .memo-section h3 { font-size: 13px; }
+  /* 备忘（中间列，可编辑剪贴板） */
+  .log-section { flex: 0 0 auto; max-height: none; }
+  .log-section .log-list { min-height: 0; }
+  .log-section h3 { font-size: 13px; }
   .log-entry .log-content { cursor: text; border-radius: 6px; transition: background 0.15s ease; }
   .log-entry .log-content:hover { background: rgba(0,0,0,0.03); }
   .log-edit-area { width: 100%; border: 1px solid var(--pink-accent); border-radius: 8px; padding: 6px 8px; font-size: 13px; font-family: inherit; line-height: 1.55; outline: none; resize: vertical; min-height: 48px; background: white; color: var(--text); box-sizing: border-box; }
@@ -307,7 +307,7 @@
     body { padding-bottom: 70px; }
     .header { height: 48px; padding: 0 12px; }
     .header h1 { font-size: 15px; }
-    .header .search-wrap, .header .today-date, .header .btn-save { display: none; }
+    .header .search-wrap, .header .today-date, .header .btn-save:not(.btn-backup) { display: none; }
     .layout { grid-template-columns: 1fr; padding: 8px; gap: 8px; }
     .left-col.mobile-hide, .right-col.mobile-hide, .center-col.mobile-hide { display: none; }
     .left-col.mobile-show, .right-col.mobile-show, .center-col.mobile-show { display: flex; }
@@ -373,7 +373,7 @@
       <input type="text" class="search-input" id="searchInput" placeholder="搜索…" oninput="onSearch(this.value)">
     </div>
     <span class="today-date" id="todayDate"></span>
-    <button class="header-btn btn-save" onclick="openBackupPanel()">备份</button>
+    <button class="header-btn btn-save btn-backup" onclick="openBackupPanel()">备份</button>
     <button class="header-btn btn-save" onclick="downloadHTML()">保存</button>
     <button class="header-btn add-btn" id="newTaskBtn" onclick="toggleNewTaskPicker(event)">+ 新建</button>
   </div>
@@ -413,9 +413,9 @@
     </div>
   </div>
 
-  <!-- CENTER: Memo (editable clipboard) + Passwords + People -->
+  <!-- 中间列：备忘（可编辑剪贴板）+ 常联系人 -->
   <div class="center-col" id="centerCol">
-    <div class="log-section memo-section">
+    <div class="log-section">
       <h3>备忘录
         <button class="log-action-btn" onclick="copyAllLogs()">全部复制</button>
         <button class="log-action-btn log-clear-btn" onclick="clearAllLogs()">清空</button>
@@ -449,7 +449,7 @@
   <button class="mobile-tab active" data-tab="tasks" onclick="switchMobileTab('tasks')">
     <span class="tab-icon">—</span>任务
   </button>
-  <button class="mobile-tab" data-tab="memo" onclick="switchMobileTab('memo')">
+  <button class="mobile-tab" data-tab="logs" onclick="switchMobileTab('logs')">
     <span class="tab-icon">≡</span>备忘
   </button>
   <button class="mobile-tab" data-tab="sop" onclick="switchMobileTab('sop')">
@@ -1675,7 +1675,7 @@ function switchMobileTab(tab){
   const all=[left,center,right];
   all.forEach(c=>{c.classList.add('mobile-hide');c.classList.remove('mobile-show')});
   if(tab==='tasks'){left.classList.remove('mobile-hide');left.classList.add('mobile-show');}
-  else if(tab==='memo'){center.classList.remove('mobile-hide');center.classList.add('mobile-show');}
+  else if(tab==='logs'){center.classList.remove('mobile-hide');center.classList.add('mobile-show');}
   else{right.classList.remove('mobile-hide');right.classList.add('mobile-show');}
   window.scrollTo({top:0,behavior:'smooth'});
 }
