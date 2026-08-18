@@ -225,23 +225,12 @@
   .sop-detail { background: white; border-radius: var(--radius); width: 880px; max-width: 95vw; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(74,63,58,0.15); }
   .sop-detail-header { padding: 20px 28px 14px; border-bottom: 1px solid rgba(0,0,0,0.06); }
   .sop-detail-header h2 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
-  .sop-detail-body { display: flex; flex-direction: column; gap: 0; padding: 20px 28px; }
-  .sop-detail-section { margin-bottom: 18px; }
-  .sop-more-toggle { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; color: var(--text-muted); padding: 8px 0; cursor: pointer; border-top: 1px dashed rgba(212,134,156,0.2); user-select: none; }
-  .sop-more-toggle:hover { color: var(--pink-accent); }
-  .sop-more-arrow { font-size: 12px; transition: transform 0.2s; }
-  .sop-more-panel { padding-top: 4px; }
+  .sop-detail-body { display: flex; gap: 20px; padding: 20px 28px; }
+  .sop-detail-col { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .sop-detail-col h4 { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600; }
   .sop-detail-section h4 { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600; }
   .sop-detail-section .sop-process { font-size: 13px; line-height: 2; color: var(--text); white-space: pre-wrap; background: var(--cream); padding: 14px 18px; border-radius: var(--radius-sm); }
   .sop-detail-section .sop-notes { font-size: 13px; line-height: 1.8; color: var(--text-light); white-space: pre-wrap; background: linear-gradient(135deg,#FAFBFD,#F3F6FB); padding: 14px 18px; border-radius: var(--radius-sm); border-left: 3px solid var(--blue-accent); }
-  .sop-detail-section .sop-contacts-box { font-size: 12px; line-height: 1.8; color: var(--text); background: linear-gradient(135deg,#FDF3F7,#F8E5EC); padding: 12px 16px; border-radius: var(--radius-sm); }
-  .sop-files-edit { width: 100%; border: 1px solid rgba(212,134,156,0.2); border-radius: 8px; padding: 8px 10px; font-size: 12px; font-family: inherit; line-height: 1.6; outline: none; resize: vertical; background: var(--cream); color: var(--text); box-sizing: border-box; transition: var(--transition); }
-  .sop-files-edit:focus { border-color: var(--pink-accent); background: white; }
-  .sop-files-list { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
-  .sop-file-link { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; padding: 4px 10px; border-radius: 8px; background: var(--cream); color: var(--pink-accent); text-decoration: none; transition: var(--transition); cursor: pointer; word-break: break-all; }
-  .sop-file-link:hover { background: var(--pink); }
-  .sop-card-files { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
-  .sop-card-files .sop-file-chip { font-size: 10px; padding: 2px 7px; border-radius: 6px; background: var(--cream); color: var(--pink-accent); display: inline-flex; align-items: center; gap: 3px; }
   .sop-detail-actions { padding: 16px 28px; border-top: 1px solid rgba(0,0,0,0.06); display: flex; justify-content: flex-end; gap: 10px; }
   .sop-detail-actions button { padding: 8px 20px; border-radius: 20px; font-size: 13px; cursor: pointer; font-weight: 500; transition: var(--transition); }
   @media (max-width: 768px) { .sop-detail-body { flex-direction: column; } }
@@ -250,12 +239,11 @@
   .sop-detail-title-edit { border: 2px solid transparent; font-size: 20px; font-weight: 600; padding: 6px 10px; border-radius: 8px; width: 100%; font-family: inherit; color: var(--text); background: transparent; outline: none; transition: var(--transition); margin-bottom: 4px; margin-left: -10px; }
   .sop-detail-title-edit:hover { background: var(--cream); }
   .sop-detail-title-edit:focus { background: var(--white); border-color: var(--pink-accent); box-shadow: 0 0 0 3px rgba(212,134,156,0.08); }
-  .sop-process-edit, .sop-notes-edit, .sop-contacts-edit { border: 2px solid transparent; font-size: 13px; padding: 14px 18px; border-radius: var(--radius-sm); width: 100%; font-family: inherit; outline: none; transition: var(--transition); resize: vertical; min-height: 80px; line-height: 1.8; }
+  .sop-process-edit, .sop-notes-edit { border: 2px solid transparent; font-size: 13px; padding: 14px 18px; border-radius: var(--radius-sm); width: 100%; font-family: inherit; outline: none; transition: var(--transition); resize: vertical; min-height: 80px; line-height: 1.8; }
   .sop-process-edit { background: var(--cream); }
   .sop-notes-edit { background: linear-gradient(135deg,#FAFBFD,#F3F6FB); border-left: 3px solid var(--blue-accent); }
-  .sop-contacts-edit { background: linear-gradient(135deg,#FDF3F7,#F8E5EC); min-height: 50px; }
-  .sop-process-edit:hover, .sop-notes-edit:hover, .sop-contacts-edit:hover { background: var(--white); }
-  .sop-process-edit:focus, .sop-notes-edit:focus, .sop-contacts-edit:focus { background: var(--white); border-color: var(--pink-accent); box-shadow: 0 0 0 3px rgba(212,134,156,0.08); }
+  .sop-process-edit:hover, .sop-notes-edit:hover { background: var(--white); }
+  .sop-process-edit:focus, .sop-notes-edit:focus { background: var(--white); border-color: var(--pink-accent); box-shadow: 0 0 0 3px rgba(212,134,156,0.08); }
 
   /* ===== Modals ===== */
   .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(74,63,58,0.3); z-index: 200; align-items: center; justify-content: center; }
@@ -542,26 +530,13 @@
       <input type="text" class="sop-detail-title-edit" id="sopDetailTitle" readonly onclick="this.removeAttribute('readonly');this.focus()" onblur="this.setAttribute('readonly','');saveSOPField('title',this.value)" placeholder="卡片标题">
     </div>
     <div class="sop-detail-body">
-      <div class="sop-detail-section">
+      <div class="sop-detail-col">
         <h4>内容</h4>
-        <textarea class="sop-process-edit" id="sopDetailProcess" onblur="saveSOPField('process',this.value)" placeholder="写点内容…（步骤、说明、要点都可以）" style="min-height:160px;"></textarea>
+        <textarea class="sop-process-edit" id="sopDetailProcess" onblur="saveSOPField('process',this.value)" placeholder="写点内容…（步骤、说明、要点都可以）" style="min-height:220px;"></textarea>
       </div>
-      <div class="sop-detail-section">
+      <div class="sop-detail-col">
         <h4>备注</h4>
-        <textarea class="sop-notes-edit" id="sopDetailNotes" onblur="saveSOPField('notes',this.value)" placeholder="补充说明、注意事项…" style="min-height:100px;"></textarea>
-      </div>
-      <div class="sop-more-toggle" onclick="toggleSopMore()">
-        <span id="sopMoreToggleText">更多（联系人 / 文件）</span><span class="sop-more-arrow" id="sopMoreArrow">▾</span>
-      </div>
-      <div class="sop-more-panel" id="sopMorePanel" style="display:none;">
-        <div class="sop-detail-section">
-          <h4>联系人</h4>
-          <textarea class="sop-contacts-edit" id="sopDetailContacts" onblur="saveSOPField('contacts',this.value)" placeholder="相关联系人…" style="min-height:50px;"></textarea>
-        </div>
-        <div class="sop-detail-section">
-          <h4>文件链接</h4>
-          <textarea class="sop-files-edit" id="sopDetailFiles" onblur="saveSOPField('files',this.value)" placeholder="每行一个链接，格式：名称 | 链接" style="min-height:60px;"></textarea>
-        </div>
+        <textarea class="sop-notes-edit" id="sopDetailNotes" onblur="saveSOPField('notes',this.value)" placeholder="补充说明、注意事项、联系人…" style="min-height:220px;"></textarea>
       </div>
     </div>
     <div class="sop-detail-actions">
@@ -658,15 +633,7 @@ const BUILTIN_DATA = {
     {"id":"log1","content":"处理了省级课题申报材料的格式问题","date":"2025-07-17","time":"14:30","type":"manual"},
     {"id":"log2","content":"完成住院医师规培月度考核通知草拟","date":"2025-07-18","time":"10:15","type":"manual"}
   ],
-  "workCards": [
-    {"id":"c1","title":"每周工作完成表","category":"admin","tags":["每周","汇报","邮件"],"process":"1. 周五下午4点，导出本周工作完成表\n2. 整理格式，检查各科室是否都已填写\n3. 周一早上8点，通过内部邮件发送\n4. 收件人：顾院长、谭院长\n5. 抄送：李昕部长","files":"","notes":"提前确认两位院长周一是否在院，如在出差可提前周五发送。","contacts":"收件人：顾院长、谭院长 / 抄送：李昕部长"},
-    {"id":"c2","title":"会议室预约（KK8系统）","category":"admin","tags":["会议","预约","KK8"],"process":"1. 打开 KK8 系统\n2. 点击日期 → 点\"+\"号 → 选择时间段\n3. 点击\"预约\" → 填写会议名称 → 立即预约","files":"","notes":"大会议室需提前至少1天预约，经常被占。预约成功后截图保存。\n\n会议室清单：\n- 大会议室（100人）：行政楼一楼对面\n- 党建会议室（20人）：行政楼楼梯口\n- 走廊尽头会议室（15人）\n- 中会议室（40人）：一楼","contacts":""},
-    {"id":"c3","title":"主题党日活动（每月）","category":"admin","tags":["党建","每月","新闻稿"],"process":"1. 撰写活动记录表\n2. 制作活动展示页面\n3. 撰写新闻稿（按需）","files":"","notes":"KK8上传新闻稿流程：流程管理 → 发起 → 宣传统战部 → 融媒体 → 填主题 → 发官网微信 → 行政 → 今日 → 供稿人 → 身份：科教部。\n有问题找：信息中心 冯林。","contacts":"信息中心：冯林"},
-    {"id":"c4","title":"台账 & 预算执行单","category":"admin","tags":["财务","签字","执行单"],"process":"1. 打印执行单（账号密码见财务系统，勿存明文）\n2. 新增支出类 → 执行信息\n3. 点\"+\" → 点搜索按钮 → 勾选对应预算项目 → √确认\n4. 填执行数 → 备注填项目名称 → 保存 → 提交\n5. 已审核 → 直接打印\n   未审核 → 走签字流程","files":"","notes":"签字流程（按顺序）：\n① 会计审核：曾琳\n② 财务负责人审批：刘源波部长\n③ 0~3000元：分管院长审批（顾）\n④ 0~10000元：+ 财务分管院长审批（高）\n⑤ >10000元：+ 院长审批（谭/赵）\n签完 → 交财务三 谢老师\n\n收单：每周二、四\n签字：周四下午2-4点\n\n特殊规则：\n- 只管职能部门，临床单子给曾老师让他们自己签\n- 民族地区进修项目 → 走往来支付（铅笔标注），不打执行单，只记经费本，找我和刘源波签字\n- 肿瘤相关临床重点经费 → 打执行单后记在本子上","contacts":"会计：曾琳 / 财务负责人：刘源波 / 分管院长：顾 / 财务分管：高 / 院长：谭、赵 / 财务三：谢老师"},
-    {"id":"c5","title":"行政例会汇报表（双周）","category":"admin","tags":["例会","双周","汇报"],"process":"1. 汇总前两周已完成工作（科教部）\n2. 未完成工作 → 放入下两周工作计划表\n3. 更多重点工作 → 问李昕\n4. 发给院办 叶老师","files":"","notes":"两周一次。例如7月6日汇报 = 6月22日~7月5日的内容。","contacts":"重点工作咨询：李昕 / 提交：院办 叶老师"},
-    {"id":"c6","title":"议题申报表","category":"admin","tags":["党委会","院长办公会","审议"],"process":"1. 确定金额：≥10万走党委会，<10万走院长办公会\n2. 议题名称格式：审议……事宜\n3. 填写议题审议表\n4. 找顾院签字\n5. 交给院办 叶老师","files":"","notes":"文件命名：38-3703 院长办公会议题审议表＋议题名称。编号已记到38号。","contacts":"签字：顾院 / 提交：院办 叶老师"},
-    {"id":"c7","title":"工作用餐审批单","category":"admin","tags":["用餐","审批","签字"],"process":"1. 填写工作用餐审批单\n2. 部门核定人员（经办人/申请人）：杜昀桐\n3. 部门负责人签字：李昕\n4. 分管领导签字：顾院\n5. 后勤保障负责人签字：刘宇部长\n6. 分管领导（后勤）签字：高院","files":"","notes":"审批单需要按顺序逐级签字，不要跳签。\n签字前确认各部门负责人是否在院。","contacts":"经办人：杜昀桐 / 部门负责人：李昕 / 分管领导：顾院 / 后勤保障负责人：刘宇部长 / 分管领导（后勤）：高院"}
-  ]
+  "workCards": [{"id":"c1","title":"每周工作完成表","category":"admin","tags":["每周","汇报","邮件"],"process":"1. 周五下午4点，导出本周工作完成表\n2. 整理格式，检查各科室是否都已填写\n3. 周一早上8点，通过内部邮件发送\n4. 收件人：顾院长、谭院长\n5. 抄送：李昕部长","notes":"提前确认两位院长周一是否在院，如在出差可提前周五发送。\n联系人：收件人：顾院长、谭院长 / 抄送：李昕部长"},{"id":"c2","title":"会议室预约（KK8系统）","category":"admin","tags":["会议","预约","KK8"],"process":"1. 打开 KK8 系统\n2. 点击日期 → 点\"+\"号 → 选择时间段\n3. 点击\"预约\" → 填写会议名称 → 立即预约","notes":"大会议室需提前至少1天预约，经常被占。预约成功后截图保存。\n\n会议室清单：\n- 大会议室（100人）：行政楼一楼对面\n- 党建会议室（20人）：行政楼楼梯口\n- 走廊尽头会议室（15人）\n- 中会议室（40人）：一楼"},{"id":"c3","title":"主题党日活动（每月）","category":"admin","tags":["党建","每月","新闻稿"],"process":"1. 撰写活动记录表\n2. 制作活动展示页面\n3. 撰写新闻稿（按需）","notes":"KK8上传新闻稿流程：流程管理 → 发起 → 宣传统战部 → 融媒体 → 填主题 → 发官网微信 → 行政 → 今日 → 供稿人 → 身份：科教部。\n有问题找：信息中心 冯林。\n联系人：信息中心：冯林"},{"id":"c4","title":"台账 & 预算执行单","category":"admin","tags":["财务","签字","执行单"],"process":"1. 打印执行单（账号密码见财务系统，勿存明文）\n2. 新增支出类 → 执行信息\n3. 点\"+\" → 点搜索按钮 → 勾选对应预算项目 → √确认\n4. 填执行数 → 备注填项目名称 → 保存 → 提交\n5. 已审核 → 直接打印\n   未审核 → 走签字流程","notes":"签字流程（按顺序）：\n① 会计审核：曾琳\n② 财务负责人审批：刘源波部长\n③ 0~3000元：分管院长审批（顾）\n④ 0~10000元：+ 财务分管院长审批（高）\n⑤ >10000元：+ 院长审批（谭/赵）\n签完 → 交财务三 谢老师\n\n收单：每周二、四\n签字：周四下午2-4点\n\n特殊规则：\n- 只管职能部门，临床单子给曾老师让他们自己签\n- 民族地区进修项目 → 走往来支付（铅笔标注），不打执行单，只记经费本，找我和刘源波签字\n- 肿瘤相关临床重点经费 → 打执行单后记在本子上\n联系人：会计：曾琳 / 财务负责人：刘源波 / 分管院长：顾 / 财务分管：高 / 院长：谭、赵 / 财务三：谢老师"},{"id":"c5","title":"行政例会汇报表（双周）","category":"admin","tags":["例会","双周","汇报"],"process":"1. 汇总前两周已完成工作（科教部）\n2. 未完成工作 → 放入下两周工作计划表\n3. 更多重点工作 → 问李昕\n4. 发给院办 叶老师","notes":"两周一次。例如7月6日汇报 = 6月22日~7月5日的内容。\n联系人：重点工作咨询：李昕 / 提交：院办 叶老师"},{"id":"c6","title":"议题申报表","category":"admin","tags":["党委会","院长办公会","审议"],"process":"1. 确定金额：≥10万走党委会，<10万走院长办公会\n2. 议题名称格式：审议……事宜\n3. 填写议题审议表\n4. 找顾院签字\n5. 交给院办 叶老师","notes":"文件命名：38-3703 院长办公会议题审议表＋议题名称。编号已记到38号。\n联系人：签字：顾院 / 提交：院办 叶老师"},{"id":"c7","title":"工作用餐审批单","category":"admin","tags":["用餐","审批","签字"],"process":"1. 填写工作用餐审批单\n2. 部门核定人员（经办人/申请人）：杜昀桐\n3. 部门负责人签字：李昕\n4. 分管领导签字：顾院\n5. 后勤保障负责人签字：刘宇部长\n6. 分管领导（后勤）签字：高院","notes":"审批单需要按顺序逐级签字，不要跳签。\n签字前确认各部门负责人是否在院。\n联系人：经办人：杜昀桐 / 部门负责人：李昕 / 分管领导：顾院 / 后勤保障负责人：刘宇部长 / 分管领导（后勤）：高院"}]
 };
 
 let data = {};
@@ -746,13 +713,52 @@ async function loadData() {
     delete data.links; delete data.quickInfo;
     if(data.tasks) data.tasks.forEach(t=>{delete t.priority;delete t.category});
     if(data.recurringTasks) data.recurringTasks.forEach(r=>delete r.category);
+    // Migrate workCards: merge old contacts/files into notes, then drop those fields
+    if(data.workCards && data.workCards.length){
+      let cardChanged=false;
+      data.workCards.forEach(c=>{
+        const oldContacts=(c.contacts||'').toString().trim();
+        const oldFiles=(c.files||'').toString().trim();
+        if(oldContacts){
+          if(!c.notes||!c.notes.includes(oldContacts)){
+            c.notes=(c.notes?c.notes+'\n':'')+'联系人：'+oldContacts;
+            cardChanged=true;
+          }
+        }
+        if(oldFiles){
+          // 旧版 files 字段每行一个链接，尝试解析为「名称：URL」追加到 notes
+          const lines=oldFiles.split('\n').map(l=>l.trim()).filter(Boolean);
+          if(lines.length){
+            const fileBlock=lines.map(l=>{
+              const idx=l.indexOf('|');
+              if(idx>-1){const n=l.slice(0,idx).trim(),u=l.slice(idx+1).trim();return n+'：'+u;}
+              return l;
+            }).join('\n');
+            c.notes=(c.notes?c.notes+'\n':'')+'文件：\n'+fileBlock;
+            cardChanged=true;
+          }
+        }
+        if('contacts' in c){delete c.contacts;cardChanged=true;}
+        if('files' in c){delete c.files;cardChanged=true;}
+      });
+      if(cardChanged) data.__cardsMigrated=true;
+    }
     // Always strip emoji from cloud/local data (migration safety)
     data = cleanDataEmoji(data);
     // Clean any leaked plain-text credentials (e.g. legacy cloud data with old password)
     const before = JSON.stringify(data);
     data = migrateData(data);
-    if (JSON.stringify(data) !== before) {
+    let dataChanged = (JSON.stringify(data) !== before);
+    if (dataChanged) {
       console.log('已清理历史数据中的明文密码');
+    }
+    // 如果卡片字段被迁移（contacts/files 合并进 notes），也需要同步到云端
+    if (data.__cardsMigrated) {
+      delete data.__cardsMigrated;
+      dataChanged = true;
+      console.log('已迁移 workCards 旧字段（contacts/files → notes）');
+    }
+    if (dataChanged) {
       saveToLocal();
       saveToCloudNow();
     }
@@ -891,12 +897,12 @@ function renderGlobalSearch(kw) {
   // SOP cards
   const cards = (data.workCards || []).filter(c => {
     const tags = (c.tags || []).join(' ');
-    return (c.title + ' ' + (c.process || '') + ' ' + (c.notes || '') + ' ' + (c.contacts || '') + ' ' + (c.files || '') + ' ' + tags).toLowerCase().includes(kwLower);
+    return (c.title + ' ' + (c.process || '') + ' ' + (c.notes || '') + ' ' + tags).toLowerCase().includes(kwLower);
   });
   if (cards.length) {
     html += `<div class="sr-group"><div class="sr-group-title">知识库卡片 (${cards.length})</div>`;
     cards.forEach(c => {
-      const preview = (c.process || c.notes || c.contacts || '').split('\n').slice(0, 2).join(' · ');
+      const preview = (c.process || c.notes || '').split('\n').slice(0, 2).join(' · ');
       html += `<div class="sr-item" onclick="closeSearchPanel();openSOPDetail('${c.id}')"><div class="sr-title">${highlightText(c.title, kw)}</div><div class="sr-sub">${highlightText(preview, kw)}</div></div>`;
     });
     html += '</div>';
@@ -1214,7 +1220,7 @@ function renderSOP() {
   const el = document.getElementById('sopGrid');
   const cards = data.workCards || [];
   const filtered = searchKeyword ? cards.filter(c => {
-    const text = (c.title + ' ' + c.process + ' ' + c.notes + ' ' + c.contacts + ' ' + (c.files||'')).toLowerCase();
+    const text = (c.title + ' ' + (c.process||'') + ' ' + (c.notes||'')).toLowerCase();
     return text.includes(searchKeyword);
   }) : cards;
 
@@ -1224,41 +1230,16 @@ function renderSOP() {
 
   el.innerHTML = filtered.map((c, i) => {
     const theme = CARD_THEMES[c.category] || 'theme-pink';
-    const preview = (c.process || c.notes || c.contacts || '').split('\n').slice(0, 3).join('\n');
-    const fileLinks = parseSOPFiles(c.files||'');
-    const filesHtml = fileLinks.length ? `<div class="sop-card-files" onclick="event.stopPropagation()">${fileLinks.map(f=>`<span class="sop-file-chip" onclick="handleSOPFileClick('${f.url.replace(/'/g,"\\'")}','${f.label.replace(/'/g,"\\'")}')" title="${f.url}">📎 ${f.label}</span>`).join('')}</div>` : '';
+    const preview = (c.process || c.notes || '').split('\n').slice(0, 3).join('\n');
     return `<div class="sop-card ${theme}" draggable="true" data-card-id="${c.id}" ondragstart="onDragStart(event)" ondragend="onDragEnd(event)" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)" onclick="openSOPDetail('${c.id}')">
       <span class="drag-handle" title="拖拽排序" onclick="event.stopPropagation()" onmousedown="startDragFromHandle(event)">≡</span>
       <div class="sop-title">${c.title}</div>
       <div class="sop-preview">${preview}</div>
-      ${filesHtml}
     </div>`;
   }).join('');
 }
 
 // Parse files field: each line is either "label | url" or just "url"
-function parseSOPFiles(str) {
-  if(!str||!str.trim())return [];
-  return str.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{
-    const idx=l.indexOf('|');
-    if(idx>-1){
-      const label=l.slice(0,idx).trim(),url=l.slice(idx+1).trim();
-      return{label:label||url,url:label||url};
-    }
-    // If line looks like a URL, use it directly
-    return{label:l.length>30?l.slice(0,30)+'…':l,url:l};
-  });
-}
-function handleSOPFileClick(url,label,e) {
-  if(e){e.stopPropagation();e.preventDefault()}
-  if(/^https?:\/\//i.test(url)){
-    window.open(url,'_blank');
-  }else{
-    // Not a URL — copy to clipboard (e.g. cloud drive paths)
-    navigator.clipboard.writeText(url).then(()=>toast('已复制：'+label)).catch(()=>toast('复制失败，请手动复制'));
-  }
-}
-
 // ===== DRAG & DROP =====
 let dragSrcId = null;
 function startDragFromHandle(e) {
@@ -1314,12 +1295,6 @@ function openSOPDetail(id) {
   document.getElementById('sopDetailTitle').removeAttribute('readonly');
   document.getElementById('sopDetailProcess').value=c.process||'';
   document.getElementById('sopDetailNotes').value=c.notes||'';
-  document.getElementById('sopDetailFiles').value=c.files||'';
-  document.getElementById('sopDetailContacts').value=c.contacts||'';
-  // Reset "更多" 折叠区为收起状态
-  document.getElementById('sopMorePanel').style.display='none';
-  document.getElementById('sopMoreArrow').textContent='▾';
-  document.getElementById('sopMoreToggleText').textContent='更多（联系人 / 文件）';
   document.getElementById('sopDetailOverlay').classList.add('show');
   // Edit mode: show delete + save buttons
   document.getElementById('btnDeleteSOP').style.display='inline-block';
@@ -1345,15 +1320,6 @@ function saveSOPField(field,value) {
   renderSOP();
 }
 
-function toggleSopMore() {
-  const panel = document.getElementById('sopMorePanel');
-  const arrow = document.getElementById('sopMoreArrow');
-  const text = document.getElementById('sopMoreToggleText');
-  const hidden = panel.style.display === 'none';
-  panel.style.display = hidden ? 'block' : 'none';
-  arrow.textContent = hidden ? '▴' : '▾';
-  text.textContent = hidden ? '收起' : '更多（联系人 / 文件）';
-}
 function deleteSOPFromDetail(){if(!currentSOPId||!confirm('确定删除这张SOP卡片？'))return;const id=currentSOPId;currentSOPId=null;document.getElementById('sopDetailOverlay').classList.remove('show');data.workCards=(data.workCards||[]).filter(c=>c.id!==id);renderSOP();saveToCloud();toast('已删除')}
 
 function saveSOP() {
@@ -1367,13 +1333,11 @@ function saveSOP() {
     c.title=title;
     c.process=document.getElementById('sopDetailProcess').value.trim();
     c.notes=document.getElementById('sopDetailNotes').value.trim();
-    c.files=document.getElementById('sopDetailFiles').value.trim();
-    c.contacts=document.getElementById('sopDetailContacts').value.trim();
     renderSOP();saveToCloud();toast('已保存');
   } else {
     // Creating new card
     if(!data.workCards)data.workCards=[];
-    const newCard={id:'c'+Date.now(),title,category:'admin',tags:[],process:document.getElementById('sopDetailProcess').value.trim(),notes:document.getElementById('sopDetailNotes').value.trim(),files:document.getElementById('sopDetailFiles').value.trim(),contacts:document.getElementById('sopDetailContacts').value.trim()};
+    const newCard={id:'c'+Date.now(),title,category:'admin',tags:[],process:document.getElementById('sopDetailProcess').value.trim(),notes:document.getElementById('sopDetailNotes').value.trim()};
     data.workCards.push(newCard);
     currentSOPId=newCard.id;
     // Restore buttons
@@ -1390,12 +1354,6 @@ function openNewSOPDetail() {
   document.getElementById('sopDetailTitle').removeAttribute('readonly');
   document.getElementById('sopDetailProcess').value='';
   document.getElementById('sopDetailNotes').value='';
-  document.getElementById('sopDetailFiles').value='';
-  document.getElementById('sopDetailContacts').value='';
-  // Reset "更多" 折叠区为收起状态
-  document.getElementById('sopMorePanel').style.display='none';
-  document.getElementById('sopMoreArrow').textContent='▾';
-  document.getElementById('sopMoreToggleText').textContent='更多（联系人 / 文件）';
   document.getElementById('sopDetailOverlay').classList.add('show');
   document.getElementById('sopDetailTitle').focus();
   // Show save button, hide delete, change close to "放弃"
