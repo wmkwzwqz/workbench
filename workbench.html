@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎀 工作台</title>
+<title>工作台</title>
 <style>
   :root {
     --cream: #FEF9F0; --cream-dark: #F5EDE0;
@@ -30,7 +30,6 @@
   /* ===== Header ===== */
   .header { background: var(--white); border-bottom: 1px solid rgba(212,134,156,0.15); padding: 0 24px; height: 52px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 4px rgba(74,63,58,0.04); position: sticky; top: 0; z-index: 100; }
   .header-left { display: flex; align-items: center; gap: 10px; }
-  .logo-icon { width: 26px; height: 26px; flex-shrink: 0; }
   .header h1 { font-size: 16px; font-weight: 600; }
   .header-right { display: flex; align-items: center; gap: 10px; }
   .today-date { font-size: 12px; color: var(--text-light); }
@@ -226,10 +225,8 @@
   .sop-detail { background: white; border-radius: var(--radius); width: 880px; max-width: 95vw; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(74,63,58,0.15); }
   .sop-detail-header { padding: 20px 28px 14px; border-bottom: 1px solid rgba(0,0,0,0.06); }
   .sop-detail-header h2 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
-  .sop-detail-body { display: flex; gap: 20px; padding: 20px 28px; }
-  .sop-detail-col { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-  .sop-detail-col h4 { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600; }
-  .sop-detail-section { margin-bottom: 20px; }
+  .sop-detail-body { display: flex; flex-direction: column; gap: 0; padding: 20px 28px; }
+  .sop-detail-section { margin-bottom: 18px; }
   .sop-detail-section h4 { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600; }
   .sop-detail-section .sop-process { font-size: 13px; line-height: 2; color: var(--text); white-space: pre-wrap; background: var(--cream); padding: 14px 18px; border-radius: var(--radius-sm); }
   .sop-detail-section .sop-notes { font-size: 13px; line-height: 1.8; color: var(--text-light); white-space: pre-wrap; background: linear-gradient(135deg,#FAFBFD,#F3F6FB); padding: 14px 18px; border-radius: var(--radius-sm); border-left: 3px solid var(--blue-accent); }
@@ -272,6 +269,16 @@
   .btn-submit { background: linear-gradient(135deg, var(--pink-accent), #C47A8E); border: none; color: white; }
   .btn-submit:hover { box-shadow: 0 4px 14px rgba(212,134,156,0.35); }
   .btn-delete { background: #FFF0F0; border: 1px solid #F0D0D0; color: #C06060; }
+
+  /* Backup panel */
+  .backup-list { max-height: 50vh; overflow-y: auto; margin-top: 4px; }
+  .backup-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 8px; margin-bottom: 6px; background: var(--cream); }
+  .backup-info { display: flex; flex-direction: column; gap: 2px; }
+  .backup-time { font-size: 13px; font-weight: 600; color: var(--text); }
+  .backup-meta { font-size: 11px; color: var(--text-muted); }
+  .backup-restore-btn { background: white; border: 1px solid rgba(212,134,156,0.3); color: var(--pink-accent); padding: 5px 14px; border-radius: 14px; font-size: 12px; cursor: pointer; font-weight: 500; transition: var(--transition); }
+  .backup-restore-btn:hover { background: var(--pink); border-color: var(--pink-accent); }
+  .backup-empty { text-align: center; color: var(--text-muted); font-size: 13px; padding: 24px 0; }
 
   /* Day task popover */
   .day-task-popover { display: none; position: fixed; background: white; border-radius: var(--radius); box-shadow: 0 8px 32px rgba(74,63,58,0.18); z-index: 250; min-width: 200px; max-width: 260px; padding: 12px; border: 1px solid rgba(212,134,156,0.1); }
@@ -367,13 +374,14 @@
 <body>
 
 <header class="header">
-  <div class="header-left"><span class="logo-icon" style="font-size:22px;display:flex;align-items:center;justify-content:center;">🎀</span><h1>工作台</h1></div>
+  <div class="header-left"><h1>工作台</h1></div>
   <div class="header-right">
     <div class="search-wrap">
       <span class="search-icon"></span>
       <input type="text" class="search-input" id="searchInput" placeholder="搜索…" oninput="onSearch(this.value)">
     </div>
     <span class="today-date" id="todayDate"></span>
+    <button class="header-btn btn-save" onclick="openBackupPanel()">备份</button>
     <button class="header-btn btn-save" onclick="downloadHTML()">保存</button>
     <button class="header-btn add-btn" id="newTaskBtn" onclick="toggleNewTaskPicker(event)">+ 新建</button>
   </div>
@@ -436,7 +444,7 @@
   <!-- RIGHT: SOP Knowledge Base -->
   <div class="right-col" id="rightCol">
     <div class="sop-header">
-      <h2>SOP 知识库 <span class="sop-count" id="sopCount"></span></h2>
+      <h2>知识库 <span class="sop-count" id="sopCount"></span></h2>
       <button class="header-btn add-btn" onclick="openNewSOPDetail()" style="font-size:11px;padding:5px 12px;">+ 新建卡片</button>
     </div>
     <div class="sop-grid" id="sopGrid"></div>
@@ -530,17 +538,21 @@
       <input type="text" class="sop-detail-title-edit" id="sopDetailTitle" readonly onclick="this.removeAttribute('readonly');this.focus()" onblur="this.setAttribute('readonly','');saveSOPField('title',this.value)" placeholder="卡片标题">
     </div>
     <div class="sop-detail-body">
-      <div class="sop-detail-col">
-        <h4>标准流程</h4>
-        <textarea class="sop-process-edit" id="sopDetailProcess" onblur="saveSOPField('process',this.value)" placeholder="步骤1&#10;步骤2&#10;..." style="flex:1;min-height:180px;"></textarea>
-        <div class="sop-detail-section" style="margin-top:16px">
-          <h4>文件链接</h4>
-          <textarea class="sop-files-edit" id="sopDetailFiles" onblur="saveSOPField('files',this.value)" placeholder="文件链接…" style="min-height:60px;"></textarea>
-        </div>
+      <div class="sop-detail-section">
+        <h4>内容</h4>
+        <textarea class="sop-process-edit" id="sopDetailProcess" onblur="saveSOPField('process',this.value)" placeholder="写点内容…（步骤、说明、要点都可以）" style="min-height:160px;"></textarea>
       </div>
-      <div class="sop-detail-col">
-        <h4>注意事项</h4>
-        <textarea class="sop-notes-edit" id="sopDetailNotes" onblur="saveSOPField('notes',this.value)" placeholder="注意事项…" style="flex:1;min-height:180px;"></textarea>
+      <div class="sop-detail-section">
+        <h4>备注</h4>
+        <textarea class="sop-notes-edit" id="sopDetailNotes" onblur="saveSOPField('notes',this.value)" placeholder="补充说明、注意事项…" style="min-height:100px;"></textarea>
+      </div>
+      <div class="sop-detail-section">
+        <h4>文件链接</h4>
+        <textarea class="sop-files-edit" id="sopDetailFiles" onblur="saveSOPField('files',this.value)" placeholder="每行一个链接，格式：名称 | 链接" style="min-height:60px;"></textarea>
+      </div>
+      <div class="sop-detail-section">
+        <h4>联系人</h4>
+        <textarea class="sop-contacts-edit" id="sopDetailContacts" onblur="saveSOPField('contacts',this.value)" placeholder="相关联系人…" style="min-height:50px;"></textarea>
       </div>
     </div>
     <div class="sop-detail-actions">
@@ -559,6 +571,17 @@
     <div class="week-summary-content" id="weekSummaryContent"></div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeWeekSummary()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- Backup Panel Modal -->
+<div class="modal-overlay" id="backupPanel">
+  <div class="modal">
+    <h3>历史备份 <span class="sop-count" style="font-size:12px;color:var(--text-muted);font-weight:400;">（最多保留 20 份）</span></h3>
+    <div class="backup-list" id="backupList"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeBackupPanel()">关闭</button>
     </div>
   </div>
 </div>
@@ -630,7 +653,7 @@ const BUILTIN_DATA = {
     {"id":"c1","title":"每周工作完成表","category":"admin","tags":["每周","汇报","邮件"],"process":"1. 周五下午4点，导出本周工作完成表\n2. 整理格式，检查各科室是否都已填写\n3. 周一早上8点，通过内部邮件发送\n4. 收件人：顾院长、谭院长\n5. 抄送：李昕部长","files":"","notes":"提前确认两位院长周一是否在院，如在出差可提前周五发送。","contacts":"收件人：顾院长、谭院长 / 抄送：李昕部长"},
     {"id":"c2","title":"会议室预约（KK8系统）","category":"admin","tags":["会议","预约","KK8"],"process":"1. 打开 KK8 系统\n2. 点击日期 → 点\"+\"号 → 选择时间段\n3. 点击\"预约\" → 填写会议名称 → 立即预约","files":"","notes":"大会议室需提前至少1天预约，经常被占。预约成功后截图保存。\n\n会议室清单：\n- 大会议室（100人）：行政楼一楼对面\n- 党建会议室（20人）：行政楼楼梯口\n- 走廊尽头会议室（15人）\n- 中会议室（40人）：一楼","contacts":""},
     {"id":"c3","title":"主题党日活动（每月）","category":"admin","tags":["党建","每月","新闻稿"],"process":"1. 撰写活动记录表\n2. 制作活动展示页面\n3. 撰写新闻稿（按需）","files":"","notes":"KK8上传新闻稿流程：流程管理 → 发起 → 宣传统战部 → 融媒体 → 填主题 → 发官网微信 → 行政 → 今日 → 供稿人 → 身份：科教部。\n有问题找：信息中心 冯林。","contacts":"信息中心：冯林"},
-    {"id":"c4","title":"台账 & 预算执行单","category":"admin","tags":["财务","签字","执行单"],"process":"1. 打印执行单：***REMOVED***\n2. 新增支出类 → 执行信息\n3. 点\"+\" → 点搜索按钮 → 勾选对应预算项目 → √确认\n4. 填执行数 → 备注填项目名称 → 保存 → 提交\n5. 已审核 → 直接打印\n   未审核 → 走签字流程","files":"","notes":"签字流程（按顺序）：\n① 会计审核：曾琳\n② 财务负责人审批：刘源波部长\n③ 0~3000元：分管院长审批（顾）\n④ 0~10000元：+ 财务分管院长审批（高）\n⑤ >10000元：+ 院长审批（谭/赵）\n签完 → 交财务三 谢老师\n\n收单：每周二、四\n签字：周四下午2-4点\n\n特殊规则：\n- 只管职能部门，临床单子给曾老师让他们自己签\n- 民族地区进修项目 → 走往来支付（铅笔标注），不打执行单，只记经费本，找我和刘源波签字\n- 肿瘤相关临床重点经费 → 打执行单后记在本子上","contacts":"会计：曾琳 / 财务负责人：刘源波 / 分管院长：顾 / 财务分管：高 / 院长：谭、赵 / 财务三：谢老师"},
+    {"id":"c4","title":"台账 & 预算执行单","category":"admin","tags":["财务","签字","执行单"],"process":"1. 打印执行单（账号密码见财务系统，勿存明文）\n2. 新增支出类 → 执行信息\n3. 点\"+\" → 点搜索按钮 → 勾选对应预算项目 → √确认\n4. 填执行数 → 备注填项目名称 → 保存 → 提交\n5. 已审核 → 直接打印\n   未审核 → 走签字流程","files":"","notes":"签字流程（按顺序）：\n① 会计审核：曾琳\n② 财务负责人审批：刘源波部长\n③ 0~3000元：分管院长审批（顾）\n④ 0~10000元：+ 财务分管院长审批（高）\n⑤ >10000元：+ 院长审批（谭/赵）\n签完 → 交财务三 谢老师\n\n收单：每周二、四\n签字：周四下午2-4点\n\n特殊规则：\n- 只管职能部门，临床单子给曾老师让他们自己签\n- 民族地区进修项目 → 走往来支付（铅笔标注），不打执行单，只记经费本，找我和刘源波签字\n- 肿瘤相关临床重点经费 → 打执行单后记在本子上","contacts":"会计：曾琳 / 财务负责人：刘源波 / 分管院长：顾 / 财务分管：高 / 院长：谭、赵 / 财务三：谢老师"},
     {"id":"c5","title":"行政例会汇报表（双周）","category":"admin","tags":["例会","双周","汇报"],"process":"1. 汇总前两周已完成工作（科教部）\n2. 未完成工作 → 放入下两周工作计划表\n3. 更多重点工作 → 问李昕\n4. 发给院办 叶老师","files":"","notes":"两周一次。例如7月6日汇报 = 6月22日~7月5日的内容。","contacts":"重点工作咨询：李昕 / 提交：院办 叶老师"},
     {"id":"c6","title":"议题申报表","category":"admin","tags":["党委会","院长办公会","审议"],"process":"1. 确定金额：≥10万走党委会，<10万走院长办公会\n2. 议题名称格式：审议……事宜\n3. 填写议题审议表\n4. 找顾院签字\n5. 交给院办 叶老师","files":"","notes":"文件命名：38-3703 院长办公会议题审议表＋议题名称。编号已记到38号。","contacts":"签字：顾院 / 提交：院办 叶老师"},
     {"id":"c7","title":"工作用餐审批单","category":"admin","tags":["用餐","审批","签字"],"process":"1. 填写工作用餐审批单\n2. 部门核定人员（经办人/申请人）：杜昀桐\n3. 部门负责人签字：李昕\n4. 分管领导签字：顾院\n5. 后勤保障负责人签字：刘宇部长\n6. 分管领导（后勤）签字：高院","files":"","notes":"审批单需要按顺序逐级签字，不要跳签。\n签字前确认各部门负责人是否在院。","contacts":"经办人：杜昀桐 / 部门负责人：李昕 / 分管领导：顾院 / 后勤保障负责人：刘宇部长 / 分管领导（后勤）：高院"}
@@ -673,6 +696,32 @@ function cleanDataEmoji(obj) {
   return obj;
 }
 
+// 数据迁移：清理明文敏感信息（防止从云端/旧 localStorage 拉到已废弃的密码）
+function migrateData(obj) {
+  if (obj == null) return obj;
+  const sensitivePatterns = [
+    /账号\s****REMOVED***\s*[/／、,，]\s*密码\s****REMOVED***/gi,
+    /账号\s****REMOVED***/gi,
+    /密码\s****REMOVED***/gi
+  ];
+  const sanitize = (s) => {
+    if (typeof s !== 'string') return s;
+    let out = s;
+    sensitivePatterns.forEach(p => {
+      out = out.replace(p, '（账号密码见财务系统，勿存明文）');
+    });
+    return out;
+  };
+  if (typeof obj === 'string') return sanitize(obj);
+  if (Array.isArray(obj)) return obj.map(migrateData);
+  if (typeof obj === 'object') {
+    const out = {};
+    for (const k in obj) out[k] = migrateData(obj[k]);
+    return out;
+  }
+  return obj;
+}
+
 async function loadData() {
   let loaded=false;
   try{const res=await fetch(`${JSONBIN_URL}/latest`,{headers:JSONBIN_HEADERS});if(res.ok){data=(await res.json()).record;console.log('JSONBin loaded');loaded=true;saveToLocal()}}catch(e){console.warn('JSONBin不可用')}
@@ -689,6 +738,14 @@ async function loadData() {
     if(data.recurringTasks) data.recurringTasks.forEach(r=>delete r.category);
     // Always strip emoji from cloud/local data (migration safety)
     data = cleanDataEmoji(data);
+    // Clean any leaked plain-text credentials (e.g. legacy cloud data with old password)
+    const before = JSON.stringify(data);
+    data = migrateData(data);
+    if (JSON.stringify(data) !== before) {
+      console.log('已清理历史数据中的明文密码');
+      saveToLocal();
+      saveToCloudNow();
+    }
     saveToLocal();
   }
   renderAll();
@@ -696,6 +753,7 @@ async function loadData() {
 
 async function saveToCloud() {
   saveToLocal();
+  autoBackup();
   if(saveDebounceTimer) clearTimeout(saveDebounceTimer);
   saveDebounceTimer=setTimeout(async()=>{
     try{
@@ -708,6 +766,76 @@ async function saveToCloud() {
       await fetch(JSONBIN_BACKUP_URL,{method:'PUT',headers:JSONBIN_HEADERS,body:JSON.stringify(data)});
     }catch(e){console.warn('备份同步失败')}
   },800);
+}
+
+// ===== AUTO BACKUP（本地历史快照，防止误删/丢数据） =====
+const BACKUP_KEY = 'workbench_backups';
+const BACKUP_MAX = 20;           // 最多保留 20 份历史快照
+const BACKUP_MIN_INTERVAL = 10*60*1000;  // 距上次快照不足 10 分钟则不重复存
+
+function autoBackup() {
+  try {
+    const backups = JSON.parse(localStorage.getItem(BACKUP_KEY) || '[]');
+    const now = Date.now();
+    // 去重：如果最新快照与当前数据完全相同，跳过
+    if (backups.length) {
+      const latest = backups[backups.length - 1];
+      if (JSON.stringify(latest.data) === JSON.stringify(data)) return;
+      // 距上次快照太近且内容有变化，仍保留（覆盖最新一条），避免堆积
+      if (now - latest.time < BACKUP_MIN_INTERVAL) {
+        latest.time = now;
+        latest.data = JSON.parse(JSON.stringify(data));
+        localStorage.setItem(BACKUP_KEY, JSON.stringify(backups));
+        return;
+      }
+    }
+    backups.push({ time: now, data: JSON.parse(JSON.stringify(data)) });
+    if (backups.length > BACKUP_MAX) backups.splice(0, backups.length - BACKUP_MAX);
+    localStorage.setItem(BACKUP_KEY, JSON.stringify(backups));
+  } catch(e) { console.warn('自动备份失败', e); }
+}
+
+function getBackups() {
+  try { return JSON.parse(localStorage.getItem(BACKUP_KEY) || '[]'); } catch(e) { return []; }
+}
+
+function restoreBackup(idx) {
+  const backups = getBackups();
+  const b = backups[idx];
+  if (!b) return;
+  if (!confirm('确定恢复到 ' + new Date(b.time).toLocaleString('zh-CN') + ' 的备份吗？当前数据会被覆盖。')) return;
+  data = JSON.parse(JSON.stringify(b.data));
+  saveToLocal();
+  renderAll();
+  saveToCloudNow();
+  closeBackupPanel();
+  toast('已恢复备份');
+}
+
+function openBackupPanel() {
+  const list = document.getElementById('backupList');
+  const backups = getBackups();
+  if (!backups.length) {
+    list.innerHTML = '<div class="backup-empty">暂无备份。每次保存数据时都会自动生成一份历史快照。</div>';
+  } else {
+    list.innerHTML = backups.slice().reverse().map((b, i) => {
+      const idx = backups.length - 1 - i; // 反转后对应的真实索引
+      const d = new Date(b.time);
+      const tasks = (b.data.tasks || []).length;
+      const cards = (b.data.workCards || []).length;
+      const logs = (b.data.workLogs || []).length;
+      const label = d.toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      return `<div class="backup-item">
+        <div class="backup-info"><span class="backup-time">${label}</span><span class="backup-meta">任务${tasks} · 卡片${cards} · 备忘${logs}</span></div>
+        <button class="backup-restore-btn" onclick="restoreBackup(${idx})">恢复</button>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('backupPanel').classList.add('show');
+}
+
+function closeBackupPanel() {
+  document.getElementById('backupPanel').classList.remove('show');
 }
 async function saveToCloudNow(){
   saveToLocal();
@@ -752,12 +880,13 @@ function renderGlobalSearch(kw) {
 
   // SOP cards
   const cards = (data.workCards || []).filter(c => {
-    return (c.title + ' ' + (c.process || '') + ' ' + (c.notes || '') + ' ' + (c.contacts || '')).toLowerCase().includes(kwLower);
+    const tags = (c.tags || []).join(' ');
+    return (c.title + ' ' + (c.process || '') + ' ' + (c.notes || '') + ' ' + (c.contacts || '') + ' ' + (c.files || '') + ' ' + tags).toLowerCase().includes(kwLower);
   });
   if (cards.length) {
-    html += `<div class="sr-group"><div class="sr-group-title">SOP卡片 (${cards.length})</div>`;
+    html += `<div class="sr-group"><div class="sr-group-title">知识库卡片 (${cards.length})</div>`;
     cards.forEach(c => {
-      const preview = (c.process || '').split('\n').slice(0, 2).join(' · ');
+      const preview = (c.process || c.notes || c.contacts || '').split('\n').slice(0, 2).join(' · ');
       html += `<div class="sr-item" onclick="closeSearchPanel();openSOPDetail('${c.id}')"><div class="sr-title">${highlightText(c.title, kw)}</div><div class="sr-sub">${highlightText(preview, kw)}</div></div>`;
     });
     html += '</div>';
@@ -1085,7 +1214,7 @@ function renderSOP() {
 
   el.innerHTML = filtered.map((c, i) => {
     const theme = CARD_THEMES[c.category] || 'theme-pink';
-    const preview = (c.process || '').split('\n').slice(0, 3).join('\n');
+    const preview = (c.process || c.notes || c.contacts || '').split('\n').slice(0, 3).join('\n');
     const fileLinks = parseSOPFiles(c.files||'');
     const filesHtml = fileLinks.length ? `<div class="sop-card-files" onclick="event.stopPropagation()">${fileLinks.map(f=>`<span class="sop-file-chip" onclick="handleSOPFileClick('${f.url.replace(/'/g,"\\'")}','${f.label.replace(/'/g,"\\'")}')" title="${f.url}">📎 ${f.label}</span>`).join('')}</div>` : '';
     return `<div class="sop-card ${theme}" draggable="true" data-card-id="${c.id}" ondragstart="onDragStart(event)" ondragend="onDragEnd(event)" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)" onclick="openSOPDetail('${c.id}')">
@@ -1176,6 +1305,7 @@ function openSOPDetail(id) {
   document.getElementById('sopDetailProcess').value=c.process||'';
   document.getElementById('sopDetailNotes').value=c.notes||'';
   document.getElementById('sopDetailFiles').value=c.files||'';
+  document.getElementById('sopDetailContacts').value=c.contacts||'';
   document.getElementById('sopDetailOverlay').classList.add('show');
   // Edit mode: show delete + save buttons
   document.getElementById('btnDeleteSOP').style.display='inline-block';
@@ -1214,11 +1344,12 @@ function saveSOP() {
     c.process=document.getElementById('sopDetailProcess').value.trim();
     c.notes=document.getElementById('sopDetailNotes').value.trim();
     c.files=document.getElementById('sopDetailFiles').value.trim();
+    c.contacts=document.getElementById('sopDetailContacts').value.trim();
     renderSOP();saveToCloud();toast('已保存');
   } else {
     // Creating new card
     if(!data.workCards)data.workCards=[];
-    const newCard={id:'c'+Date.now(),title,category:'admin',tags:[],process:document.getElementById('sopDetailProcess').value.trim(),notes:document.getElementById('sopDetailNotes').value.trim(),files:document.getElementById('sopDetailFiles').value.trim(),contacts:''};
+    const newCard={id:'c'+Date.now(),title,category:'admin',tags:[],process:document.getElementById('sopDetailProcess').value.trim(),notes:document.getElementById('sopDetailNotes').value.trim(),files:document.getElementById('sopDetailFiles').value.trim(),contacts:document.getElementById('sopDetailContacts').value.trim()};
     data.workCards.push(newCard);
     currentSOPId=newCard.id;
     // Restore buttons
@@ -1236,6 +1367,7 @@ function openNewSOPDetail() {
   document.getElementById('sopDetailProcess').value='';
   document.getElementById('sopDetailNotes').value='';
   document.getElementById('sopDetailFiles').value='';
+  document.getElementById('sopDetailContacts').value='';
   document.getElementById('sopDetailOverlay').classList.add('show');
   document.getElementById('sopDetailTitle').focus();
   // Show save button, hide delete, change close to "放弃"
