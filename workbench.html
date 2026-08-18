@@ -369,8 +369,8 @@
     </div>
     <span class="today-date" id="todayDate"></span>
     <button class="header-btn btn-save btn-backup" onclick="openBackupPanel()">备份</button>
-    <button class="header-btn btn-save btn-sync" onclick="syncNow()">立即保存</button>
-    <button class="header-btn btn-save" onclick="downloadHTML()">保存</button>
+    <button class="header-btn btn-save btn-sync" onclick="syncNow()">保存</button>
+    <button class="header-btn btn-save" onclick="downloadHTML()">下载</button>
     <button class="header-btn add-btn" id="newTaskBtn" onclick="toggleNewTaskPicker(event)">+ 新建</button>
   </div>
 </header>
@@ -835,10 +835,10 @@ async function saveToCloudNow(){
 // 手动「立即保存」：把当前数据立刻上传云端，并给用户明确反馈
 async function syncNow(){
   const btn = document.querySelector('.btn-sync');
-  if(btn){btn.disabled=true;btn.textContent='同步中…';}
+  if(btn){btn.disabled=true;btn.textContent='保存中…';}
   const ok = await saveToCloudNow();
-  if(btn){btn.disabled=false;btn.textContent='立即保存';}
-  toast(ok ? '已上传云端' : '上传失败，请重试');
+  if(btn){btn.disabled=false;btn.textContent='保存';}
+  toast(ok ? '已保存并上传云端' : '保存失败，请重试');
 }
 
 function renderAll() {
