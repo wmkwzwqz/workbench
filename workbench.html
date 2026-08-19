@@ -491,10 +491,22 @@
   <div class="modal">
     <h3 id="rcModalTitle">添加周期任务</h3><input type="hidden" id="rcId">
     <label>任务名称</label><input type="text" id="rcTitle" placeholder="输入名称…">
-    <label>星期几</label>
-    <select id="rcWeekday"><option value="1">周一</option><option value="2">周二</option><option value="3">周三</option><option value="4">周四</option><option value="5">周五</option><option value="6">周六</option><option value="0">周日</option></select>
-    <label>间隔周数（1=每周, 2=隔周）</label><input type="number" id="rcInterval" value="1" min="1" max="8">
-    <label>参考起始日期</label><input type="date" id="rcRefDate">
+    <label>循环类型</label>
+    <select id="rcFreqType" onchange="rcFreqTypeChange()">
+      <option value="weekly">按星期循环</option>
+      <option value="monthly">按月循环（每月固定日）</option>
+    </select>
+    <div id="rcWeeklyFields">
+      <label>星期几</label>
+      <select id="rcWeekday"><option value="1">周一</option><option value="2">周二</option><option value="3">周三</option><option value="4">周四</option><option value="5">周五</option><option value="6">周六</option><option value="0">周日</option></select>
+      <label>间隔周数（1=每周, 2=隔周）</label><input type="number" id="rcInterval" value="1" min="1" max="8">
+      <label>参考起始日期</label><input type="date" id="rcRefDate">
+    </div>
+    <div id="rcMonthlyFields" style="display:none;">
+      <label>每月几号（1-28）</label><input type="number" id="rcMonthDay" value="1" min="1" max="28">
+      <label>提前几天提醒（0=当天）</label><input type="number" id="rcAdvanceDays" value="0" min="0" max="10">
+      <label>起始月份</label><input type="month" id="rcStartMonth">
+    </div>
     <label>备注</label><textarea id="rcNote" placeholder="补充说明…"></textarea>
     <div class="modal-actions">
       <button class="btn-delete" id="btnDeleteRC" style="display:none;margin-right:auto;" onclick="deleteRecurring()">删除</button>
@@ -909,7 +921,8 @@ function renderGlobalSearch(kw) {
   if (rc.length) {
     html += `<div class="sr-group"><div class="sr-group-title">周期任务 (${rc.length})</div>`;
     rc.forEach(r => {
-      html += `<div class="sr-item" onclick="closeSearchPanel();openRecurringModal('${r.id}')"><div class="sr-title">${highlightText(r.title, kw)}</div><div class="sr-sub">${FULL_WEEKDAY_NAMES[r.weekday]}${r.weekInterval > 1 ? ' · 每' + r.weekInterval + '周' : ' · 每周'}</div></div>`;
+      const sub = r.freqType==='monthly' ? `每月${r.monthDay||1}日${(r.advanceDays>0)?' · 提前'+r.advanceDays+'天提醒':''}` : `${FULL_WEEKDAY_NAMES[r.weekday]}${r.weekInterval > 1 ? ' · 每' + r.weekInterval + '周' : ' · 每周'}`;
+      html += `<div class="sr-item" onclick="closeSearchPanel();openRecurringModal('${r.id}')"><div class="sr-title">${highlightText(r.title, kw)}</div><div class="sr-sub">${sub}</div></div>`;
     });
     html += '</div>';
   }
@@ -1136,9 +1149,16 @@ function renderRecurring() {
   const el=document.getElementById('recurringList'); const items=data.recurringTasks||[];
   if(!items.length){el.innerHTML='<div class="empty-state">暂无</div>';return}
   el.innerHTML=items.map(rt=>{
-    const wd=FULL_WEEKDAY_NAMES[rt.weekday], iv=(rt.weekInterval&&rt.weekInterval>1)?`·每${rt.weekInterval}周`:'·每周';
+    let meta;
+    if(rt.freqType==='monthly'){
+      const md=rt.monthDay||1, adv=rt.advanceDays||0;
+      meta=`每月${md}日${adv>0?`·提前${adv}天提醒`:''}${rt.startMonth?'·自'+rt.startMonth.replace('-','年')+'月起':''}`;
+    }else{
+      const wd=FULL_WEEKDAY_NAMES[rt.weekday], iv=(rt.weekInterval&&rt.weekInterval>1)?`·每${rt.weekInterval}周`:'·每周';
+      meta=`${wd}${iv}`;
+    }
     return `<div class="recurring-item${rt.active===false?' inactive':''}">
-      <div class="rc-title">${rt.title}</div><div class="rc-meta">${wd}${iv}${rt.note?'·'+rt.note:''}</div>
+      <div class="rc-title">${rt.title}</div><div class="rc-meta">${meta}${rt.note?'·'+rt.note:''}</div>
       <div class="rc-actions"><button class="toggle-btn" onclick="toggleRecurring('${rt.id}')">${rt.active===false?'启用':'停用'}</button><button onclick="openRecurringModal('${rt.id}')" title="编辑">编</button><button onclick="deleteRecurringById('${rt.id}')" title="删除">删</button></div>
     </div>`;
   }).join('');
@@ -1147,20 +1167,44 @@ function openRecurringModal(id) {
   document.getElementById('recurringModal').classList.add('show');document.getElementById('btnDeleteRC').style.display='none';
   if(id){const item=(data.recurringTasks||[]).find(r=>r.id===id);if(!item)return;
     document.getElementById('rcModalTitle').textContent='编辑周期任务';document.getElementById('rcId').value=item.id;
-    document.getElementById('rcTitle').value=item.title;document.getElementById('rcWeekday').value=item.weekday;
+    document.getElementById('rcTitle').value=item.title;
+    document.getElementById('rcFreqType').value=item.freqType||'weekly';
+    document.getElementById('rcWeekday').value=item.weekday;
     document.getElementById('rcInterval').value=item.weekInterval||1;document.getElementById('rcRefDate').value=item.refDate||'';
+    document.getElementById('rcMonthDay').value=item.monthDay||1;document.getElementById('rcAdvanceDays').value=item.advanceDays||0;
+    document.getElementById('rcStartMonth').value=item.startMonth||'';
     document.getElementById('rcNote').value=item.note||'';
     document.getElementById('btnDeleteRC').style.display='inline-block';
   }else{document.getElementById('rcModalTitle').textContent='添加周期任务';document.getElementById('rcId').value='';
-    document.getElementById('rcTitle').value='';document.getElementById('rcWeekday').value='1';document.getElementById('rcInterval').value='1';
-    document.getElementById('rcRefDate').value='';document.getElementById('rcNote').value='';}
+    document.getElementById('rcTitle').value='';
+    document.getElementById('rcFreqType').value='weekly';
+    document.getElementById('rcWeekday').value='1';document.getElementById('rcInterval').value='1';
+    document.getElementById('rcRefDate').value='';
+    document.getElementById('rcMonthDay').value='1';document.getElementById('rcAdvanceDays').value='0';
+    document.getElementById('rcStartMonth').value='';
+    document.getElementById('rcNote').value='';}
+  rcFreqTypeChange();
+}
+function rcFreqTypeChange(){
+  const t=document.getElementById('rcFreqType').value;
+  document.getElementById('rcWeeklyFields').style.display=t==='monthly'?'none':'';
+  document.getElementById('rcMonthlyFields').style.display=t==='monthly'?'':'none';
 }
 function closeRecurringModal(){document.getElementById('recurringModal').classList.remove('show');restoreMobileTab()}
 function saveRecurring() {
-  const id=document.getElementById('rcId').value,title=document.getElementById('rcTitle').value.trim(),weekday=parseInt(document.getElementById('rcWeekday').value),weekInterval=parseInt(document.getElementById('rcInterval').value)||1,refDate=document.getElementById('rcRefDate').value,note=document.getElementById('rcNote').value.trim();
+  const id=document.getElementById('rcId').value,title=document.getElementById('rcTitle').value.trim(),freqType=document.getElementById('rcFreqType').value,weekday=parseInt(document.getElementById('rcWeekday').value),weekInterval=parseInt(document.getElementById('rcInterval').value)||1,refDate=document.getElementById('rcRefDate').value,monthDay=parseInt(document.getElementById('rcMonthDay').value)||1,advanceDays=parseInt(document.getElementById('rcAdvanceDays').value)||0,startMonth=document.getElementById('rcStartMonth').value,note=document.getElementById('rcNote').value.trim();
   if(!title){toast('请填写名称');return} if(!data.recurringTasks) data.recurringTasks=[];
-  if(id){const item=data.recurringTasks.find(r=>r.id===id);if(item){item.title=title;item.weekday=weekday;item.weekInterval=weekInterval>1?weekInterval:undefined;item.refDate=weekInterval>1?refDate:undefined;item.note=note}}
-  else{const ni={id:'r'+Date.now(),title,weekday,note,active:true};if(weekInterval>1){ni.weekInterval=weekInterval;ni.refDate=refDate}data.recurringTasks.push(ni)}
+  if(id){const item=data.recurringTasks.find(r=>r.id===id);if(item){
+    item.title=title;item.freqType=freqType;
+    if(freqType==='monthly'){item.monthDay=monthDay;item.advanceDays=advanceDays;item.startMonth=startMonth;delete item.weekday;delete item.weekInterval;delete item.refDate;}
+    else{item.weekday=weekday;item.weekInterval=weekInterval>1?weekInterval:undefined;item.refDate=weekInterval>1?refDate:undefined;delete item.monthDay;delete item.advanceDays;delete item.startMonth;}
+    item.note=note;
+  }}
+  else{const ni={id:'r'+Date.now(),title,freqType,note,active:true};
+    if(freqType==='monthly'){ni.monthDay=monthDay;ni.advanceDays=advanceDays;if(startMonth)ni.startMonth=startMonth;}
+    else{ni.weekday=weekday;if(weekInterval>1){ni.weekInterval=weekInterval;ni.refDate=refDate}}
+    data.recurringTasks.push(ni);
+  }
   closeRecurringModal();renderRecurring();renderWeekView();renderUpcoming();saveToCloud();toast('已保存');
 }
 function toggleRecurring(id){const item=(data.recurringTasks||[]).find(r=>r.id===id);if(!item)return;item.active=!item.active;renderRecurring();renderWeekView();renderUpcoming();saveToCloud();toast(item.active?'已启用':'已停用')}
@@ -1439,7 +1483,15 @@ function renderUpcoming() {
   const up=tasks.filter(t=>t.status==='pending'&&t.date>=today).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,4);
   const rUp=[];const recs=data.recurringTasks||[];
   for(let i=0;i<14;i++){const d=new Date();d.setDate(d.getDate()+i);const ds=d.toISOString().split('T')[0],wd=d.getDay();
-    for(const rt of recs){if(rt.active===false||rt.weekday!==wd)continue;if(rt.weekInterval&&rt.weekInterval>1&&rt.refDate){const ref=new Date(rt.refDate+'T00:00:00'),dw=Math.floor((d.getTime()-ref.getTime())/(7*86400000));if(dw%rt.weekInterval!==0)continue}rUp.push({title:rt.title,date:ds,isRecurring:true})}}
+    for(const rt of recs){
+      if(rt.active===false)continue;
+      if(rt.freqType==='monthly'){
+        if(getRecurringForDate(ds).includes(rt))rUp.push({title:rt.title,date:ds,isRecurring:true});
+        continue;
+      }
+      if(rt.weekday!==wd)continue;if(rt.weekInterval&&rt.weekInterval>1&&rt.refDate){const ref=new Date(rt.refDate+'T00:00:00'),dw=Math.floor((d.getTime()-ref.getTime())/(7*86400000));if(dw%rt.weekInterval!==0)continue}rUp.push({title:rt.title,date:ds,isRecurring:true})
+    }
+  }
   // Long-term tasks
   const ltUp=(data.longtermTasks||[]).filter(lt=>!lt.completed&&lt.deadline>=today).sort((a,b)=>a.deadline.localeCompare(b.deadline)).map(lt=>({title:lt.title,date:lt.deadline,isLongterm:true,ltId:lt.id}));
   const all=[...up,...rUp,...ltUp].sort((a,b)=>a.date.localeCompare(b.date)).slice(0,8);
@@ -1473,7 +1525,24 @@ function deleteTask(){const id=parseInt(document.getElementById('taskId').value)
 
 // ===== CALENDAR HELPERS =====
 function escHtml(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
-function getRecurringForDate(ds){const rts=data.recurringTasks||[];if(!rts.length)return[];const d=new Date(ds+'T00:00:00'),wd=d.getDay();return rts.filter(rt=>{if(rt.active===false||rt.weekday!==wd)return false;if(rt.weekInterval&&rt.weekInterval>1&&rt.refDate){const ref=new Date(rt.refDate+'T00:00:00'),dw=Math.floor((d.getTime()-ref.getTime())/(7*86400000));if(dw%rt.weekInterval!==0)return false}return true})}
+function getRecurringForDate(ds){const rts=data.recurringTasks||[];if(!rts.length)return[];const d=new Date(ds+'T00:00:00'),wd=d.getDay();return rts.filter(rt=>{if(rt.active===false)return false;
+  // 月度任务
+  if(rt.freqType==='monthly'){
+    const md=rt.monthDay||1, adv=rt.advanceDays||0;
+    if(rt.startMonth){const sm=rt.startMonth+'-01T00:00:00';if(d.getTime()<new Date(sm).getTime())return false;}
+    // 目标日 = 每月 md 号；提醒日 = 目标日前 adv 天（含当天）
+    const day=d.getDate();
+    if(adv===0) return day===md;
+    // 计算本月目标日的完整日期，再回退 adv 天，判断 d 是否落在 [目标日-adv, 目标日] 区间
+    const target=new Date(d.getFullYear(),d.getMonth(),md);
+    const start=new Date(target.getTime()-adv*86400000);
+    return d.getTime()>=start.getTime()&&d.getTime()<=target.getTime();
+  }
+  // 周度任务
+  if(rt.weekday!==wd)return false;
+  if(rt.weekInterval&&rt.weekInterval>1&&rt.refDate){const ref=new Date(rt.refDate+'T00:00:00'),dw=Math.floor((d.getTime()-ref.getTime())/(7*86400000));if(dw%rt.weekInterval!==0)return false}
+  return true;
+})}
 
 // ===== DAY TASK POPOVER =====
 function openDayPopover(event, ds) {
