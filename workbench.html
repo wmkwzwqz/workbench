@@ -178,31 +178,21 @@
   .sop-header h2 { font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
   .sop-header .sop-count { font-size: 12px; color: var(--text-muted); font-weight: 400; }
 
-  /* SOP Cards - Notion style */
-  .sop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+  /* SOP Cards - compact title-only, two-column */
+  .sop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
   .sop-card {
-    background: var(--white); border-radius: var(--radius); padding: 18px;
+    background: var(--white); border-radius: var(--radius); padding: 10px 13px;
     box-shadow: var(--shadow-card); border: 1px solid rgba(0,0,0,0.04);
     cursor: pointer; transition: var(--transition); position: relative;
-    display: flex; flex-direction: column; min-height: 130px;
+    display: flex; align-items: center; min-height: 0;
   }
   .sop-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
-  .sop-card .sop-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
-  .sop-card .sop-icon { font-size: 28px; line-height: 1; }
-  .sop-card .sop-cat-badge { font-size: 10px; padding: 3px 10px; border-radius: 10px; font-weight: 500; }
-  .sop-card .sop-title { font-size: 15px; font-weight: 600; line-height: 1.4; margin-bottom: 8px; color: var(--text); }
-  .sop-card .sop-preview { font-size: 12px; color: var(--text-light); line-height: 1.8; flex: 1; white-space: pre-wrap; }
-  .sop-card .sop-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 10px; }
-  .sop-card .sop-tag { font-size: 10px; padding: 2px 8px; border-radius: 8px; background: var(--cream); color: var(--text-muted); }
-  .sop-card .sop-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.04); }
-  .sop-card .sop-contacts { font-size: 10px; color: var(--text-muted); }
-  .sop-card .sop-arrow { font-size: 14px; color: var(--text-muted); transition: var(--transition); }
-  .sop-card:hover .sop-arrow { transform: translateX(3px); color: var(--pink-accent); }
+  .sop-card .sop-title { font-size: 14px; font-weight: 600; line-height: 1.35; color: var(--text); flex: 1; padding-right: 18px; }
 
   /* Drag & Drop */
   .sop-card.dragging { opacity: 0.4; transform: scale(0.95); }
   .sop-card.drag-over { border: 2px dashed var(--pink-accent); background: linear-gradient(135deg,#FFFAFB,#FFF5F7); }
-  .sop-card .drag-handle { position: absolute; top: 10px; right: 10px; font-size: 14px; color: var(--text-muted); cursor: grab; opacity: 0; transition: var(--transition); user-select: none; }
+  .sop-card .drag-handle { position: absolute; top: 50%; right: 8px; transform: translateY(-50%); font-size: 13px; color: var(--text-muted); cursor: grab; opacity: 0; transition: var(--transition); user-select: none; }
   .sop-card:hover .drag-handle { opacity: 0.6; }
   .sop-card .drag-handle:active { cursor: grabbing; opacity: 1; }
 
@@ -642,7 +632,7 @@ let currentSOPId = null;
 const WEEKDAY_NAMES = ['一','二','三','四','五','六','日'];
 const FULL_WEEKDAY_NAMES = ['周日','周一','周二','周三','周四','周五','周六'];
 const CARD_CAT_NAMES = {admin:'行政',research:'科研',teaching:'教学',learning:'学习',other:'其他'};
-const CARD_ICONS = {admin:'A',research:'R',teaching:'T',learning:'L',other:'O'};
+const CARD_ICONS = {admin:'行',research:'科',teaching:'教',learning:'学',other:'其'};
 const CARD_THEMES = {admin:'theme-pink',research:'theme-blue',teaching:'theme-green',learning:'theme-yellow',other:'theme-purple'};
 
 
@@ -1259,11 +1249,9 @@ function renderSOP() {
 
   el.innerHTML = filtered.map((c, i) => {
     const theme = CARD_THEMES[c.category] || 'theme-pink';
-    const preview = (c.process || c.notes || '').split('\n').slice(0, 3).join('\n');
     return `<div class="sop-card ${theme}" draggable="true" data-card-id="${c.id}" ondragstart="onDragStart(event)" ondragend="onDragEnd(event)" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)" onclick="openSOPDetail('${c.id}')">
       <span class="drag-handle" title="拖拽排序" onclick="event.stopPropagation()" onmousedown="startDragFromHandle(event)">≡</span>
       <div class="sop-title">${c.title}</div>
-      <div class="sop-preview">${preview}</div>
     </div>`;
   }).join('');
 }
